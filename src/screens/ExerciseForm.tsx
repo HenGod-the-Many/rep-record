@@ -1,0 +1,95 @@
+import { useEffect, useState } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db, type ExerciseKind } from '../db/db';
+import { createExercise, muscleGroups, setArchived, updateExercise } from '../db/exercises';
+import { navigate } from '../router';
+import { attempt, ErrorText, Header } from './common';
+import { KIND_LABEL } from '../format';
+
+const EQUIPMENT = ['Barbell', 'Dumbbell', 'Machine', 'Cable', 'Bodyweight', 'EZ bar', 'Kettlebell', 'Band'];
+
+export function ExerciseForm({ id }: { id: string | null }) {
+  const existing = useLiveQuery(() => (id ? db.exercises.get(id) : undefined), [id]);
+  const groups = useLiveQuery(() => muscleGroups(db), []) ?? [];
+  const [name, setName] = useState('');
+  const [muscleGroup, setMuscleGroup] = useState('');
+  const [equipment, setEquipment] = useState('');
+  const [kind, setKind] = useState<ExerciseKind>('weight');
+  const [error, setError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(id === null);
+
+  useEffect(() => {
+    if (existing && !loaded) {
+      setName(existing.name);
+      setMuscleGroup(existing.muscleGroup);
+      setEquipment(existing.equipment);
+      setKind(existing.kind);
+      setLoaded(true);
+    }
+  }, [existing, loaded]);
+
+  if (id && existing === undefined && !loaded) return <div className="screen"><Header title="Exercise" back="/exercises" /></div>;
+
+  const save = async () => {
+    const input = { name, muscleGroup, equipment, kind };
+    const ok = await attempt(() => (id ? updateExercise(db, id, input) : createExercise(db, input)), setError);
+    if (ok) navigate('/exercises');
+  };
+
+  const toggleArchive = async () => {
+    if (!id || !existing) return;
+    await setArchived(db, id, !existing.archived);
+    navigate('/exercises');
+  };
+
+  return (
+    <div className="screen">
+      <Header title={id ? 'Edit exercise' : 'New exercise'} back="/exercises" />
+      {existing?.archived && <p className="banner">This exercise is archived. It is hidden from lists and pickers.</p>}
+      <label className="field">
+        <span>Name</span>
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Bench press" />
+      </label>
+      <label className="field">
+        <span>Muscle group</span>
+        <input list="muscle-groups" value={muscleGroup} onChange={(e) => setMuscleGroup(e.target.value)} />
+        <datalist id="muscle-groups">
+          {groups.map((g) => (
+            <option key={g} value={g} />
+          ))}
+        </datalist>
+      </label>
+      <label className="field">
+        <span>Equipment</span>
+        <input list="equipment" value={equipment} onChange={(e) => setEquipment(e.target.value)} />
+        <datalist id="equipment">
+          {EQUIPMENT.map((g) => (
+            <option key={g} value={g} />
+          ))}
+        </datalist>
+      </label>
+      <fieldset className="field">
+        <legend>Measured as</legend>
+        <div className="segmented">
+          {(Object.keys(KIND_LABEL) as ExerciseKind[]).map((k) => (
+            <button key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => setKind(k)}>
+              {KIND_LABEL[k]}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+      <ErrorText message={error} />
+      <button className="btn-primary block" onClick={save}>
+        Save
+      </button>
+      {id && existing && (
+        <button className="btn-secondary block" onClick={toggleArchive}>
+          {existing.archived ? 'Restore exercise' : 'Archive exercise'}
+        </button>
+      )}
+      {id && existing && !existing.archived && (
+        <p className="muted small-print">Archiving hides it but keeps its history. Exercises are never deleted.</p>
+      )}
+    </div>
+  );
+}
