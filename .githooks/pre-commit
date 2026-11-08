@@ -1,0 +1,86 @@
+#!/bin/sh
+# Refuse commits made directly on main or dev.
+#
+# Work happens on feature/, fix/ and hotfix/ branches and reaches main and dev
+# through pull requests. See docs/git-workflow.md.
+#
+# A repo that mixes content and code lists its code folders in
+# .githooks/code-paths. There, main only refuses commits that include code,
+# and everything else commits on main as usual. dev refuses direct commits in
+# every repo.
+#
+# Git runs this only once a clone is pointed at it:
+#   git config core.hooksPath .githooks
+
+branch=$(git symbolic-ref --short -q HEAD) || exit 0   # detached HEAD: allow
+
+case "$branch" in
+  main|dev) ;;
+  *) exit 0 ;;
+esac
+
+# A repo's very first commit has nowhere to go but main.
+git rev-parse -q --verify HEAD >/dev/null || exit 0
+
+# Finishing a merge whose conflicts were resolved by hand.
+[ -f "$(git rev-parse --git-path MERGE_HEAD)" ] && exit 0
+
+code_paths="$(git rev-parse --show-toplevel)/.githooks/code-paths"
+
+if [ "$branch" = main ] && [ -f "$code_paths" ]; then
+  code_files=$(git -c core.quotePath=false diff --cached --name-only --no-renames |
+    while IFS= read -r file; do
+      tr -d '\r' < "$code_paths" | while read -r prefix; do
+        prefix=${prefix#./}
+        prefix=${prefix%/}
+        case "$prefix" in ''|'#'*) continue ;; esac
+        case "$file" in "$prefix"|"$prefix"/*) echo "  $file"; break ;; esac
+      done
+    done)
+  [ -z "$code_files" ] && exit 0
+
+  dev_folder=$(git worktree list --porcelain |
+    awk '/^worktree /{path=substr($0, 10)} $0 == "branch refs/heads/dev" {print path}')
+
+  {
+    echo "Commit blocked: code doesn't get committed directly on 'main'."
+    echo "These staged files are in code folders (see .githooks/code-paths):"
+    echo "$code_files"
+    echo "Nothing is lost - your changes are still there."
+    echo
+    echo "Everything outside those folders commits on main as usual. If you"
+    echo "staged other files too, unstage the ones above and commit the rest:"
+    echo "  git restore --staged <file>..."
+    echo
+    echo "Code changes go on a feature/ branch from dev, through a pull request."
+    if [ -n "$dev_folder" ]; then
+      echo "dev is checked out in: $dev_folder"
+      echo "Carry the change over with 'git stash' here and 'git stash pop' there."
+    else
+      echo "  git switch -c feature/<name> dev    (your changes come along)"
+    fi
+    echo
+    echo "See docs/git-workflow.md. (git commit --no-verify skips this check.)"
+  } >&2
+  exit 1
+fi
+
+{
+  echo "Commit blocked: '$branch' doesn't take direct commits."
+  echo "Nothing is lost - your changes are still there."
+  echo
+  if [ "$branch" = dev ]; then
+    echo "Move them to a branch (they come along) and commit there:"
+    echo "  git switch -c feature/<name>    new work"
+    echo "  git switch -c fix/<name>        a bug in unreleased work"
+  else
+    echo "Fixing a bug in a release? Move them to a hotfix branch:"
+    echo "  git switch -c hotfix/<name>"
+    echo "New work belongs on dev instead:"
+    echo "  git switch dev"
+    echo "  git switch -c feature/<name>"
+  fi
+  echo
+  echo "See docs/git-workflow.md. (git commit --no-verify skips this check.)"
+} >&2
+exit 1
