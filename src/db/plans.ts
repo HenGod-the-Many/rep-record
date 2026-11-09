@@ -70,7 +70,11 @@ export async function duplicatePlan(db: WorkoutDB, planId: string): Promise<stri
     const plan = await db.plans.get(planId);
     if (!plan) throw new ValidationError('That plan no longer exists.');
     const copyId = newId();
-    await db.plans.add({ id: copyId, name: `${plan.name} (copy)`, notes: plan.notes });
+    const taken = new Set((await db.plans.toArray()).map((p) => p.name));
+    const base = `${plan.name.replace(/ \(copy(?: \d+)?\)$/, '')} (copy)`;
+    let name = base;
+    for (let n = 2; taken.has(name); n++) name = `${base.slice(0, -1)} ${n})`;
+    await db.plans.add({ id: copyId, name, notes: plan.notes });
     for (const e of await getEntries(db, planId)) {
       await db.planExercises.add({ ...e, id: newId(), planId: copyId, alternateIds: [...e.alternateIds] });
     }

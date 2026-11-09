@@ -10,7 +10,9 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt' + never calling updateSW: a new version waits until the app is
+      // fully closed, so a deploy never reloads the page mid-workout.
+      registerType: 'prompt',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Workout Journal',

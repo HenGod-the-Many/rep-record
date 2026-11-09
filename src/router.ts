@@ -12,7 +12,14 @@ export interface Route {
 function parse(hash: string): Route {
   const raw = hash.replace(/^#\/?/, '');
   const [path, qs = ''] = raw.split('?');
-  return { parts: path.split('/').filter(Boolean).map(decodeURIComponent), query: new URLSearchParams(qs) };
+  const decode = (s: string) => {
+    try {
+      return decodeURIComponent(s);
+    } catch {
+      return s; // malformed %-escape: use it as typed rather than crash
+    }
+  };
+  return { parts: path.split('/').filter(Boolean).map(decode), query: new URLSearchParams(qs) };
 }
 
 function subscribe(cb: () => void) {

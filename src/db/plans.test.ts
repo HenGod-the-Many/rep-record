@@ -95,6 +95,16 @@ describe('duplicating a plan (R-02.3)', () => {
     expect((await getEntries(db, push))[0]).toMatchObject({ targetSets: 4, repMin: 6, repMax: 8 });
   });
 
+  it('gives repeated copies distinct names', async () => {
+    const db = await freshDb();
+    const push = await planId(db, 'Push');
+    const a = await duplicatePlan(db, push);
+    const b = await duplicatePlan(db, push);
+    const c = await duplicatePlan(db, a);
+    const names = await Promise.all([a, b, c].map(async (id) => (await db.plans.get(id))?.name));
+    expect(names).toEqual(['Push (copy)', 'Push (copy 2)', 'Push (copy 3)']);
+  });
+
   it('copies alternates without sharing the list', async () => {
     const db = await freshDb();
     const legs = await planId(db, 'Legs & Abs');

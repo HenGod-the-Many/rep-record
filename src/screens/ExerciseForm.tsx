@@ -9,7 +9,8 @@ import { KIND_LABEL } from '../format';
 const EQUIPMENT = ['Barbell', 'Dumbbell', 'Machine', 'Cable', 'Bodyweight', 'EZ bar', 'Kettlebell', 'Band'];
 
 export function ExerciseForm({ id }: { id: string | null }) {
-  const existing = useLiveQuery(() => (id ? db.exercises.get(id) : undefined), [id]);
+  // null = looked up and not found; undefined = still loading.
+  const existing = useLiveQuery(async () => (id ? ((await db.exercises.get(id)) ?? null) : null), [id]);
   const groups = useLiveQuery(() => muscleGroups(db), []) ?? [];
   const [name, setName] = useState('');
   const [muscleGroup, setMuscleGroup] = useState('');
@@ -28,7 +29,15 @@ export function ExerciseForm({ id }: { id: string | null }) {
     }
   }, [existing, loaded]);
 
-  if (id && existing === undefined && !loaded) return <div className="screen"><Header title="Exercise" back="/exercises" /></div>;
+  if (id && existing === undefined) return <div className="screen"><Header title="Exercise" back="/exercises" /></div>;
+  if (id && existing === null) {
+    return (
+      <div className="screen">
+        <Header title="Exercise" back="/exercises" />
+        <p className="muted">This exercise no longer exists.</p>
+      </div>
+    );
+  }
 
   const save = async () => {
     const input = { name, muscleGroup, equipment, kind };

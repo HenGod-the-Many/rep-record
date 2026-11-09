@@ -3,7 +3,7 @@
  * so fall back to getRandomValues when testing over plain http on the LAN.
  */
 export function newId(): string {
-  if (typeof crypto.randomUUID === 'function' && globalThis.isSecureContext !== false) {
+  if (typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
   }
   const b = crypto.getRandomValues(new Uint8Array(16));

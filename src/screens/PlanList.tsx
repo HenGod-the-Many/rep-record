@@ -7,9 +7,10 @@ import { attempt, ErrorText, Header } from './common';
 
 export function PlanList() {
   const plans = useLiveQuery(async () => {
-    const list = await listPlans(db);
-    const counts = await Promise.all(list.map((p) => db.planExercises.where('planId').equals(p.id).count()));
-    return list.map((p, i) => ({ ...p, count: counts[i] }));
+    const [list, entries] = await Promise.all([listPlans(db), db.planExercises.toArray()]);
+    const counts = new Map<string, number>();
+    for (const e of entries) counts.set(e.planId, (counts.get(e.planId) ?? 0) + 1);
+    return list.map((p) => ({ ...p, count: counts.get(p.id) ?? 0 }));
   }, []);
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);

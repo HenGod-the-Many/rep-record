@@ -16,6 +16,8 @@ Key function (KF-nn)    what the user needs to do, in the owner's words
 **Priority:** must, should, could or later. Must means the project is pointless
 without it.
 
+Evidence screenshots are numbered files in `docs/evidence/foundation/`.
+
 **Method:** Test (automated, fails if broken), Demonstration (run it; screenshot
 or output), Inspection (read code/files against the requirement), Analysis
 (measurement or reasoning against a threshold).
@@ -46,10 +48,10 @@ written only by Taylor.
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-01.1 On first launch the library holds every exercise named in the brief's five plans, once each; "A or B" entries become two separate exercises | must | Test | W-01 | planned | |
-| R-01.2 You can create and edit an exercise's name, muscle group, equipment and kind (weight × reps, bodyweight reps, or timed) | must | Test, Demonstration | W-03 | planned | |
-| R-01.3 Archiving an exercise hides it from pickers but keeps it and its history; it can be restored; there is no delete | must | Test | W-03 | planned | |
-| R-01.4 Two exercises cannot have the same name (ignoring case and surrounding spaces) | should | Test | W-03 | planned | |
+| R-01.1 On first launch the library holds every exercise named in the brief's five plans, once each; "A or B" entries become two separate exercises | must | Test | W-01 | verified | seed.test.ts "library holds every exercise…"; reviewer: met |
+| R-01.2 You can create and edit an exercise's name, muscle group, equipment and kind (weight × reps, bodyweight reps, or timed) | must | Test, Demonstration | W-03 | verified | exercises.test.ts create/edit; evidence 2, 8; reviewer: met |
+| R-01.3 Archiving an exercise hides it from pickers but keeps it and its history; it can be restored; there is no delete | must | Test | W-03 | verified | exercises.test.ts archiving; evidence 9, 10; reviewer: met |
+| R-01.4 Two exercises cannot have the same name (ignoring case and surrounding spaces) | should | Test | W-03 | verified | exercises.test.ts unique names; evidence 2; reviewer: met |
 
 ## KF-02 Build reusable workout plans
 
@@ -57,10 +59,10 @@ written only by Taylor.
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-02.1 A plan is an ordered list of exercises, each with target sets and a rep range (a seconds range for timed exercises); you can add, remove and reorder them | must | Test, Demonstration | W-04 | planned | |
-| R-02.2 On first launch the five plans from the brief exist with the brief's exercises, order and targets | must | Test | W-01 | planned | |
-| R-02.3 Duplicating a plan makes an independent copy: editing the copy does not change the original | must | Test | W-04 | planned | |
-| R-02.4 A plan entry can list alternate exercises (seeded for the brief's "A or B" entries) | should | Test | W-04 | planned | |
+| R-02.1 A plan is an ordered list of exercises, each with target sets and a rep range (a seconds range for timed exercises); you can add, remove and reorder them | must | Test, Demonstration | W-04 | verified | plans.test.ts plan builder (strict reorder); evidence 3, 6; reviewer: met |
+| R-02.2 On first launch the five plans from the brief exist with the brief's exercises, order and targets | must | Test | W-01 | verified | seed.test.ts "five plans match the brief"; reviewer: met |
+| R-02.3 Duplicating a plan makes an independent copy: editing the copy does not change the original | must | Test | W-04 | verified | plans.test.ts duplicating; reviewer: met |
+| R-02.4 A plan entry can list alternate exercises (seeded for the brief's "A or B" entries) | should | Test | W-04 | verified | plans.test.ts alternates; evidence 6; reviewer: met |
 
 ## KF-03 Build a split that repeats on a cycle and schedule it on my calendar
 
@@ -69,7 +71,7 @@ written only by Taylor.
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
 | R-03.1 A split has a cycle length (in days, entered as days or weeks) and one slot per day, each a plan or rest; several splits can exist | must | Test | W-05 | planned | |
-| R-03.2 On first launch the default split exists: 7-day cycle, Push, Pull, Legs & Abs, Rest, Chest/Back/Arms, Shoulders & Legs, Rest | must | Test | W-01 | planned | |
+| R-03.2 On first launch the default split exists: 7-day cycle, Push, Pull, Legs & Abs, Rest, Chest/Back/Arms, Shoulders & Legs, Rest | must | Test | W-01 | verified | seed.test.ts default split; reviewer: met |
 | R-03.3 You can schedule a split from a start date for a length (days or weeks); every date in that range shows its planned workout or rest, and dates outside it show nothing | must | Test | W-05 | planned | |
 | R-03.4 Today's planned workout follows the calendar: a missed day does not shift later days | must | Test | W-05 | planned | |
 | R-03.5 Where two schedules overlap, the most recently created one decides the date | should | Test | W-05 | planned | |
@@ -79,7 +81,7 @@ written only by Taylor.
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
 | R-04.1 You can override a single date with a different plan or rest without changing the split | must | Test | W-05 | planned | |
-| R-04.2 You can permanently replace an exercise in a plan; the old exercise's past history is unchanged | must | Test | W-04 | planned | |
+| R-04.2 You can permanently replace an exercise in a plan; the old exercise's past history is unchanged | must | Test | W-04 | verified | plans.test.ts permanent swap; evidence 5; reviewer: met |
 | R-04.3 During a session you can swap an exercise for that session only; its sets are logged against the substitute and the plan is unchanged | must | Test | W-06 | planned | |
 
 ## KF-05 Log every set quickly at the gym, pre-filled from last time

@@ -6,6 +6,7 @@ import { db } from './db/db';
 import { ensureSeeded } from './db/seed';
 import './styles.css';
 
+// New versions install in the background and take over on the next full app launch.
 registerSW({ immediate: true });
 
 // Ask Safari/Chrome not to evict our data under storage pressure.

@@ -12,3 +12,14 @@ Newest first.
   and decision 0001. Requirements are still awaiting Taylor's approval.
 - Taylor said "Yes, start" to building brief steps 1–2, so W-01, W-03 and W-04
   are being built on `feature/foundation` ahead of formal approval.
+- Built W-01, W-03, W-04. `npm run check`: 26 tests pass. Proved checks can
+  fail: a changed seed value and a half-broken reorder each failed their test.
+- acceptance-reviewer: all 10 in-scope requirements met; asked for a stricter
+  reorder test (old one passed 5 of 6 runs with a real bug) and screenshots of
+  3 more screens. Both done.
+- /code-review: 6 findings, all fixed. The important one: the offline worker
+  was set to reload the page by itself when a new version deployed; now a new
+  version waits until the app is fully closed.
+- Lesson: when re-testing a built PWA in the browser, a hash-only URL change
+  does not reload the page, so the old bundle kept running. Reload for real.
+- Not pushed yet: waiting for Taylor's OK to push and open the pull request.
