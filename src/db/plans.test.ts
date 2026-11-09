@@ -38,10 +38,18 @@ describe('plan builder (R-02.1)', () => {
     const db = await freshDb();
     const pid = await planId(db, 'Push');
     const entries = await getEntries(db, pid);
+    const orders = async () => (await getEntries(db, pid)).map((e) => e.order);
     await moveEntry(db, entries[2].id, -1); // Machine fly up
+    expect(await orders()).toEqual([0, 1, 2, 3, 4, 5]); // no shared positions
+    expect((await db.planExercises.get(entries[2].id))?.order).toBe(1);
+    expect((await db.planExercises.get(entries[1].id))?.order).toBe(2);
     expect((await namesIn(db, pid)).slice(0, 3)).toEqual(['Bench press', 'Machine fly', 'Incline dumbbell press']);
+    await moveEntry(db, entries[2].id, 1); // and back down
+    expect(await orders()).toEqual([0, 1, 2, 3, 4, 5]);
+    expect((await db.planExercises.get(entries[2].id))?.order).toBe(2);
     await moveEntry(db, entries[0].id, -1); // already first
     await moveEntry(db, entries[5].id, 1); // already last
+    expect(await orders()).toEqual([0, 1, 2, 3, 4, 5]);
     expect((await namesIn(db, pid))[0]).toBe('Bench press');
     expect((await namesIn(db, pid))[5]).toBe('Rope tricep extensions');
   });
