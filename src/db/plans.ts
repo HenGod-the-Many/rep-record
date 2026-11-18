@@ -1,4 +1,4 @@
-import type { PlanExercise, WorkoutDB } from './db';
+import type { PlanExercise, PlannedWorkout, WorkoutDB } from './db';
 import { ValidationError } from './errors';
 import { newId } from './ids';
 
@@ -28,7 +28,7 @@ function cleanName(name: string): string {
 }
 
 export async function listPlans(db: WorkoutDB) {
-  return (await db.plans.toArray()).sort((a, b) => a.name.localeCompare(b.name));
+  return (await db.plans.filter((p) => !p.hidden).toArray()).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /** A plan's entries in order. */
@@ -53,13 +53,17 @@ export async function setPlanNotes(db: WorkoutDB, planId: string, notes: string)
 /**
  * Delete a plan and its entries. Logged sets are untouched (they belong to
  * exercises; sessions keep a snapshot of the plan's name). Split days that
- * used the plan become rest days.
+ * used the plan lose it (a day left with no workouts is a rest day); hand-made
+ * date changes lose it the same way.
  */
 export async function deletePlan(db: WorkoutDB, planId: string): Promise<void> {
   await db.transaction('rw', [db.plans, db.planExercises, db.splitDays, db.dateOverrides], async () => {
     await db.planExercises.where('planId').equals(planId).delete();
-    await db.splitDays.filter((d) => d.planId === planId).modify({ planId: null });
-    await db.dateOverrides.filter((d) => d.planId === planId).delete();
+    const without = (w: { workouts: PlannedWorkout[] }) => {
+      w.workouts = w.workouts.filter((x) => x.planId !== planId);
+    };
+    await db.splitDays.filter((d) => d.workouts.some((x) => x.planId === planId)).modify(without);
+    await db.dateOverrides.filter((d) => d.workouts.some((x) => x.planId === planId)).modify(without);
     await db.plans.delete(planId);
   });
 }

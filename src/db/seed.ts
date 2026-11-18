@@ -3,6 +3,8 @@ import { newId } from './ids';
 import { SEED_EXERCISES, SEED_PLANS, SEED_SPLIT } from './seedData';
 
 const SEEDED_KEY = 'seeded';
+/** Time given to seeded and newly added workouts until the user picks one. */
+export const DEFAULT_TIME = 'morning';
 
 /**
  * Load the brief's seed data the first time the app runs. Safe to call on
@@ -55,11 +57,17 @@ export async function ensureSeeded(db: WorkoutDB): Promise<boolean> {
         const planName = SEED_SPLIT.days[i];
         const planId = planName === null ? null : planIds.get(planName);
         if (planId === undefined) throw new Error(`Seed split refers to unknown plan "${planName}"`);
-        await db.splitDays.add({ id: newId(), splitId, dayIndex: i, planId });
+        await db.splitDays.add({
+          id: newId(),
+          splitId,
+          dayIndex: i,
+          workouts: planId === null ? [] : [{ planId, time: DEFAULT_TIME }],
+        });
       }
 
       await db.settings.put({ key: SEEDED_KEY, value: true });
       await db.settings.put({ key: 'unit', value: 'lb' });
+      await db.settings.put({ key: 'weekStart', value: 1 });
       return true;
     },
   );

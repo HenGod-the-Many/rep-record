@@ -168,8 +168,8 @@ describe('deleting a plan', () => {
     await deletePlan(db, push);
     expect(await db.plans.get(push)).toBeUndefined();
     expect(await db.planExercises.where('planId').equals(push).count()).toBe(0);
-    expect(await db.splitDays.filter((d) => d.planId === push).count()).toBe(0);
-    expect((await db.splitDays.filter((d) => d.dayIndex === 0).first())?.planId).toBeNull();
+    expect(await db.splitDays.filter((d) => d.workouts.some((w) => w.planId === push)).count()).toBe(0);
+    expect((await db.splitDays.filter((d) => d.dayIndex === 0).first())?.workouts).toEqual([]);
     expect(await db.setLogs.get('keep')).toBeDefined();
   });
 });

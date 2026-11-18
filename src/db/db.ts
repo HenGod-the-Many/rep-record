@@ -17,6 +17,13 @@ export interface Plan {
   id: string;
   name: string;
   notes: string;
+  /**
+   * Set on a one-date copy of a plan (made when one date's workout is edited).
+   * Hidden copies are not listed with the user's plans.
+   */
+  hidden?: boolean;
+  /** For a one-date copy: the plan it was copied from. */
+  sourcePlanId?: string | null;
 }
 
 /** One exercise slot in a plan. For timed exercises repMin/repMax are seconds. */
@@ -41,13 +48,22 @@ export interface Split {
   cycleDays: number;
 }
 
+/** When in the day a workout is planned: a named part of the day or a clock time "HH:MM". */
+export type WorkoutTime = 'morning' | 'noon' | 'evening' | 'night' | string;
+
+/** One workout planned on a day. */
+export interface PlannedWorkout {
+  planId: string;
+  time: WorkoutTime;
+}
+
 export interface SplitDay {
   id: string;
   splitId: string;
   /** 0 .. cycleDays-1 */
   dayIndex: number;
-  /** null = rest day */
-  planId: string | null;
+  /** Empty = rest day. */
+  workouts: PlannedWorkout[];
 }
 
 /** A split placed on the calendar from startDate for lengthDays. */
@@ -58,12 +74,14 @@ export interface Schedule {
   startDate: string;
   lengthDays: number;
   createdAt: number;
+  /** Cycle position of startDate (0 = day 1). Lets a moved schedule continue its sequence. */
+  offset: number;
 }
 
-/** A one-date change to the schedule. planId null = rest. */
+/** A hand-made change to one date. Empty workouts = rest. */
 export interface DateOverride {
   date: string;
-  planId: string | null;
+  workouts: PlannedWorkout[];
 }
 
 export interface Session {
@@ -135,6 +153,33 @@ export class WorkoutDB extends Dexie {
       dayNotes: 'date',
       settings: 'key',
     });
+    // v2: several timed workouts per day, schedule offsets (W-05/W-14).
+    this.version(2)
+      .stores({})
+      .upgrade(async (tx) => {
+        const toWorkouts = (planId: string | null | undefined): PlannedWorkout[] =>
+          planId ? [{ planId, time: 'morning' }] : [];
+        await tx
+          .table('splitDays')
+          .toCollection()
+          .modify((d: SplitDay & { planId?: string | null }) => {
+            d.workouts = toWorkouts(d.planId);
+            delete d.planId;
+          });
+        await tx
+          .table('dateOverrides')
+          .toCollection()
+          .modify((d: DateOverride & { planId?: string | null }) => {
+            d.workouts = toWorkouts(d.planId);
+            delete d.planId;
+          });
+        await tx
+          .table('schedules')
+          .toCollection()
+          .modify((s: Schedule) => {
+            if (typeof s.offset !== 'number') s.offset = 0;
+          });
+      });
   }
 }
 

@@ -82,7 +82,7 @@ describe('seed data (R-01.1, R-02.2, R-03.2)', () => {
       (a, b) => a.dayIndex - b.dayIndex,
     );
     const planName = new Map((await db.plans.toArray()).map((p) => [p.id, p.name]));
-    const actual = days.map((d) => (d.planId === null ? 'Rest' : planName.get(d.planId)));
+    const actual = days.map((d) => (d.workouts.length === 0 ? 'Rest' : d.workouts.map((w) => planName.get(w.planId)).join(' + ')));
     const expected = BRIEF_SPLIT.split(' | ').map((d) => d.replace(/^\w+: /, ''));
     expect(actual).toEqual(expected);
   });
