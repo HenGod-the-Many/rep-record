@@ -1,4 +1,4 @@
-# Verification plan for Workout Journal
+# Verification plan for Rep Record
 
 How a function goes from a requirement to something Taylor can use, what proves
 it works, and what happens when it does not. The requirements are in
@@ -84,9 +84,9 @@ The skeleton plus the library and plan builder, deployed so the storage spike
 - **Evidence expected:** `npm run check` output, screenshots, reviewer verdict.
 - **Way back:** previous tag (v0.1.0); data export before upgrading.
 
-### Release 2: you can now see your progress and keep a journal
+### Release 2: you can now see your progress, track your body and keep a journal
 
-- **Requirements:** all KF-06 and KF-07 requirements
+- **Requirements:** all KF-06, KF-07, KF-10 and KF-11 requirements
 - **Acceptance script.**
   1. Open Bench press history after logging it from two different plans. One
      list should show both sessions' sets with dates.
@@ -94,7 +94,28 @@ The skeleton plus the library and plan builder, deployed so the storage spike
   3. The chart should show one point per session.
   4. Add a note to today's workout and a day note with energy 4, sleep 3. Both
      should be there after reopening the app.
+  5. Enter your height, then log bodyweight on 3 different days over a week,
+     skipping some days. The chart should show the 3 real entries and a
+     smoother 7-day average line, with no made-up points on skipped days.
+  6. In Settings switch on Waist and Body fat %, and add a custom metric
+     "Resting HR" in bpm. Log one value of each; each should appear with its
+     own history. Switch Waist off: it disappears; switch it on again and the
+     value is still there.
+  7. Switch on progress photos, add one photo. It should show under today's
+     date. Export: the file should include it (the file gets bigger).
+  8. Open Stats. Hide the "Recent PRs" card and move "Bodyweight" to the top.
+     Close and reopen the app: the layout should be as you left it.
+  9. Switch to kg: bodyweight shows in kg and measurements in cm.
+- **Evidence expected:** `npm run check` output, phone-size screenshots of the
+  bodyweight chart, metrics settings and Stats screen, reviewer verdict.
 - **Way back:** previous tag; export first.
+
+### Spike W-13: can Apple Health data reach the app?
+
+Not a release. The result decides whether KF-12 gets requirements. Test on
+Taylor's iPhone: (a) an iOS Shortcut that reads the latest heart rate and steps
+and opens the app with them; (b) importing the Health export file. Report what
+worked, how many taps it took, and what it can't do.
 
 ### Release 3: you can now see the training tips, and the app is polished
 

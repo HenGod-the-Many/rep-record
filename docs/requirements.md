@@ -1,8 +1,10 @@
-# What Workout Journal has to do, and what proves it does
+# What Rep Record has to do, and what proves it does
 
-Status: draft. Written 2026-11-08 from Taylor's brief ("Workout Planner, Journal &
-Log: Project Brief") and Taylor's answers in the first Claude Code session.
-Awaiting Taylor's approval.
+Status: draft, revision 2. Written 2026-11-08 from Taylor's brief ("Workout
+Planner, Journal & Log: Project Brief") and Taylor's answers in the first Claude
+Code session. Revised 2026-11-18: the app is now Rep Record, and Taylor
+confirmed KF-01 to KF-09 and added body metrics (KF-10), a stats overview
+(KF-11) and an Apple Health goal (KF-12). Awaiting Taylor's approval.
 
 Four levels, each traceable to the next:
 
@@ -39,6 +41,9 @@ written only by Taylor.
 | KF-07 | Keep a journal per workout and per day | should | 2 | planned |
 | KF-08 | Use it on my iPhone with bad gym wifi without losing my data | must | 1 | planned |
 | KF-09 | See the training tips | could | 3 | planned |
+| KF-10 | Track my bodyweight, height and whichever other body metrics I choose | should | 2 | planned |
+| KF-11 | See an overview of my body, gym and workout stats, with the cards I pick | should | 2 | planned |
+| KF-12 | Pull heart rate and other health data from Apple Health | later | — | planned |
 
 ---
 
@@ -125,7 +130,41 @@ written only by Taylor.
 |---|---|---|---|---|---|
 | R-09.1 The four training tips from the brief are visible in the app | could | Demonstration | W-10 | planned | |
 
-Totals: 23 must, 8 should, 1 could.
+## KF-10 Track my bodyweight, height and whichever other body metrics I choose
+
+*Taylor, 2026-11-18: bodyweight and height are the defaults; every other metric
+is optional and the user chooses what to see. Entries come as often as the user
+makes them; show the real data and a rolling average.*
+
+| Requirement | Priority | Method | Item | Status | Evidence |
+|---|---|---|---|---|---|
+| R-10.1 You can log bodyweight with a date (several days, any gaps); entries can be edited and deleted | should | Test | W-11 | planned | |
+| R-10.2 You can record height; it is kept as the current value and used wherever height is needed | should | Test | W-11 | planned | |
+| R-10.3 A bodyweight chart shows every real entry and a 7-day rolling average, where the average for a date uses only entries from that date and the 6 days before it; a gap in entries leaves a gap, not an invented value | should | Test, Demonstration | W-11 | planned | |
+| R-10.4 In Settings you can switch on optional metrics: body measurements (waist, chest, hips, upper arm, thigh, neck, calf), body fat %, progress photos, and custom metrics you name with a unit; switched-off metrics are hidden but their data is kept | should | Test | W-11 | planned | |
+| R-10.5 Each switched-on numeric metric can be logged by date and shows its own history and chart | should | Test | W-11 | planned | |
+| R-10.6 Progress photos are taken or picked on the phone, stored only on the phone, shown by date, and included in the export | could | Test, Demonstration | W-11 | planned | |
+| R-10.7 Bodyweight and measurements store in pounds and inches and display in kg and cm when the unit setting is metric | should | Test | W-11 | planned | |
+
+## KF-11 See an overview of my body, gym and workout stats, with the cards I pick
+
+| Requirement | Priority | Method | Item | Status | Evidence |
+|---|---|---|---|---|---|
+| R-11.1 A Stats screen shows cards; available cards include current bodyweight and its 7-day average, workouts this week and this month, total sets and volume this week, recent PRs, and the latest value of each switched-on metric | should | Test, Demonstration | W-12 | planned | |
+| R-11.2 You can choose which cards appear and their order; the choice is kept | should | Test | W-12 | planned | |
+
+## KF-12 Pull heart rate and other health data from Apple Health
+
+*A goal for later. A web app cannot read Apple Health directly. The candidate
+routes are an iOS Shortcut that reads Health data and hands it to the app, or
+importing the file Health exports. W-13 is a spike to find out which works on
+Taylor's phone before any requirement is written.*
+
+| Requirement | Priority | Method | Item | Status | Evidence |
+|---|---|---|---|---|---|
+| R-12.1 To be written after the W-13 spike | later | — | W-13 | planned | |
+
+Totals: 23 must, 16 should, 2 could, 1 later.
 
 ## Riskiest assumption
 
@@ -137,6 +176,7 @@ plan needs a backup or sync design. Tested by W-02, right after the skeleton.
 ## Out of scope
 
 - Accounts, sign-in, multiple users, cloud sync or cloud backup (JSON export is the backup)
+- Reading Apple Health directly, until the W-13 spike shows a way (KF-12)
 - Nutrition or calorie tracking (the calorie tip is shown as text only)
 - Warm-up set tracking, rest timer, supersets
 - Android-specific testing (it should work, but only iPhone is checked)
@@ -155,3 +195,9 @@ plan needs a backup or sync design. Tested by W-02, right after the skeleton.
    brief's Mon–Sun layout.
 6. **Release 1** (plan, schedule, log, export, install) comes before history,
    PRs and journal.
+7. **Body metrics and the stats overview ship in release 2**, with history and
+   journal (Taylor, 2026-11-18).
+8. **Measurement list:** waist, chest, hips, upper arm, thigh, neck, calf. Others
+   can be added as custom metrics.
+9. **Progress photos** make the export file much larger; the size per photo is
+   measured when W-11 is built.

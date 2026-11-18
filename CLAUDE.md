@@ -1,6 +1,6 @@
-# Workout Journal
+# Rep Record
 
-Phone-first PWA for planning workouts, logging sets and journaling. Single user,
+Phone-first PWA for planning workouts, logging sets, journaling and tracking body metrics. Single user,
 no backend: all data lives in the browser (IndexedDB via Dexie) with JSON
 export/import for backup. Primary device is an iPhone (Safari / home-screen app).
 

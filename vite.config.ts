@@ -2,8 +2,8 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Served from https://<user>.github.io/workout-journal/ on GitHub Pages.
-const base = '/workout-journal/';
+// Served from https://<user>.github.io/rep-record/ on GitHub Pages.
+const base = '/rep-record/';
 
 export default defineConfig({
   base,
@@ -15,9 +15,9 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Workout Journal',
-        short_name: 'Workouts',
-        description: 'Plan workouts, log every set, keep a journal.',
+        name: 'Rep Record',
+        short_name: 'Rep Record',
+        description: 'Plan workouts, log every set, track your body and progress.',
         start_url: base,
         scope: base,
         display: 'standalone',

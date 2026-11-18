@@ -2,6 +2,20 @@
 
 Newest first.
 
+## 2026-11-18: new repo, new name, body metrics added
+
+- Taylor created `HenGod-the-Many/rep-record` and asked to move the project
+  there; the app is now Rep Record (decision 0002). Old repo to be archived.
+- Re-ran kickoff as a revision. Taylor confirmed KF-01 to KF-09 as they were.
+- New: KF-10 body metrics (bodyweight and height by default; measurements,
+  body fat %, photos and custom metrics optional; real entries plus a 7-day
+  rolling average), KF-11 Stats overview with chosen cards, both release 2.
+  KF-12 Apple Health is a later goal; a web app can't read Health directly, so
+  W-13 is a spike first.
+- Taylor widened Claude's permissions in user settings: shell commands and
+  edits no longer prompt; force-push, repo delete and secret reads stay denied,
+  and recursive deletes still ask.
+
 ## 2026-11-08: kickoff and first build
 
 - Taylor handed over the brief and answered: iPhone; lb default with a kg

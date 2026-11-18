@@ -30,6 +30,9 @@ block, and the Awaiting owner list. Requirement status lives in
 | 8 | W-08 | Exercise history, PRs, estimated 1RM, chart | R-06.1–R-06.4 | not yet | W-06 | no | Not ready | |
 | 9 | W-09 | Journal: session notes and day notes | R-07.1, R-07.2 | not yet | W-06 | no | Not ready | |
 | 10 | W-10 | Training tips and polish | R-09.1 | not yet | W-09 | no | Not ready | |
+| 11 | W-11 | Body metrics: bodyweight + rolling average, height, optional measurements, body fat %, photos, custom metrics | R-10.1–R-10.7 | not yet | W-06 | no | Not ready | Added 2026-11-18 |
+| 12 | W-12 | Stats overview with cards you choose | R-11.1, R-11.2 | not yet | W-08, W-11 | no | Not ready | Added 2026-11-18 |
+| 13 | W-13 | Spike: get Apple Health data into the app (Shortcut or Health export) | KF-12 (risk) | not yet | W-02 | yes | Not ready | Later; result only Taylor can observe |
 
 ## Awaiting owner
 
@@ -37,7 +40,7 @@ Newest first.
 
 ### W-01, W-03, W-04: skeleton, exercise library, plan builder
 
-- Delivered in: branch `feature/foundation` (pull request to `dev` once pushed)
+- Delivered in: branch `feature/foundation`, pull request to `dev` on `HenGod-the-Many/rep-record`
 - Result: the app opens with the brief's 37 exercises, 5 plans and default split; exercises can be created, edited, archived and restored; plans can be built, reordered, duplicated, and have exercises replaced or given alternates.
 - Evidence: `npm run check` passes (type-check, 26 tests, build); acceptance-reviewer verdict "accept after fixes", both fixes made (strict reorder test, missing screenshots); `/code-review` found 6 items, all fixed. Screenshots in `docs/evidence/foundation/`.
 - Not verified: anything on a real iPhone or in Safari (that is W-02); offline loading was checked in desktop Chromium only.
