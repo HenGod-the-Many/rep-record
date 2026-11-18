@@ -81,27 +81,27 @@ written only by Taylor.
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-03.1 A split has a cycle length (in days, entered as days or weeks) and one slot per day, each a plan or rest; several splits can exist | must | Test | W-05 | planned | |
+| R-03.1 A split has a cycle length (in days, entered as days or weeks) and one slot per day, each a plan or rest; several splits can exist | must | Test | W-05 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
 | R-03.2 On first launch the default split exists: 7-day cycle, Push, Pull, Legs & Abs, Rest, Chest/Back/Arms, Shoulders & Legs, Rest | must | Test | W-01 | verified | seed.test.ts default split; reviewer: met |
-| R-03.3 You can schedule a split from a start date for a length (days or weeks); every date in that range shows its planned workout or rest, and dates outside it show nothing | must | Test | W-05 | planned | |
-| R-03.4 Today's planned workout follows the calendar: a missed day does not shift later days | must | Test | W-05 | planned | |
-| R-03.5 Where two schedules overlap, the most recently created one decides the date | should | Test | W-05 | planned | |
-| R-03.6 A date can hold more than one workout (e.g. a bike ride in the morning and lifting in the evening), in a split day, an override or a rescheduled day; each has a time: morning, noon, evening or night by default, or a custom clock time | must | Test | W-05 | planned | |
-| R-03.7 The week runs Monday to Sunday by default; Settings can change the first day of the week | should | Test | W-05 | planned | |
+| R-03.3 You can schedule a split from a start date for a length (days or weeks); every date in that range shows its planned workout or rest, and dates outside it show nothing | must | Test | W-05 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
+| R-03.4 Today's planned workout follows the calendar: a missed day does not shift later days | must | Test | W-05 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
+| R-03.5 Where two schedules overlap, the most recently created one decides the date | should | Test | W-05 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
+| R-03.6 A date can hold more than one workout (e.g. a bike ride in the morning and lifting in the evening), in a split day, an override or a rescheduled day; each has a time: morning, noon, evening or night by default, or a custom clock time | must | Test | W-05 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
+| R-03.7 The week runs Monday to Sunday by default; Settings can change the first day of the week | should | Test | W-05 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
 
 ## KF-04 Swap a plan or an exercise when I need to
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-04.1 You can override a single date with a different plan or rest without changing the split | must | Test | W-05 | planned | |
+| R-04.1 You can override a single date with a different plan or rest without changing the split | must | Test | W-05 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
 | R-04.2 You can permanently replace an exercise in a plan; the old exercise's past history is unchanged | must | Test | W-04 | verified | plans.test.ts permanent swap; evidence 5; reviewer: met |
 | R-04.3 During a session you can swap an exercise for that session only; its sets are logged against the substitute and the plan is unchanged | must | Test | W-06 | planned | |
-| R-04.4 *Move within the week:* moving a planned day to a later date shifts it and the workouts after it, in order, toward the end of the week; each shift moves a workout only as far as needed, so rest days absorb the shift; nothing moves past the last day of the week | must | Test | W-14 | planned | |
-| R-04.5 After a move within the week, if the number of rest days between the new date and the end of the week has gone down, the app says so before you confirm | must | Test | W-14 | planned | |
-| R-04.6 If the shifted workouts don't fit before the week ends, you choose: drop the trailing workouts, or pick which workouts to drop | must | Test | W-14 | planned | |
-| R-04.7 *Move all future:* shifting a schedule by N days from a date moves every later planned day by N days, keeping the order and the rest days; the schedule's end moves out by N days too; days before the date are unchanged | must | Test | W-14 | planned | |
-| R-04.8 You can quickly clear a planned day (make it rest), replace its workout with another plan, or add a second workout to it, for that date only | must | Test | W-14 | planned | |
-| R-04.9 Editing the workout on one date (add, remove or change exercises or targets) changes that date only; a button on that edited workout then lets you either update the plan everywhere or save it as a new plan for future splits | should | Test | W-14 | planned | |
+| R-04.4 *Move within the week:* moving a planned day to a later or earlier date in the same week puts it there; the other planned days from the earlier of the two dates on keep their order and move later only as far as needed, so rest days (and the day left empty) absorb the shift; nothing moves past the last day of the week (moving earlier added by Taylor, 2026-11-18) | must | Test | W-14 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
+| R-04.5 After a move within the week, if the number of rest days between the new date and the end of the week has gone down, the app says so before you confirm | must | Test | W-14 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
+| R-04.6 If the shifted workouts don't fit before the week ends, you choose: drop the trailing workouts, or pick which workouts to drop | must | Test | W-14 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
+| R-04.7 *Move all future:* shifting a schedule by N days (later or earlier) from a date moves every later planned day by N days, keeping the order and the rest days; the schedule's end moves by N days too; moving later leaves the skipped days as rest, moving earlier replaces what was planned on the days it now covers; days before both dates are unchanged | must | Test | W-14 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
+| R-04.8 You can quickly clear a planned day (make it rest), replace its workout with another plan, or add a second workout to it, for that date only | must | Test | W-14 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
+| R-04.9 Editing the workout on one date (add, remove or change exercises or targets) changes that date only; a button on that edited workout then lets you either update the plan everywhere or save it as a new plan for future splits | should | Test | W-14 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
 
 ## KF-05 Log every set quickly at the gym, pre-filled from last time
 

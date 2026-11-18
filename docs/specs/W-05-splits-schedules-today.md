@@ -35,7 +35,8 @@ shift the week, shift everything after, or change single days.
 
 **Done when.**
 - *Move a day.* On the calendar or Today, "Move" on a planned day asks for the
-  new date and whether to move **within the week** or **all future**.
+  new date (later or earlier; earlier added by Taylor on 2026-11-18) and whether
+  to move **within the week** or **all future**.
 - *Within the week (R-04.4).* The moved day and the workouts after it keep their
   order and are pushed later only as far as needed; each rest day they reach
   absorbs the push. Nothing goes past the last day of the week.
@@ -91,3 +92,11 @@ each other. Tested first with the unit tests above, before screens.
 uses: propose the behaviour instead of choosing silently. A rescheduling case
 the rules above don't decide (e.g. moving a day earlier, or into a date that
 already has a hand-made change): propose, don't guess.
+
+**Decided by Taylor, 2026-11-18 (after review).** Deleting a split also removes
+its schedules, after a warning naming the dates, with Undo. Deleting a plan
+removes it from split days and dates; a date set to only that plan goes back to
+the split; logged sets are kept. Moving a day earlier is supported (both
+modes). With "all future", moved hand-made changes replace any already on
+the destination dates, and days left behind when moving later become rest.
+"Update the plan everywhere" asks for confirmation because it cannot be undone.

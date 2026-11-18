@@ -168,8 +168,23 @@ describe('deleting a plan', () => {
     await deletePlan(db, push);
     expect(await db.plans.get(push)).toBeUndefined();
     expect(await db.planExercises.where('planId').equals(push).count()).toBe(0);
-    expect(await db.splitDays.filter((d) => d.planId === push).count()).toBe(0);
-    expect((await db.splitDays.filter((d) => d.dayIndex === 0).first())?.planId).toBeNull();
+    expect(await db.splitDays.filter((d) => d.workouts.some((w) => w.planId === push)).count()).toBe(0);
+    expect((await db.splitDays.filter((d) => d.dayIndex === 0).first())?.workouts).toEqual([]);
     expect(await db.setLogs.get('keep')).toBeDefined();
+  });
+
+  it('a date changed by hand to only this plan goes back to the split; other workouts on a date stay', async () => {
+    const db = await freshDb();
+    const push = await planId(db, 'Push');
+    const pull = await planId(db, 'Pull');
+    await db.dateOverrides.bulkPut([
+      { date: '2026-11-17', workouts: [{ planId: push, time: 'morning' }] },
+      { date: '2026-11-18', workouts: [{ planId: push, time: 'morning' }, { planId: pull, time: 'evening' }] },
+      { date: '2026-11-19', workouts: [] },
+    ]);
+    await deletePlan(db, push);
+    expect(await db.dateOverrides.get('2026-11-17')).toBeUndefined();
+    expect((await db.dateOverrides.get('2026-11-18'))?.workouts).toEqual([{ planId: pull, time: 'evening' }]);
+    expect((await db.dateOverrides.get('2026-11-19'))?.workouts).toEqual([]);
   });
 });

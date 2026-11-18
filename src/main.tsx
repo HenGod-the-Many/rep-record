@@ -4,6 +4,7 @@ import { registerSW } from 'virtual:pwa-register';
 import { App } from './App';
 import { db } from './db/db';
 import { ensureSeeded } from './db/seed';
+import { pruneUnusedCopies } from './db/reschedule';
 import './styles.css';
 
 // New versions install in the background and take over on the next full app launch.
@@ -15,6 +16,7 @@ navigator.storage?.persist?.().catch(() => undefined);
 const root = createRoot(document.getElementById('root')!);
 
 ensureSeeded(db)
+  .then(() => pruneUnusedCopies(db))
   .then(() =>
     root.render(
       <StrictMode>
