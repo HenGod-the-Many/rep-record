@@ -119,3 +119,55 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .small-print { font-size: 0.85rem; margin: 6px 4px; }
 .error { color: var(--danger); margin: 8px 4px; }
 .banner { background: var(--surface-2); border-radius: 12px; padding: 10px 14px; color: var(--muted); }
+
+/* W-05/W-14: days, calendar, splits, moving */
+.subtitle { color: var(--muted); margin: -4px 4px 10px; text-align: center; }
+.header-link { background: none; border: 0; color: var(--accent); min-height: var(--tap); padding: 0 0 0 8px; font-size: 1rem; }
+.link { background: none; border: 0; color: var(--accent); padding: 0; min-height: 44px; font-size: inherit; text-decoration: underline; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; margin: 0 0 12px; }
+.card-head { display: flex; flex-direction: column; gap: 6px; }
+.card-title { font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.mini-list { list-style: none; padding: 0; margin: 8px 0; font-size: 0.92rem; }
+.mini-list li { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; border-top: 1px solid var(--border); }
+.mini-list li:first-child { border-top: 0; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+.button-row.two { grid-template-columns: 1fr 1fr; }
+.select {
+  min-height: var(--tap); background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 0 12px; font: inherit; font-size: 17px; color: var(--text); width: 100%;
+}
+.time-select { display: flex; gap: 6px; min-width: 9.5em; flex: 1; }
+.time-select input { min-width: 7em; }
+.undo-bar {
+  display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px solid var(--accent);
+  border-radius: 12px; padding: 4px 4px 4px 12px; margin-bottom: 12px; font-size: 0.92rem;
+}
+.undo-bar span { flex: 1; }
+.undo-close, .icon-btn {
+  min-width: 44px; min-height: 44px; background: none; border: 1px solid var(--border); border-radius: 10px; color: var(--muted);
+}
+.alert { background: #3a2a10; border: 1px solid #c98a1b; color: #ffd38a; border-radius: 12px; padding: 10px 14px; }
+.segmented.two { grid-template-columns: 1fr 1fr; }
+.check-row { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0 12px; color: var(--text); }
+.week-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.9rem; }
+.week-table th { text-align: left; color: var(--muted); font-weight: 600; padding: 6px 4px; }
+.week-table td { padding: 8px 4px; border-top: 1px solid var(--border); }
+.week-table tr.changed td:last-child { color: var(--accent); font-weight: 600; }
+.month-nav { display: grid; grid-template-columns: var(--tap) 1fr var(--tap); align-items: center; gap: 8px; margin-bottom: 8px; }
+.month-nav h2 { text-align: center; font-size: 1.05rem; margin: 0; }
+.month-nav button { padding: 0; font-size: 1.4rem; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-head { text-align: center; color: var(--muted); font-size: 0.75rem; padding: 4px 0; }
+.cal-cell {
+  min-height: 58px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 3px 2px; display: flex; flex-direction: column; align-items: center; gap: 1px; overflow: hidden;
+}
+.cal-cell.other { opacity: 0.4; }
+.cal-cell.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.cal-num { font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 2px; }
+.cal-dot { width: 6px; height: 6px; border-radius: 50%; background: #c98a1b; display: inline-block; }
+.cal-label { font-size: 0.66rem; line-height: 1.1; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.length-input { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.workout-line { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-top: 1px solid var(--border); }
+.workout-actions { display: flex; gap: 6px; align-items: center; }
+.tabbar button { font-size: 0.82rem; padding: 0 2px; }
