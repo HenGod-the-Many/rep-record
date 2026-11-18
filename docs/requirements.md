@@ -1,10 +1,10 @@
 # What Rep Record has to do, and what proves it does
 
-Status: draft, revision 2. Written 2026-11-08 from Taylor's brief ("Workout
+Status: approved, revision 2. Written 2026-11-08 from Taylor's brief ("Workout
 Planner, Journal & Log: Project Brief") and Taylor's answers in the first Claude
 Code session. Revised 2026-11-18: the app is now Rep Record, and Taylor
 confirmed KF-01 to KF-09 and added body metrics (KF-10), a stats overview
-(KF-11) and an Apple Health goal (KF-12). Awaiting Taylor's approval.
+(KF-11) and an Apple Health goal (KF-12). Approved by Taylor 2026-11-18 ("Yes I approve").
 
 Four levels, each traceable to the next:
 
