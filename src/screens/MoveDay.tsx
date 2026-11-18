@@ -21,6 +21,13 @@ export function MoveDay({ date, back }: { date: string; back: string }) {
 
   const drop = cut === 'trailing' ? ('trailing' as const) : picked;
 
+  // A new date or mode makes earlier drop ticks meaningless: start the choice again,
+  // so the preview and the save always use the same choice.
+  useEffect(() => {
+    setPicked([]);
+    setCut('trailing');
+  }, [to, mode]);
+
   useEffect(() => {
     let live = true;
     if (mode !== 'week') {
@@ -47,7 +54,7 @@ export function MoveDay({ date, back }: { date: string; back: string }) {
   const confirm = async () => {
     const label = `Moved ${formatDate(date)} to ${formatDate(to)}`;
     const ok = await attempt(
-      () => withUndo(label, () => (mode === 'week' ? applyMoveWithinWeek(db, date, to, { drop: rawOverflow ? drop : undefined }) : moveAllFuture(db, date, to))),
+      () => withUndo(label, () => (mode === 'week' ? applyMoveWithinWeek(db, date, to, { drop }) : moveAllFuture(db, date, to))),
       setError,
     );
     if (ok) navigate(back);

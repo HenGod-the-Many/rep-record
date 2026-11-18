@@ -89,6 +89,15 @@ describe('move within the week', () => {
     expect(preview.after.map((x) => x.label)).toEqual([R, P, L, R, C, S, R]);
   });
 
+  it('what gets saved is exactly what the preview showed, for the same drop choice', async () => {
+    const db = await setup();
+    const seq = (await previewMoveWithinWeek(db, MON, d(1))).sequence;
+    const drop = [seq.findIndex((u) => u.label === PL)];
+    const preview = await previewMoveWithinWeek(db, MON, d(1), { drop });
+    await applyMoveWithinWeek(db, MON, d(1), { drop });
+    expect(await names(db, MON, 7)).toEqual(preview.after.map((x) => x.label));
+  });
+
   it('refuses moving earlier, moving into another week, and moving an empty day', async () => {
     const db = await setup();
     await expect(previewMoveWithinWeek(db, d(2), d(1))).rejects.toThrow(/later/);

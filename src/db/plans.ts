@@ -53,8 +53,8 @@ export async function setPlanNotes(db: WorkoutDB, planId: string, notes: string)
 /**
  * Delete a plan and its entries. Logged sets are untouched (they belong to
  * exercises; sessions keep a snapshot of the plan's name). Split days that
- * used the plan lose it (a day left with no workouts is a rest day); hand-made
- * date changes lose it the same way.
+ * used the plan lose it (a day left with no workouts is a rest day). A hand-made
+ * date change that held only this plan is removed, so the date follows the split.
  */
 export async function deletePlan(db: WorkoutDB, planId: string): Promise<void> {
   await db.transaction('rw', [db.plans, db.planExercises, db.splitDays, db.dateOverrides], async () => {
@@ -63,7 +63,14 @@ export async function deletePlan(db: WorkoutDB, planId: string): Promise<void> {
       w.workouts = w.workouts.filter((x) => x.planId !== planId);
     };
     await db.splitDays.filter((d) => d.workouts.some((x) => x.planId === planId)).modify(without);
-    await db.dateOverrides.filter((d) => d.workouts.some((x) => x.planId === planId)).modify(without);
+    // A hand-made date change that only held this plan is removed, so that date
+    // follows the split again; one that also held other workouts keeps those.
+    const touched = await db.dateOverrides.filter((d) => d.workouts.some((x) => x.planId === planId)).toArray();
+    for (const o of touched) {
+      const rest = o.workouts.filter((x) => x.planId !== planId);
+      if (rest.length === 0) await db.dateOverrides.delete(o.date);
+      else await db.dateOverrides.put({ ...o, workouts: rest });
+    }
     await db.plans.delete(planId);
   });
 }
