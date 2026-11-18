@@ -11,7 +11,7 @@ import {
   takeSnapshot,
   updatePlanEverywhere,
 } from './reschedule';
-import { replaceWorkout, resolveDate, resolveRange, scheduleSplit } from './schedule';
+import { replaceWorkout, resolveDate, resolveRange, scheduleSplit, setDateWorkouts } from './schedule';
 import { freshDb, planId } from '../test/helpers';
 import type { WorkoutDB } from './db';
 
@@ -152,6 +152,21 @@ describe('move all future', () => {
     const db = await setup();
     await moveAllFuture(db, MON, d(-2));
     expect(await names(db, d(-2), 15)).toEqual([P, PL, L, R, C, S, R, P, PL, L, R, C, S, R, '—']);
+  });
+
+  it('moving later: a moved hand-made change replaces one already on its new date', async () => {
+    const db = await setup();
+    await setDateWorkouts(db, d(13), [{ planId: await planId(db, 'Push'), time: 'morning' }]); // inside the moved stretch
+    await setDateWorkouts(db, d(15), [{ planId: await planId(db, 'Pull'), time: 'noon' }]); // its destination
+    await moveAllFuture(db, d(2), d(4));
+    expect((await names(db, d(15), 1))[0]).toBe(P);
+  });
+
+  it('moving earlier: hand-made changes on the days the sequence now covers are replaced', async () => {
+    const db = await setup();
+    await replaceWorkout(db, d(2), 0, await planId(db, 'Push')); // Wed changed by hand
+    await moveAllFuture(db, d(4), d(2));
+    expect((await names(db, d(2), 1))[0]).toBe(C); // Friday's CBA now on Wednesday
   });
 
   it('refuses the same date or a date with no schedule', async () => {
