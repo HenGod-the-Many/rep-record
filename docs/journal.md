@@ -2,6 +2,20 @@
 
 Newest first.
 
+## 2026-11-18 (later): rescheduling, multi-workout days, activities
+
+- Taylor approved requirements revision 2, then added revision 3: several
+  timed workouts per day; rescheduling (move within the week with rest days
+  absorbing the push and an alert when rest days drop, overflow cut choices,
+  move all future, quick day edits, edit one date then keep changes); 1–10
+  difficulty and mid-set weight changes on every set; activities (KF-13) and
+  warm-up routines (KF-14) in release 2.
+- Rescheduling became its own item, W-14, sharing the W-05 spec. Activities and
+  warm-ups are W-15 and W-16.
+- Calories for activities: estimated from MET value, duration and bodyweight.
+  Taylor mentioned height too; the MET method doesn't need it, so it is not
+  used there.
+
 ## 2026-11-18: new repo, new name, body metrics added
 
 - Taylor created `HenGod-the-Many/rep-record` and asked to move the project

@@ -81,12 +81,29 @@ The skeleton plus the library and plan builder, deployed so the storage spike
   7. In Settings switch to kg. Weights should show in kg; switch back and they
      should show the original lb values.
   8. Export, then import the file. Everything should be unchanged.
+  9. Give one day two workouts: Morning Legs & Abs and Evening Push. Today
+     should list both in time order.
+  10. Pretend you missed Monday: Move Monday's workout to Tuesday, "within the
+      week". Pull and Legs should each shift one day, Thursday's rest should be
+      used up, Friday onward unchanged, and the app should warn that rest days
+      went from 2 to 1.
+  11. Move a day so the week overflows; choose "pick which to drop" and drop
+      one. Only that workout should disappear.
+  12. Move a day by 2 days, "all future". Next week and the week after should
+      each be 2 days later with the same rest days; earlier days unchanged.
+  13. On a planned date tap Clear, then Undo. Replace a date's workout with
+      another plan. Edit one date's workout (remove an exercise); the plan
+      itself should still have it. Then use "Keep these changes" → "Save as a
+      new plan"; the new plan should appear in the plan list.
+  14. Log a set with difficulty 8, then a set where the weight drops partway
+      (5 reps at 135, 3 at 115). Each should take only a few seconds. Next
+      session, the pre-fill should show last time's difficulty.
 - **Evidence expected:** `npm run check` output, screenshots, reviewer verdict.
 - **Way back:** previous tag (v0.1.0); data export before upgrading.
 
-### Release 2: you can now see your progress, track your body and keep a journal
+### Release 2: you can now see your progress, track your body and activities, and keep a journal
 
-- **Requirements:** all KF-06, KF-07, KF-10 and KF-11 requirements
+- **Requirements:** all KF-06, KF-07, KF-10, KF-11, KF-13 and KF-14 requirements
 - **Acceptance script.**
   1. Open Bench press history after logging it from two different plans. One
      list should show both sessions' sets with dates.
@@ -106,6 +123,12 @@ The skeleton plus the library and plan builder, deployed so the storage spike
   8. Open Stats. Hide the "Recent PRs" card and move "Bodyweight" to the top.
      Close and reopen the app: the layout should be as you left it.
   9. Switch to kg: bodyweight shows in kg and measurements in cm.
+  10. Log a 30-minute bike ride with 8 miles and no calories. It should show an
+      estimated calorie number, marked as an estimate. Add a custom activity
+      "Rock climbing" and log 45 minutes with no distance.
+  11. Build a warm-up routine (10 arm circles, 2 min jump rope), attach it to
+      Push, start Push: the warm-up comes first and each move checks off with
+      one tap.
 - **Evidence expected:** `npm run check` output, phone-size screenshots of the
   bodyweight chart, metrics settings and Stats screen, reviewer verdict.
 - **Way back:** previous tag; export first.
