@@ -20,6 +20,11 @@ Newest first.
 - Lesson: the PWA service worker keeps serving the old build after a rebuild;
   unregister it in the test browser before re-checking.
 - Suggestion (not done): one shared name-cleaning helper for plans and splits.
+- Handoff: Taylor asked for a link to try the app. There is none yet: no
+  release tag, no GitHub Pages site and no deploy workflow exist. Publishing
+  needs a deploy workflow, release v0.1.0 (dev to main, Taylor's OK) and Pages
+  turned on; that is the first half of W-02.
+- Requirements: 23 verified, 37 planned (none accepted yet).
 
 ## 2026-11-18 (later): rescheduling, multi-workout days, activities
 
