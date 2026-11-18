@@ -26,7 +26,7 @@ block, and the Awaiting owner list. Requirement status lives in
 | 4 | W-04 | Plan builder: create, reorder, targets, alternates, duplicate, permanent swap | R-02.1, R-02.3, R-02.4, R-04.2 | [W-03/W-04](specs/W-03-W-04-library-and-plans.md) | W-03 | no | Awaiting owner | Brief step 2 |
 | 5 | W-05 | Splits with a cycle, several timed workouts per day, schedules, calendar, single-date overrides, Today | R-03.1, R-03.3–R-03.7, R-04.1 | [W-05/W-14](specs/W-05-splits-schedules-today.md) | W-04 | no | Awaiting owner | Spec approved by Taylor 2026-11-18; PR #4 merged to dev |
 | 5b | W-14 | Rescheduling: move within the week, move all future, quick day edits, edit one date and keep changes | R-04.4–R-04.9 | [W-05/W-14](specs/W-05-splits-schedules-today.md) | W-05 | no | Awaiting owner | Spec approved by Taylor 2026-11-18; PR #4 merged to dev |
-| 6 | W-06 | Logging screen: pre-fill, one-tap sets, difficulty 1–10 per set, mid-set weight changes, session-only swap, units setting | R-04.3, R-05.1–R-05.8 | [W-06](specs/W-06-logging.md) | W-14 | no | Not ready | Spec awaiting Taylor's approval |
+| 6 | W-06 | Logging screen: pre-fill, one-tap sets, difficulty 1–10 per set, mid-set weight changes, session-only swap, units setting | R-04.3, R-05.1–R-05.10 | [W-06](specs/W-06-logging.md) | W-14 | no | Ready | Spec approved by Taylor 2026-11-18 with changes (weight/rep change pick the set, Failed button) |
 | 7 | W-07 | JSON export and import | R-08.3, R-08.4 | not yet | W-06 | no | Not ready | |
 | 8 | W-08 | Exercise history, PRs, estimated 1RM, chart | R-06.1–R-06.4 | not yet | W-06 | no | Not ready | |
 | 9 | W-09 | Journal: session notes and day notes | R-07.1, R-07.2 | not yet | W-06 | no | Not ready | |

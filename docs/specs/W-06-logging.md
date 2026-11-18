@@ -1,8 +1,8 @@
 # W-06: Logging screen
 
-Status: draft
-Cleared to run unattended: no, because Taylor has not approved this page or the three assumptions at the bottom
-Satisfies: R-04.3, R-05.1 to R-05.8
+Status: approved 2026-11-18 in conversation with Taylor, with the changes under "Decided by Taylor"
+Cleared to run unattended: yes
+Satisfies: R-04.3, R-05.1 to R-05.10
 
 ## Goal
 
@@ -34,11 +34,26 @@ Taylor's main sign of being ready to add weight, so it must be one tap too.
   sets the difficulty, and it can be changed or left blank. Each pre-filled row
   also shows last time's difficulty for that set ("last: 8"). The new
   difficulty is never copied from last time. — test, demonstration
-- *Weight change in a set (R-05.7).* "Weight change" on a row adds a second
-  part pre-filled with the same weight; Taylor adjusts its weight and reps
-  (e.g. 5 × 135 then 3 × 115). A set may have several parts. Each part is
+- *Changes are their own buttons.* "Weight change", "Rep change" and
+  "Failed" are buttons on the exercise card, apart from the ± buttons on each
+  row (± only adjusts the planned numbers before or after logging). Each
+  starts the same way: tap the button, then tap which set it happened in.
+  Every other set keeps its pre-filled weight and reps. Applying a change to a
+  set not yet logged logs it with the change. — test, demonstration
+- *Weight change in a set (R-05.7).* After picking the set, tap the rep at
+  which the weight changed (chips 1 to the set's reps), then the new weight
+  (typed, or a quick drop of 10, 20 or 30 % rounded to 5 lb / 2.5 kg). Reps
+  before that point keep the set's original weight. E.g. weight change on set
+  3 at rep 6 of 8 at 135 → 115: sets 1 and 2 are untouched, set 3 is saved as
+  5 × 135 then 3 × 115. A set may change weight more than once. Each part is
   stored at its own weight, so W-08's history and PRs can count them
   separately. — test
+- *Rep change.* After picking the set, tap how many reps were actually done
+  (chips around the target, or type). Other sets keep their reps. — test
+- *Failed (to failure).* After picking the set, tap how many reps you got
+  before failing (e.g. aiming for 10, got 8: tap 8). The set is saved with 8
+  reps and marked "to failure", and shows that mark on the row and in the next
+  session's pre-fill. — test
 - *Session-only swap (R-04.3).* "Swap" on an exercise offers that slot's
   alternates first, then the whole active library. The substitute's sets are
   saved under the substitute's `exerciseId` (pre-filled from its own history)
@@ -48,13 +63,14 @@ Taylor's main sign of being ready to add weight, so it must be one tap too.
   precision; kg is display and entry only. Switching back and forth changes no
   stored value; a weight typed in kg reads back the same in kg. — test
 - *Speed (R-05.8, R-05.3).* A tap-count table in the PR: log a pre-filled set
-  = 1 tap; set difficulty = 1 tap; record a weight change = at most 4 taps
-  when the second part is within a few ± steps. Every control is at least
+  = 1 tap; set difficulty = 1 tap; rep change = 3 taps; failed = 3 taps;
+  weight change = 4 taps with a quick drop. Every control is at least
   44 × 44 points. — demonstration with 390 × 844 screenshots, inspection
 - The project's check command passes: `npm run check`
 
 **Data shape** (database version 3, with an upgrade that moves any existing
-values across). `SetLog` gains `difficulty` (1–10 or null) and `parts`, a list
+values across). `SetLog` gains `difficulty` (1–10 or null), `toFailure`
+(true or false) and `parts`, a list
 of `{ weightLb, reps, seconds }`, at least one; the single weight/reps/seconds
 fields move into the first part. `Session` gains the workout `time` (so two
 workouts on one day stay apart), `startedAt`, `finishedAt` (null while open)
@@ -78,8 +94,8 @@ screen (the plan is changed only in the plan builder).
 
 ## Riskiest assumption
 
-That one set row, a 1–10 picker and the weight-change control fit a 390-point
-wide phone screen with 44-point targets while keeping each action to the tap
+That one set row, a 1–10 picker and the three change buttons (with their set
+and rep pickers) fit a 390-point wide phone screen with 44-point targets while keeping each action to the tap
 counts above. Ten 44-point buttons need 440 points, more than the screen is
 wide, so the picker likely needs two rows of five or a pop-up strip. Spike
 first: a throwaway static page at 390 × 844 with one exercise card, screenshot
@@ -90,7 +106,7 @@ it, record the chosen layout here, then build.
 1. Spike: the layout page above. Record the result in this spec.
 2. Data: version 3 shape and upgrade, decision 0003, and data functions with
    unit tests (start/resume, pre-fill, log, edit, delete, parts, difficulty,
-   swap, finish, unit conversion).
+   swap, finish, unit conversion, weight change, rep change, failed).
 3. Units setting in Settings and shared weight formatting.
 4. Logging screen, and Start/Resume/done on Today.
 5. Screenshots, tap-count table, `npm run check`, review.
@@ -115,13 +131,18 @@ Release 1 steps 3 to 7 and 14 in [verification-plan.md](../verification-plan.md)
 4. Next time Bench press comes up, in any plan, it pre-fills last time's
    weights and reps.
 5. Switch to kg and back: weights show in kg, then the original lb values.
-6. Log a set with difficulty 8, then a set of 5 × 135 then 3 × 115. Each takes
-   a few seconds. Next session the pre-fill shows "last: 8".
+6. Log a set with difficulty 8. Then use Weight change on set 3 at rep 6,
+   135 → 115: sets 1 and 2 keep 135, set 3 reads 5 × 135 then 3 × 115. Use
+   Rep change on one set, and Failed on another (aimed for 10, got 8). Each
+   takes a few seconds. Next session the pre-fill shows "last: 8" and the
+   "to failure" mark.
 
-## Assumptions to confirm
+## Decided by Taylor, 2026-11-18
 
-1. Difficulty scale: 10 = couldn't do another rep, 1 = very easy. The app
-   shows just the number, no labels.
-2. ± steps of 5 lb (2.5 kg), 1 rep and 5 seconds.
-3. Logging is for today only; logging a missed workout on a past date waits
-   for a later item.
+- Weight change and rep change are their own buttons, separate from the ±
+  buttons, and you pick which set (and, for weight, which rep) changed;
+  everything else keeps the listed weight and reps.
+- A "Failed" button records going to failure and how many reps you got.
+- Difficulty: 10 = couldn't do another rep, 1 = very easy; number only.
+- ± steps of 5 lb (2.5 kg), 1 rep and 5 seconds.
+- Logging is for today only; past-date logging waits for a later item.
