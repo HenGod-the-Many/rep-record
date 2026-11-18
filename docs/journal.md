@@ -2,6 +2,25 @@
 
 Newest first.
 
+## 2026-11-18 (evening): W-05 and W-14 built
+
+- Built splits, schedules, calendar, Today, rescheduling and Undo on
+  `feature/w05-w14-schedules` ([rep-record#4](https://github.com/HenGod-the-Many/rep-record/pull/4)). 79 tests.
+- Review round 1 caught decisions made without asking (deleting splits/plans,
+  moving earlier, collisions) and a Move preview that could differ from the save.
+  Taylor decided: delete a split with its dates after a warning (undoable); plan
+  deletion as proposed; build moving earlier; confirm "update everywhere".
+- Round 2 caught Undo silently discarding later split edits; Undo is now
+  cancelled by any later change to schedules, dates or splits.
+- /code-review fixed: overflow race on the Move screen, orphaned one-date plan
+  copies (pruned at app start), Today going stale after midnight, rest alert
+  counting unscheduled days, impossible dates accepted.
+- Defaults chosen: new workouts start at Morning; days left behind by an
+  "all future" move later become rest.
+- Lesson: the PWA service worker keeps serving the old build after a rebuild;
+  unregister it in the test browser before re-checking.
+- Suggestion (not done): one shared name-cleaning helper for plans and splits.
+
 ## 2026-11-18 (later): rescheduling, multi-workout days, activities
 
 - Taylor approved requirements revision 2, then added revision 3: several
