@@ -1,7 +1,7 @@
 # 0001 Stack and storage
 
 Status: Proposed 2026-11-08; Taylor approved the stack in principle ("Yes,
-start"); stands on approval of the requirements.
+start"); in force since the requirements were approved on 2026-11-18.
 
 ## Context
 

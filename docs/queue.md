@@ -24,7 +24,7 @@ block, and the Awaiting owner list. Requirement status lives in
 | 2 | W-02 | Spike: deploy to GitHub Pages, install on iPhone, check offline and 8-day persistence | R-08.1, R-08.2 (risk) | not yet | W-01; release v0.1.0 (Taylor's OK) | no | Not ready | Result only Taylor can observe |
 | 3 | W-03 | Exercise library: list, search, create, edit, archive/restore | R-01.2, R-01.3, R-01.4 | [W-03/W-04](specs/W-03-W-04-library-and-plans.md) | W-01 | no | Awaiting owner | Brief step 2 |
 | 4 | W-04 | Plan builder: create, reorder, targets, alternates, duplicate, permanent swap | R-02.1, R-02.3, R-02.4, R-04.2 | [W-03/W-04](specs/W-03-W-04-library-and-plans.md) | W-03 | no | Awaiting owner | Brief step 2 |
-| 5 | W-05 | Splits with a cycle, schedules on a calendar, single-date overrides, Today | R-03.1, R-03.3–R-03.5, R-04.1 | not yet | W-04 | no | Not ready | |
+| 5 | W-05 | Splits with a cycle, schedules on a calendar, single-date overrides, Today | R-03.1, R-03.3–R-03.5, R-04.1 | [W-05](specs/W-05-splits-schedules-today.md) | W-04 | no | Not ready | Spec awaiting Taylor's approval |
 | 6 | W-06 | Logging screen: pre-fill, one-tap sets, session-only swap, units setting | R-04.3, R-05.1–R-05.5 | not yet | W-05 | no | Not ready | |
 | 7 | W-07 | JSON export and import | R-08.3, R-08.4 | not yet | W-06 | no | Not ready | |
 | 8 | W-08 | Exercise history, PRs, estimated 1RM, chart | R-06.1–R-06.4 | not yet | W-06 | no | Not ready | |

@@ -6,7 +6,7 @@ it works, and what happens when it does not. The requirements are in
 
 ## The working agreement
 
-Proposed 2026-11-08; stands when Taylor approves the requirements:
+Proposed 2026-11-08; in force since Taylor approved the requirements on 2026-11-18:
 
 - **Taylor** sets goals and priorities and gives the verdict on whether
   something works.
