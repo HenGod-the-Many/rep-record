@@ -1,10 +1,14 @@
 # What Rep Record has to do, and what proves it does
 
-Status: approved, revision 2. Written 2026-11-08 from Taylor's brief ("Workout
+Status: approved, revision 3. Written 2026-11-08 from Taylor's brief ("Workout
 Planner, Journal & Log: Project Brief") and Taylor's answers in the first Claude
 Code session. Revised 2026-11-18: the app is now Rep Record, and Taylor
 confirmed KF-01 to KF-09 and added body metrics (KF-10), a stats overview
 (KF-11) and an Apple Health goal (KF-12). Approved by Taylor 2026-11-18 ("Yes I approve").
+Revision 3, same day, from Taylor's own additions: several workouts per day
+with times, rescheduling (R-04.4 to R-04.9), a difficulty rating and mid-set
+weight changes on every set, activities (KF-13) and warm-up routines (KF-14).
+Revision 3 is approved together with the W-05/W-14 spec.
 
 Four levels, each traceable to the next:
 
@@ -44,6 +48,8 @@ written only by Taylor.
 | KF-10 | Track my bodyweight, height and whichever other body metrics I choose | should | 2 | planned |
 | KF-11 | See an overview of my body, gym and workout stats, with the cards I pick | should | 2 | planned |
 | KF-12 | Pull heart rate and other health data from Apple Health | later | — | planned |
+| KF-13 | Plan and log runs, rides, hikes, swims and any other activity | should | 2 | planned |
+| KF-14 | Build warm-up routines and use them before a workout | should | 2 | planned |
 
 ---
 
@@ -80,6 +86,8 @@ written only by Taylor.
 | R-03.3 You can schedule a split from a start date for a length (days or weeks); every date in that range shows its planned workout or rest, and dates outside it show nothing | must | Test | W-05 | planned | |
 | R-03.4 Today's planned workout follows the calendar: a missed day does not shift later days | must | Test | W-05 | planned | |
 | R-03.5 Where two schedules overlap, the most recently created one decides the date | should | Test | W-05 | planned | |
+| R-03.6 A date can hold more than one workout (e.g. a bike ride in the morning and lifting in the evening), in a split day, an override or a rescheduled day; each has a time: morning, noon, evening or night by default, or a custom clock time | must | Test | W-05 | planned | |
+| R-03.7 The week runs Monday to Sunday by default; Settings can change the first day of the week | should | Test | W-05 | planned | |
 
 ## KF-04 Swap a plan or an exercise when I need to
 
@@ -88,6 +96,12 @@ written only by Taylor.
 | R-04.1 You can override a single date with a different plan or rest without changing the split | must | Test | W-05 | planned | |
 | R-04.2 You can permanently replace an exercise in a plan; the old exercise's past history is unchanged | must | Test | W-04 | verified | plans.test.ts permanent swap; evidence 5; reviewer: met |
 | R-04.3 During a session you can swap an exercise for that session only; its sets are logged against the substitute and the plan is unchanged | must | Test | W-06 | planned | |
+| R-04.4 *Move within the week:* moving a planned day to a later date shifts it and the workouts after it, in order, toward the end of the week; each shift moves a workout only as far as needed, so rest days absorb the shift; nothing moves past the last day of the week | must | Test | W-14 | planned | |
+| R-04.5 After a move within the week, if the number of rest days between the new date and the end of the week has gone down, the app says so before you confirm | must | Test | W-14 | planned | |
+| R-04.6 If the shifted workouts don't fit before the week ends, you choose: drop the trailing workouts, or pick which workouts to drop | must | Test | W-14 | planned | |
+| R-04.7 *Move all future:* shifting a schedule by N days from a date moves every later planned day by N days, keeping the order and the rest days; the schedule's end moves out by N days too; days before the date are unchanged | must | Test | W-14 | planned | |
+| R-04.8 You can quickly clear a planned day (make it rest), replace its workout with another plan, or add a second workout to it, for that date only | must | Test | W-14 | planned | |
+| R-04.9 Editing the workout on one date (add, remove or change exercises or targets) changes that date only; a button on that edited workout then lets you either update the plan everywhere or save it as a new plan for future splits | should | Test | W-14 | planned | |
 
 ## KF-05 Log every set quickly at the gym, pre-filled from last time
 
@@ -98,6 +112,9 @@ written only by Taylor.
 | R-05.3 Tap targets on the logging screen are at least 44 × 44 points, and a pre-filled set is logged with one tap | must | Inspection, Demonstration | W-06 | planned | |
 | R-05.4 Weights show in lb by default and in kg when set in Settings; switching units does not change stored values | must | Test | W-06 | planned | |
 | R-05.5 Every logged set is saved the moment it is tapped, so closing the app mid-workout loses nothing | must | Test | W-06 | planned | |
+| R-05.6 Every set can carry a difficulty rating from 1 to 10, entered with one tap; it is shown next to that set in history and in the next session's pre-fill, because it is the main sign of being ready to go up in weight | must | Test, Demonstration | W-06 | planned | |
+| R-05.7 Within one set you can record a weight change partway through (e.g. 5 reps at 135 lb then 3 at 115 lb) in a few taps; history and PRs count each part at its own weight | should | Test | W-06 | planned | |
+| R-05.8 Logging a set, its difficulty and a weight change each takes no more than a few seconds, so it fits in a rest period | must | Demonstration | W-06 | planned | |
 
 ## KF-06 See each exercise's whole history, PRs and progress
 
@@ -164,7 +181,27 @@ Taylor's phone before any requirement is written.*
 |---|---|---|---|---|---|
 | R-12.1 To be written after the W-13 spike | later | — | W-13 | planned | |
 
-Totals: 23 must, 16 should, 2 could, 1 later.
+## KF-13 Plan and log runs, rides, hikes, swims and any other activity
+
+*Taylor, 2026-11-18: the app is not only for lifting. Type and duration at the
+least; distance by default; calories estimated; other details optional.*
+
+| Requirement | Priority | Method | Item | Status | Evidence |
+|---|---|---|---|---|---|
+| R-13.1 Activities are a kind of exercise: run, walk, bike, hike, swim, row and elliptical are built in, and you can add your own | should | Test | W-15 | planned | |
+| R-13.2 An activity is logged with duration and distance (miles or km by the unit setting); distance can be left out for activities without one | should | Test | W-15 | planned | |
+| R-13.3 Optional fields per activity: effort 1–10, average heart rate, and calories typed in by hand | should | Test | W-15 | planned | |
+| R-13.4 If calories are not typed in, the app estimates them from the activity's standard MET value, the duration and your latest bodyweight, and labels the number as an estimate | should | Test | W-15 | planned | |
+| R-13.5 Activities can go in plans and splits like lifting exercises, so a day can hold "Bike ride 45 min" | should | Test | W-15 | planned | |
+
+## KF-14 Build warm-up routines and use them before a workout
+
+| Requirement | Priority | Method | Item | Status | Evidence |
+|---|---|---|---|---|---|
+| R-14.1 You can build named warm-up routines: an ordered list of moves, each with reps or a time | should | Test | W-16 | planned | |
+| R-14.2 A plan can have a warm-up routine attached; starting that workout shows the warm-up first, and each move is checked off with one tap | should | Test, Demonstration | W-16 | planned | |
+
+Totals: 31 must, 26 should, 2 could, 1 later.
 
 ## Riskiest assumption
 
@@ -178,7 +215,7 @@ plan needs a backup or sync design. Tested by W-02, right after the skeleton.
 - Accounts, sign-in, multiple users, cloud sync or cloud backup (JSON export is the backup)
 - Reading Apple Health directly, until the W-13 spike shows a way (KF-12)
 - Nutrition or calorie tracking (the calorie tip is shown as text only)
-- Warm-up set tracking, rest timer, supersets
+- Rest timer, supersets (warm-up routines moved into scope as KF-14 on 2026-11-18)
 - Android-specific testing (it should work, but only iPhone is checked)
 
 ## Assumptions to confirm
