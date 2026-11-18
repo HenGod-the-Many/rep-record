@@ -9,6 +9,8 @@ Revision 3, same day, from Taylor's own additions: several workouts per day
 with times, rescheduling (R-04.4 to R-04.9), a difficulty rating and mid-set
 weight changes on every set, activities (KF-13) and warm-up routines (KF-14).
 Revision 3 is approved together with the W-05/W-14 spec.
+R-05.9 and R-05.10 added 2026-11-18 from Taylor's feedback on the W-06 spec
+(change buttons that pick the set, and a "Failed" mark), approved with it.
 
 Four levels, each traceable to the next:
 
@@ -115,6 +117,8 @@ written only by Taylor.
 | R-05.6 Every set can carry a difficulty rating from 1 to 10, entered with one tap; it is shown next to that set in history and in the next session's pre-fill, because it is the main sign of being ready to go up in weight | must | Test, Demonstration | W-06 | planned | |
 | R-05.7 Within one set you can record a weight change partway through (e.g. 5 reps at 135 lb then 3 at 115 lb) in a few taps; history and PRs count each part at its own weight | should | Test | W-06 | planned | |
 | R-05.8 Logging a set, its difficulty and a weight change each takes no more than a few seconds, so it fits in a rest period | must | Demonstration | W-06 | planned | |
+| R-05.9 Weight changes and rep changes are recorded with their own buttons, separate from adjusting a set's planned weight and reps; you pick which set changed (and for weight, at which rep), and every other set keeps its listed weight and reps | should | Test, Demonstration | W-06 | planned | |
+| R-05.10 A set can be marked as taken to failure, with the number of reps reached (e.g. aimed for 10, failed after 8); the mark shows on the set and in the next session's pre-fill | should | Test | W-06 | planned | |
 
 ## KF-06 See each exercise's whole history, PRs and progress
 
@@ -201,7 +205,7 @@ least; distance by default; calories estimated; other details optional.*
 | R-14.1 You can build named warm-up routines: an ordered list of moves, each with reps or a time | should | Test | W-16 | planned | |
 | R-14.2 A plan can have a warm-up routine attached; starting that workout shows the warm-up first, and each move is checked off with one tap | should | Test, Demonstration | W-16 | planned | |
 
-Totals: 31 must, 26 should, 2 could, 1 later.
+Totals: 31 must, 28 should, 2 could, 1 later.
 
 ## Riskiest assumption
 
