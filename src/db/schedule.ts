@@ -1,5 +1,5 @@
 import type { DateOverride, PlannedWorkout, Schedule, SplitDay, WorkoutDB } from './db';
-import { addDays, daysBetween, isClockTime, TIME_SLOTS, timeSortKey, toDayNum } from './dates';
+import { addDays, daysBetween, fromDayNum, isClockTime, TIME_SLOTS, timeSortKey, toDayNum } from './dates';
 import { ValidationError } from './errors';
 import { newId } from './ids';
 import { DEFAULT_TIME } from './seed';
@@ -30,7 +30,7 @@ function checkTime(time: string): string {
 }
 
 function checkDate(date: string): string {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(toDayNum(date))) throw new ValidationError('Pick a date.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || fromDayNum(toDayNum(date)) !== date) throw new ValidationError('Pick a date.');
   return date;
 }
 

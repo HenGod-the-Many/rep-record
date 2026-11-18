@@ -17,6 +17,8 @@ export interface WeekDay {
   date: string;
   workouts: PlannedWorkout[];
   label: string;
+  /** A schedule or a hand-made change covers this date (so an empty day is a real rest day). */
+  planned: boolean;
 }
 
 export interface MovePreview {
@@ -32,6 +34,8 @@ export interface MovePreview {
   overflow: MoveUnit[];
   /** Units dropped by the choice given. */
   dropped: MoveUnit[];
+  /** How many units would not fit if nothing were dropped (decides whether to ask what to cut). */
+  rawOverflow: number;
   /** Rest days from the new date to the end of the week, before and after. */
   restBefore: number;
   restAfter: number;
@@ -95,16 +99,28 @@ export async function previewMoveWithinWeek(
   });
   if (opts.drop === 'trailing') dropped.push(...overflow.splice(0));
 
-  const before: WeekDay[] = days.map((d) => ({ date: d.date, workouts: d.workouts, label: labelOf(d.workouts, names) }));
+  const before: WeekDay[] = days.map((d) => ({
+    date: d.date,
+    workouts: d.workouts,
+    label: labelOf(d.workouts, names),
+    planned: d.scheduled || d.overridden,
+  }));
   const after: WeekDay[] = before.map((d, i) => {
     if (i < start) return d;
     const w = placed.get(i)?.workouts ?? [];
-    return { date: d.date, workouts: w, label: labelOf(w, names) };
+    return { date: d.date, workouts: w, label: labelOf(w, names), planned: d.planned || w.length > 0 };
   });
-  const rest = (list: WeekDay[]) => list.slice(t).filter((d) => d.workouts.length === 0).length;
+  // Only days a schedule or a hand-made change covers count as rest days.
+  const rest = (list: WeekDay[]) => list.slice(t).filter((d) => d.planned && d.workouts.length === 0).length;
+  let rawOverflow = 0;
+  let last = -1;
+  sequence.forEach((u, k) => {
+    last = Math.max(k === 0 ? t : u.from, last + 1);
+    if (last > 6) rawOverflow++;
+  });
   const restBefore = rest(before);
   const restAfter = rest(after);
-  return { week, before, after, sequence, overflow, dropped, restBefore, restAfter, restAlert: restAfter < restBefore };
+  return { week, before, after, sequence, overflow, dropped, rawOverflow, restBefore, restAfter, restAlert: restAfter < restBefore };
 }
 
 /** Save a move within the week as hand-made changes to the dates it touches. */
@@ -251,6 +267,23 @@ export async function saveCopyAsNewPlan(db: WorkoutDB, copyId: string, name: str
   const copy = await db.plans.get(copyId);
   if (!copy?.hidden) throw new ValidationError('This workout is not a one-date copy.');
   await db.plans.update(copyId, { name: n, hidden: false, sourcePlanId: null });
+}
+
+/**
+ * Delete one-date copies that no date uses any more (the date was reset,
+ * cleared, replaced or moved). Run at app start, when no Undo is pending that
+ * could bring a reference back.
+ */
+export async function pruneUnusedCopies(db: WorkoutDB): Promise<number> {
+  return db.transaction('rw', [db.plans, db.planExercises, db.dateOverrides], async () => {
+    const used = new Set((await db.dateOverrides.toArray()).flatMap((o) => o.workouts.map((w) => w.planId)));
+    const orphans = (await db.plans.filter((p) => p.hidden === true).toArray()).filter((p) => !used.has(p.id));
+    for (const p of orphans) {
+      await db.planExercises.where('planId').equals(p.id).delete();
+      await db.plans.delete(p.id);
+    }
+    return orphans.length;
+  });
 }
 
 /** The date a one-date copy belongs to, if it is still on the calendar. */

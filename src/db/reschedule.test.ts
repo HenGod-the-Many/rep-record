@@ -4,6 +4,7 @@ import { getEntries, listPlans, removeEntry } from './plans';
 import {
   applyMoveWithinWeek,
   makeDateCopy,
+  pruneUnusedCopies,
   moveAllFuture,
   previewMoveWithinWeek,
   restore,
@@ -236,5 +237,36 @@ describe("editing one date's workout", () => {
     const plan = (await listPlans(db)).find((p) => p.name === 'Push light');
     expect(plan?.id).toBe(copy);
     expect((await resolveDate(db, MON)).workouts[0].planId).toBe(copy);
+  });
+});
+
+describe('code-review fixes', () => {
+  it('reports the raw overflow with the preview, whatever drop choice is given', async () => {
+    const db = await setup();
+    const seq = (await previewMoveWithinWeek(db, MON, d(3))).sequence;
+    const p = await previewMoveWithinWeek(db, MON, d(3), { drop: [seq.findIndex((u) => u.label === PL)] });
+    expect(p.overflow).toHaveLength(0);
+    expect(p.rawOverflow).toBe(1);
+  });
+
+  it('days no schedule covers do not count as rest days for the alert', async () => {
+    const db = await freshDb();
+    const split = (await db.splits.toArray())[0].id;
+    await scheduleSplit(db, split, MON, 3); // Mon-Wed only; Thu-Sun have nothing scheduled
+    const p = await previewMoveWithinWeek(db, d(1), d(3)); // Pull to Thursday
+    expect(p.restBefore).toBe(0);
+    expect(p.restAlert).toBe(false);
+  });
+
+  it('removes one-date copies no date uses any more, and keeps the ones still in use', async () => {
+    const db = await setup();
+    const kept = await makeDateCopy(db, MON, 0);
+    const dropped = await makeDateCopy(db, d(1), 0);
+    const { resetDate } = await import('./schedule');
+    await resetDate(db, d(1));
+    expect(await pruneUnusedCopies(db)).toBe(1);
+    expect(await db.plans.get(kept)).toBeDefined();
+    expect(await db.plans.get(dropped)).toBeUndefined();
+    expect(await db.planExercises.where('planId').equals(dropped).count()).toBe(0);
   });
 });

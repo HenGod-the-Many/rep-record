@@ -44,12 +44,8 @@ export function MoveDay({ date, back }: { date: string; back: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, to, mode, cut, picked.join(',')]);
 
-  // Raw overflow (before any drop choice) decides whether to ask what to cut.
-  const [rawOverflow, setRawOverflow] = useState(0);
-  useEffect(() => {
-    if (mode !== 'week') return setRawOverflow(0);
-    previewMoveWithinWeek(db, date, to).then((p) => setRawOverflow(p.overflow.length), () => setRawOverflow(0));
-  }, [date, to, mode]);
+  // Whether to ask what to cut comes from the same preview, so it can never be out of date.
+  const rawOverflow = mode === 'week' ? (preview?.rawOverflow ?? 0) : 0;
 
   const confirm = async () => {
     const label = `Moved ${formatDate(date)} to ${formatDate(to)}`;

@@ -218,3 +218,12 @@ describe('single-date changes', () => {
     expect(await getWeekStart(db)).toBe(0);
   });
 });
+
+describe('date checks', () => {
+  it('refuses a date that does not exist', async () => {
+    const db = await freshDb();
+    await expect(clearDate(db, '2026-02-31')).rejects.toThrow(/date/);
+    await clearDate(db, '2028-02-29'); // leap day is real
+    expect((await resolveDate(db, '2028-02-29')).overridden).toBe(true);
+  });
+});
