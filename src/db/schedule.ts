@@ -106,14 +106,13 @@ export async function duplicateSplit(db: WorkoutDB, splitId: string): Promise<st
 }
 
 /**
- * Delete a split and its days. Refused while a schedule still puts it on the
- * calendar, so a deletion never silently empties planned dates.
+ * Delete a split, its days, and any schedules that put it on the calendar
+ * (those dates then show nothing, unless another schedule covers them).
+ * The screen warns first and offers Undo right after.
  */
 export async function deleteSplit(db: WorkoutDB, splitId: string): Promise<void> {
   await db.transaction('rw', [db.splits, db.splitDays, db.schedules], async () => {
-    if ((await db.schedules.where('splitId').equals(splitId).count()) > 0) {
-      throw new ValidationError('This split is on the calendar. Remove its schedules first.');
-    }
+    await db.schedules.where('splitId').equals(splitId).delete();
     await db.splitDays.where('splitId').equals(splitId).delete();
     await db.splits.delete(splitId);
   });

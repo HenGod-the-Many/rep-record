@@ -1,4 +1,4 @@
-import type { DateOverride, PlannedWorkout, Schedule, WorkoutDB } from './db';
+import type { DateOverride, PlannedWorkout, Schedule, Split, SplitDay, WorkoutDB } from './db';
 import { addDays, daysBetween, weekDates } from './dates';
 import { ValidationError } from './errors';
 import { newId } from './ids';
@@ -23,7 +23,10 @@ export interface MovePreview {
   week: string[];
   before: WeekDay[];
   after: WeekDay[];
-  /** The moved day and every later planned day this week, in order. Drop choices index into this. */
+  /**
+   * The moved day first, then every other planned day from the earlier of the two
+   * dates to the end of the week, in order. Drop choices index into this.
+   */
   sequence: MoveUnit[];
   /** Units that would land past the end of the week with the drop choice given. */
   overflow: MoveUnit[];
@@ -50,8 +53,10 @@ function labelOf(workouts: PlannedWorkout[], names: Map<string, string>): string
 
 /**
  * Work out a move within the week without saving it. The moved day goes to the
- * new date; each later planned day keeps its order and moves only as far as
- * needed to stay after the one before it, so rest days absorb the push.
+ * new date (later or earlier). Every other planned day from the earlier of the
+ * two dates on keeps its order and moves later only as far as needed to stay
+ * after the one before it, so rest days (and the day the move left empty)
+ * absorb the push.
  */
 export async function previewMoveWithinWeek(
   db: WorkoutDB,
@@ -59,7 +64,7 @@ export async function previewMoveWithinWeek(
   toDate: string,
   opts: MoveOptions = {},
 ): Promise<MovePreview> {
-  if (daysBetween(fromDate, toDate) <= 0) throw new ValidationError('Pick a later date. Moving a day earlier is not supported yet.');
+  if (daysBetween(fromDate, toDate) === 0) throw new ValidationError('Pick a different date.');
   const week = weekDates(fromDate, await getWeekStart(db));
   const f = week.indexOf(fromDate);
   const t = week.indexOf(toDate);
@@ -69,9 +74,11 @@ export async function previewMoveWithinWeek(
   const days = week.map((d) => resolveFrom(data, d));
   if (days[f].workouts.length === 0) throw new ValidationError('There is nothing planned on that day to move.');
 
-  const sequence: MoveUnit[] = [];
-  for (let i = f; i < 7; i++) {
-    if (days[i].workouts.length > 0) sequence.push({ from: i, workouts: days[i].workouts, label: labelOf(days[i].workouts, names) });
+  const start = Math.min(f, t);
+  const unit = (i: number): MoveUnit => ({ from: i, workouts: days[i].workouts, label: labelOf(days[i].workouts, names) });
+  const sequence: MoveUnit[] = [unit(f)];
+  for (let i = start; i < 7; i++) {
+    if (i !== f && days[i].workouts.length > 0) sequence.push(unit(i));
   }
 
   const dropSet = new Set(Array.isArray(opts.drop) ? opts.drop : []);
@@ -90,7 +97,7 @@ export async function previewMoveWithinWeek(
 
   const before: WeekDay[] = days.map((d) => ({ date: d.date, workouts: d.workouts, label: labelOf(d.workouts, names) }));
   const after: WeekDay[] = before.map((d, i) => {
-    if (i < f) return d;
+    if (i < start) return d;
     const w = placed.get(i)?.workouts ?? [];
     return { date: d.date, workouts: w, label: labelOf(w, names) };
   });
@@ -116,14 +123,15 @@ export async function applyMoveWithinWeek(db: WorkoutDB, fromDate: string, toDat
 }
 
 /**
- * Shift everything from fromDate on by the gap to toDate. The schedule is cut
- * at fromDate and continues its sequence from toDate, so rest days and order
- * are kept and the schedule ends that many days later. Hand-made changes in the
- * moved stretch move with it. The dates left behind become rest days.
+ * Shift everything from fromDate on by the gap to toDate, later or earlier. The
+ * schedule continues its sequence from toDate, so rest days and order are kept
+ * and the schedule ends that many days later (or sooner). Hand-made changes in
+ * the moved stretch move with it. Moving later, the dates left behind become
+ * rest days; moving earlier, the moved days replace what was planned there.
  */
 export async function moveAllFuture(db: WorkoutDB, fromDate: string, toDate: string): Promise<void> {
   const n = daysBetween(fromDate, toDate);
-  if (n <= 0) throw new ValidationError('Pick a later date. Moving a day earlier is not supported yet.');
+  if (n === 0) throw new ValidationError('Pick a different date.');
   await db.transaction('rw', [db.schedules, db.splits, db.splitDays, db.dateOverrides], async () => {
     const data = await loadCalendar(db);
     const s = scheduleFor(data, fromDate);
@@ -131,10 +139,12 @@ export async function moveAllFuture(db: WorkoutDB, fromDate: string, toDate: str
     const i = daysBetween(s.startDate, fromDate);
     const end = addDays(s.startDate, s.lengthDays);
 
-    if (i === 0) {
-      await db.schedules.update(s.id, { startDate: toDate });
+    // Days before the move that stay: up to fromDate when moving later, up to toDate when earlier.
+    const keep = n > 0 ? i : Math.max(0, i + n);
+    if (keep === 0) {
+      await db.schedules.update(s.id, { startDate: toDate, lengthDays: s.lengthDays - i, offset: s.offset + i });
     } else {
-      await db.schedules.update(s.id, { lengthDays: i });
+      await db.schedules.update(s.id, { lengthDays: keep });
       await db.schedules.add({
         id: newId(),
         splitId: s.splitId,
@@ -145,9 +155,13 @@ export async function moveAllFuture(db: WorkoutDB, fromDate: string, toDate: str
       });
     }
 
-    const moving = (await db.dateOverrides.toArray()).filter((o) => o.date >= fromDate && o.date < end);
-    await db.dateOverrides.bulkDelete(moving.map((o) => o.date));
+    const all = await db.dateOverrides.toArray();
+    const moving = all.filter((o) => o.date >= fromDate && o.date < end);
+    // Moving earlier: hand-made changes on the days the sequence now covers are replaced.
+    const covered = n < 0 ? all.filter((o) => o.date >= toDate && o.date < fromDate) : [];
+    await db.dateOverrides.bulkDelete([...moving, ...covered].map((o) => o.date));
     await db.dateOverrides.bulkPut(moving.map((o) => ({ ...o, date: addDays(o.date, n) })));
+    // Moving later: the days left behind become rest.
     for (let k = 0; k < n; k++) await db.dateOverrides.put({ date: addDays(fromDate, k), workouts: [] });
   });
 }
@@ -157,20 +171,28 @@ export async function moveAllFuture(db: WorkoutDB, fromDate: string, toDate: str
 export interface Snapshot {
   schedules: Schedule[];
   overrides: DateOverride[];
+  splits: Split[];
+  splitDays: SplitDay[];
 }
 
 /** Everything a move or a day edit can change, so it can be put back. */
 export async function takeSnapshot(db: WorkoutDB): Promise<Snapshot> {
-  const [schedules, overrides] = await Promise.all([db.schedules.toArray(), db.dateOverrides.toArray()]);
-  return { schedules, overrides };
+  const [schedules, overrides, splits, splitDays] = await Promise.all([
+    db.schedules.toArray(),
+    db.dateOverrides.toArray(),
+    db.splits.toArray(),
+    db.splitDays.toArray(),
+  ]);
+  return { schedules, overrides, splits, splitDays };
 }
 
 export async function restore(db: WorkoutDB, snap: Snapshot): Promise<void> {
-  await db.transaction('rw', [db.schedules, db.dateOverrides], async () => {
-    await db.schedules.clear();
-    await db.dateOverrides.clear();
+  await db.transaction('rw', [db.schedules, db.dateOverrides, db.splits, db.splitDays], async () => {
+    await Promise.all([db.schedules.clear(), db.dateOverrides.clear(), db.splits.clear(), db.splitDays.clear()]);
     await db.schedules.bulkPut(snap.schedules);
     await db.dateOverrides.bulkPut(snap.overrides);
+    await db.splits.bulkPut(snap.splits);
+    await db.splitDays.bulkPut(snap.splitDays);
   });
 }
 

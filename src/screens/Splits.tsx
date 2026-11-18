@@ -19,7 +19,7 @@ import { DEFAULT_TIME } from '../db/seed';
 import { navigate } from '../router';
 import { withUndo } from '../undo';
 import { attempt, ErrorText, Header } from './common';
-import { PlanSelect, TimeSelect } from './pickers';
+import { PlanSelect, TimeSelect, UndoBar } from './pickers';
 
 type Unit = 'days' | 'weeks';
 const toDays = (n: number, unit: Unit) => (unit === 'weeks' ? n * 7 : n);
@@ -54,6 +54,7 @@ export function SplitList() {
   return (
     <div className="screen">
       <Header title="Splits" />
+      <UndoBar />
       <ul className="list">
         {(data ?? []).map((s) => (
           <li key={s.id}>
@@ -131,8 +132,14 @@ export function SplitEdit({ splitId }: { splitId: string }) {
     }
   };
   const remove = async () => {
-    if (!window.confirm(`Delete the split "${split.name}"?`)) return;
-    if (await attempt(() => deleteSplit(db, splitId), setError)) navigate('/splits');
+    const ranges = schedules.map((s) => `${formatDate(s.startDate)} – ${formatDate(addDays(s.startDate, s.lengthDays - 1))}`);
+    const warning = ranges.length
+      ? `Delete the split "${split.name}"?
+
+It is on your calendar (${ranges.join('; ')}). Those planned days will be removed too. You can undo right after.`
+      : `Delete the split "${split.name}"?`;
+    if (!window.confirm(warning)) return;
+    if (await attempt(() => withUndo(`Deleted ${split.name}`, () => deleteSplit(db, splitId)), setError)) navigate('/splits');
   };
 
   return (

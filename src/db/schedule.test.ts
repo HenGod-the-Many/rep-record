@@ -124,15 +124,25 @@ describe('splits', () => {
     expect((await getSplitDays(db, id))[0].workouts).toHaveLength(1);
   });
 
-  it('a split that is on the calendar cannot be deleted until its schedules are removed', async () => {
+  it('deleting a split that is on the calendar removes its days and its schedules (Taylor, 2026-11-18)', async () => {
     const db = await freshDb();
     const id = await defaultSplit(db);
-    const sched = await scheduleSplit(db, id, MON, 7);
-    await expect(deleteSplit(db, id)).rejects.toThrow(/calendar/);
-    await deleteSchedule(db, sched);
+    const other = await createSplit(db, 'Other', 7);
+    await scheduleSplit(db, id, MON, 7);
+    const keep = await scheduleSplit(db, other, addDays(MON, 7), 7);
     await deleteSplit(db, id);
     expect(await db.splits.get(id)).toBeUndefined();
     expect(await db.splitDays.where('splitId').equals(id).count()).toBe(0);
+    expect(await db.schedules.where('splitId').equals(id).count()).toBe(0);
+    expect(await db.schedules.get(keep)).toBeDefined();
+    expect((await resolveDate(db, MON)).scheduled).toBe(false);
+  });
+
+  it('a schedule can be removed on its own', async () => {
+    const db = await freshDb();
+    const sched = await scheduleSplit(db, await defaultSplit(db), MON, 7);
+    await deleteSchedule(db, sched);
+    expect((await resolveDate(db, MON)).scheduled).toBe(false);
   });
 });
 

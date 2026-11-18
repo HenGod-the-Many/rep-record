@@ -36,6 +36,7 @@ export function PlanDetail({ planId }: { planId: string }) {
   const back = plan.hidden ? (copyDate ? `/day/${copyDate}` : '/today') : '/plans';
 
   const keepEverywhere = async () => {
+    if (!window.confirm(`Replace ${sourceName}'s exercises everywhere with this version? This can't be undone.`)) return;
     if (await attempt(() => updatePlanEverywhere(db, planId), setError)) navigate(back);
   };
   const keepAsNew = async () => {
@@ -53,7 +54,7 @@ export function PlanDetail({ planId }: { planId: string }) {
   };
 
   const remove = async () => {
-    if (!window.confirm(`Delete the plan "${plan.name}"? Logged sets are kept. Split days using it become rest days.`)) return;
+    if (!window.confirm(`Delete the plan "${plan.name}"? It is removed from your splits (a day left with nothing becomes rest), dates you set to only this plan go back to the split, and logged sets are kept.`)) return;
     await deletePlan(db, planId);
     navigate('/plans');
   };

@@ -98,9 +98,21 @@ describe('move within the week', () => {
     expect(await names(db, MON, 7)).toEqual(preview.after.map((x) => x.label));
   });
 
-  it('refuses moving earlier, moving into another week, and moving an empty day', async () => {
+  it('moving earlier: the day goes in front and the days it passes shift later, filling the day it left', async () => {
     const db = await setup();
-    await expect(previewMoveWithinWeek(db, d(2), d(1))).rejects.toThrow(/later/);
+    await applyMoveWithinWeek(db, d(2), MON); // Legs on Monday
+    expect(await names(db, MON, 7)).toEqual([L, P, PL, R, C, S, R]);
+  });
+
+  it('moving earlier from late in the week absorbs the push into rest days', async () => {
+    const db = await setup();
+    await applyMoveWithinWeek(db, d(5), d(2)); // Shoulders & Legs on Wednesday
+    expect(await names(db, MON, 7)).toEqual([P, PL, S, L, C, R, R]);
+  });
+
+  it('refuses the same date, moving into another week, and moving an empty day', async () => {
+    const db = await setup();
+    await expect(previewMoveWithinWeek(db, d(2), d(2))).rejects.toThrow(/different/);
     await expect(previewMoveWithinWeek(db, d(5), d(8))).rejects.toThrow(/week/);
     await expect(previewMoveWithinWeek(db, d(3), d(4))).rejects.toThrow(/nothing/i);
   });
@@ -130,14 +142,37 @@ describe('move all future', () => {
     expect((await names(db, d(11), 1))[0]).toBe(PL);
   });
 
-  it('refuses moving earlier or a date with no schedule', async () => {
+  it('moving earlier: everything from the day shifts earlier, rest days kept, schedule ends sooner', async () => {
     const db = await setup();
-    await expect(moveAllFuture(db, d(4), d(2))).rejects.toThrow(/later/);
+    await moveAllFuture(db, d(4), d(2)); // Friday's CBA to Wednesday
+    expect(await names(db, MON, 13)).toEqual([P, PL, C, S, R, P, PL, L, R, C, S, R, '—']);
+  });
+
+  it('moving earlier from the first scheduled day moves the whole schedule', async () => {
+    const db = await setup();
+    await moveAllFuture(db, MON, d(-2));
+    expect(await names(db, d(-2), 15)).toEqual([P, PL, L, R, C, S, R, P, PL, L, R, C, S, R, '—']);
+  });
+
+  it('refuses the same date or a date with no schedule', async () => {
+    const db = await setup();
+    await expect(moveAllFuture(db, d(4), d(4))).rejects.toThrow(/different/);
     await expect(moveAllFuture(db, d(20), d(22))).rejects.toThrow(/schedule/);
   });
 });
 
 describe('undo', () => {
+  it('brings back a deleted split together with its calendar dates', async () => {
+    const db = await setup();
+    const { deleteSplit } = await import('./schedule');
+    const before = await names(db, MON, 14);
+    const snap = await takeSnapshot(db);
+    await deleteSplit(db, (await db.splits.toArray())[0].id);
+    expect((await names(db, MON, 1))[0]).toBe('—');
+    await restore(db, snap);
+    expect(await names(db, MON, 14)).toEqual(before);
+  });
+
   it('restores the calendar exactly as it was before a move', async () => {
     const db = await setup();
     const before = await names(db, MON, 17);

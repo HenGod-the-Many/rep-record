@@ -32,7 +32,7 @@ export function MoveDay({ date, back }: { date: string; back: string }) {
     let live = true;
     if (mode !== 'week') {
       setPreview(null);
-      setProblem(daysBetween(date, to) > 0 ? null : 'Pick a later date.');
+      setProblem(daysBetween(date, to) !== 0 ? null : 'Pick a different date.');
       return;
     }
     previewMoveWithinWeek(db, date, to, { drop })
@@ -70,7 +70,7 @@ export function MoveDay({ date, back }: { date: string; back: string }) {
 
       <label className="field">
         <span>New date</span>
-        <input type="date" value={to} min={addDays(date, 1)} onChange={(e) => e.target.value && setTo(e.target.value)} />
+        <input type="date" value={to} onChange={(e) => e.target.value && setTo(e.target.value)} />
       </label>
 
       <div className="field">
@@ -83,11 +83,18 @@ export function MoveDay({ date, back }: { date: string; back: string }) {
 
       {problem && <p className="error" role="alert">{problem}</p>}
 
-      {mode === 'future' && !problem && (
+      {mode === 'future' && !problem && n > 0 && (
         <p className="banner">
           Everything from {formatDate(date)} on moves {n} day{n === 1 ? '' : 's'} later, in the same order with the same rest days.
           The schedule ends {n} day{n === 1 ? '' : 's'} later too. {formatDate(date)}
           {n > 1 ? ` to ${formatDate(addDays(to, -1))}` : ''} become{n > 1 ? '' : 's'} rest.
+        </p>
+      )}
+      {mode === 'future' && !problem && n < 0 && (
+        <p className="banner">
+          Everything from {formatDate(date)} on moves {-n} day{n === -1 ? '' : 's'} earlier, in the same order with the same rest days.
+          It replaces what was planned from {formatDate(to)}
+          {n < -1 ? ` to ${formatDate(addDays(date, -1))}` : ''}, and the schedule ends {-n} day{n === -1 ? '' : 's'} sooner.
         </p>
       )}
 
