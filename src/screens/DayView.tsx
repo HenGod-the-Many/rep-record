@@ -1,0 +1,170 @@
+import { useState } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '../db/db';
+import { formatDate, timeLabel } from '../db/dates';
+import { getEntries } from '../db/plans';
+import { makeDateCopy } from '../db/reschedule';
+import {
+  addWorkoutToDate,
+  clearDate,
+  removeWorkoutFromDate,
+  replaceWorkout,
+  resetDate,
+  resolveDate,
+  setWorkoutTime,
+} from '../db/schedule';
+import { DEFAULT_TIME } from '../db/seed';
+import { formatTargets } from '../format';
+import { navigate } from '../router';
+import { withUndo } from '../undo';
+import { attempt, ErrorText, Header } from './common';
+import { PlanSelect, TimeSelect, UndoBar } from './pickers';
+
+/** One date's workouts, with quick changes. Used for Today and for any calendar date. */
+export function DayView({ date, isToday, back }: { date: string; isToday?: boolean; back?: string }) {
+  const data = useLiveQuery(async () => {
+    const day = await resolveDate(db, date);
+    const exercises = new Map((await db.exercises.toArray()).map((e) => [e.id, e]));
+    const workouts = await Promise.all(
+      day.workouts.map(async (w) => ({
+        ...w,
+        plan: await db.plans.get(w.planId),
+        entries: await getEntries(db, w.planId),
+      })),
+    );
+    return { day, workouts, exercises };
+  }, [date]);
+  const [replacing, setReplacing] = useState<number | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [newPlan, setNewPlan] = useState('');
+  const [newTime, setNewTime] = useState(DEFAULT_TIME);
+  const [error, setError] = useState<string | null>(null);
+
+  const title = isToday ? 'Today' : formatDate(date);
+  const here = isToday ? '/today' : `/day/${date}`;
+  const action = isToday ? (
+    <button className="header-link" onClick={() => navigate('/settings')}>
+      Settings
+    </button>
+  ) : undefined;
+
+  if (!data) return <div className="screen"><Header title={title} back={back} action={action} /></div>;
+  const { day, workouts, exercises } = data;
+  const short = formatDate(date);
+
+  const change = (label: string, fn: () => Promise<unknown>) => attempt(() => withUndo(label, fn), setError);
+
+  const add = async () => {
+    if (!newPlan) return setError('Pick a plan to add.');
+    if (await change(`Added a workout to ${short}`, () => addWorkoutToDate(db, date, newPlan, newTime))) {
+      setAdding(false);
+      setNewPlan('');
+    }
+  };
+
+  const editForDate = async (index: number) => {
+    let copyId = '';
+    if (await change(`Made ${short}'s workout editable`, async () => { copyId = await makeDateCopy(db, date, index); })) {
+      navigate(`/plans/${copyId}?back=${encodeURIComponent(here)}`);
+    }
+  };
+
+  return (
+    <div className="screen">
+      <Header title={title} back={back} action={action} />
+      {isToday && <p className="subtitle">{short}</p>}
+      <UndoBar />
+
+      {!day.scheduled && !day.overridden && <p className="banner">Nothing scheduled. Put a split on the calendar from Splits, or add a workout here.</p>}
+      {(day.scheduled || day.overridden) && workouts.length === 0 && <p className="banner">Rest day.</p>}
+      {day.overridden && (
+        <p className="small-print muted">
+          Changed by hand.{' '}
+          <button className="link" onClick={() => change(`Reset ${short} to the split`, () => resetDate(db, date))}>
+            Reset to the split
+          </button>
+        </p>
+      )}
+
+      {workouts.map((w, i) => (
+        <section className="card" key={`${w.planId}-${i}`}>
+          <div className="card-head">
+            <div>
+              <div className="card-title">
+                {w.plan?.name ?? 'Deleted plan'}
+                {w.plan?.hidden && <span className="tag">edited for this date</span>}
+              </div>
+              <div className="row-sub">{timeLabel(w.time)}</div>
+            </div>
+            <TimeSelect
+              label={`Time for ${w.plan?.name ?? 'workout'}`}
+              value={w.time}
+              onChange={(t) => change(`Changed the time on ${short}`, () => setWorkoutTime(db, date, i, t))}
+            />
+          </div>
+          <ul className="mini-list">
+            {w.entries.map((e) => {
+              const ex = exercises.get(e.exerciseId);
+              return (
+                <li key={e.id}>
+                  <span>{ex?.name ?? 'Unknown exercise'}</span>
+                  <span className="muted">{ex ? formatTargets(e, ex.kind) : ''}</span>
+                </li>
+              );
+            })}
+            {w.entries.length === 0 && <li className="muted">No exercises in this plan yet.</li>}
+          </ul>
+          <button className="btn-primary block" disabled title="Logging arrives in the next update">
+            Start workout (logging comes next)
+          </button>
+          {replacing === i ? (
+            <div className="inline-form">
+              <PlanSelect
+                label="Replace with"
+                value=""
+                placeholder="Replace with…"
+                onChange={async (id) => {
+                  if (id && (await change(`Replaced a workout on ${short}`, () => replaceWorkout(db, date, i, id)))) setReplacing(null);
+                }}
+              />
+              <button className="btn-secondary" onClick={() => setReplacing(null)}>Cancel</button>
+            </div>
+          ) : (
+            <div className="button-row">
+              <button className="btn-secondary" onClick={() => editForDate(i)}>Edit for this date</button>
+              <button className="btn-secondary" onClick={() => setReplacing(i)}>Replace</button>
+              <button className="btn-danger" onClick={() => change(`Removed a workout from ${short}`, () => removeWorkoutFromDate(db, date, i))}>
+                Remove
+              </button>
+            </div>
+          )}
+        </section>
+      ))}
+
+      {adding ? (
+        <div className="card">
+          <div className="card-title">Add a workout to {short}</div>
+          <div className="stack">
+            <PlanSelect label="Plan to add" value={newPlan} onChange={setNewPlan} />
+            <TimeSelect label="Time" value={newTime} onChange={setNewTime} />
+            <div className="button-row two">
+              <button className="btn-primary" onClick={add}>Add</button>
+              <button className="btn-secondary" onClick={() => setAdding(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="button-row">
+          <button className="btn-secondary" onClick={() => setAdding(true)}>+ Add workout</button>
+          <button className="btn-secondary" disabled={workouts.length === 0} onClick={() => navigate(`/move/${date}?back=${encodeURIComponent(here)}`)}>
+            Move day
+          </button>
+          <button className="btn-danger" disabled={workouts.length === 0} onClick={() => change(`Cleared ${short}`, () => clearDate(db, date))}>
+            Clear day
+          </button>
+        </div>
+      )}
+      <ErrorText message={error} />
+    </div>
+  );
+}
