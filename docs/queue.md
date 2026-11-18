@@ -51,7 +51,7 @@ Newest first.
 
 ### W-01, W-03, W-04: skeleton, exercise library, plan builder
 
-- Delivered in: branch `feature/foundation`, pull request to `dev` on `HenGod-the-Many/rep-record`
+- Delivered in: [rep-record#1](https://github.com/HenGod-the-Many/rep-record/pull/1), squash-merged to `dev`
 - Result: the app opens with the brief's 37 exercises, 5 plans and default split; exercises can be created, edited, archived and restored; plans can be built, reordered, duplicated, and have exercises replaced or given alternates.
 - Evidence: `npm run check` passes (type-check, 26 tests, build); acceptance-reviewer verdict "accept after fixes", both fixes made (strict reorder test, missing screenshots); `/code-review` found 6 items, all fixed. Screenshots in `docs/evidence/foundation/`.
 - Not verified: anything on a real iPhone or in Safari (that is W-02); offline loading was checked in desktop Chromium only.
