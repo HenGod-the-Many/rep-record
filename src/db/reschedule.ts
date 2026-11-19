@@ -239,7 +239,7 @@ export async function makeDateCopy(db: WorkoutDB, date: string, index: number): 
 
 /** Write a date's edited copy back into the plan it came from, everywhere. */
 export async function updatePlanEverywhere(db: WorkoutDB, copyId: string): Promise<void> {
-  await db.transaction('rw', [db.plans, db.planExercises, db.dateOverrides], async () => {
+  await db.transaction('rw', [db.plans, db.planExercises, db.dateOverrides, db.sessions], async () => {
     const copy = await db.plans.get(copyId);
     if (!copy?.hidden) throw new ValidationError('This workout is not a one-date copy.');
     const sourceId = copy.sourcePlanId;
@@ -247,15 +247,15 @@ export async function updatePlanEverywhere(db: WorkoutDB, copyId: string): Promi
       throw new ValidationError('The original plan no longer exists. Save this as a new plan instead.');
     }
     await db.planExercises.where('planId').equals(sourceId).delete();
-    for (const e of await getEntries(db, copyId)) {
-      await db.planExercises.add({ ...e, id: newId(), planId: sourceId, alternateIds: [...e.alternateIds] });
-    }
+    // The copy's entries move across keeping their ids, so sets already logged
+    // from this date's workout still belong to their exercise slots.
+    await db.planExercises.where('planId').equals(copyId).modify({ planId: sourceId });
     await db.dateOverrides
       .filter((o) => o.workouts.some((w) => w.planId === copyId))
       .modify((o) => {
         o.workouts = o.workouts.map((w) => (w.planId === copyId ? { ...w, planId: sourceId } : w));
       });
-    await db.planExercises.where('planId').equals(copyId).delete();
+    await db.sessions.where('planId').equals(copyId).modify({ planId: sourceId });
     await db.plans.delete(copyId);
   });
 }

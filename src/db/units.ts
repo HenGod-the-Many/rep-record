@@ -42,10 +42,16 @@ export function formatWeight(lb: number | null, unit: Unit): string {
   return lb === null ? '' : `${displayNumber(lb, unit)} ${unit}`;
 }
 
-/** Add one ± step (5 lb or 2.5 kg) in the display unit. Never below 0. */
+/**
+ * One ± step (5 lb or 2.5 kg) in the display unit, landing on that step's grid:
+ * 61.23 kg + goes to 62.5, 135 lb + goes to 140. Never below 0.
+ */
 export function stepWeight(lb: number | null, direction: 1 | -1, unit: Unit): number {
+  const step = WEIGHT_STEP[unit];
   const shown = lb === null ? 0 : toDisplay(lb, unit);
-  return Math.max(0, fromDisplay(shown + direction * WEIGHT_STEP[unit], unit));
+  const eps = 1e-6;
+  const next = direction > 0 ? (Math.floor(shown / step + eps) + 1) * step : (Math.ceil(shown / step - eps) - 1) * step;
+  return Math.max(0, fromDisplay(next, unit));
 }
 
 /** A quick drop of pct % (10, 20, 30), rounded to the nearest 5 lb or 2.5 kg in the display unit. */

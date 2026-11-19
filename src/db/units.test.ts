@@ -37,6 +37,13 @@ describe('units', () => {
     expect(stepWeight(null, 1, 'lb')).toBe(5);
   });
 
+  it('± lands on the step grid when the weight is between steps', () => {
+    expect(displayNumber(stepWeight(135, 1, 'kg'), 'kg')).toBe('62.5'); // 61.23 kg -> 62.5
+    expect(displayNumber(stepWeight(135, -1, 'kg'), 'kg')).toBe('60'); // 61.23 kg -> 60
+    expect(stepWeight(132, 1, 'lb')).toBe(135);
+    expect(stepWeight(132, -1, 'lb')).toBe(130);
+  });
+
   it('quick drops round to 5 lb or 2.5 kg', () => {
     expect(quickDrop(135, 10, 'lb')).toBe(120); // 121.5 -> 120
     expect(quickDrop(135, 20, 'lb')).toBe(110); // 108 -> 110

@@ -5,6 +5,7 @@ import { formatDate, timeLabel } from '../db/dates';
 import { getEntries } from '../db/plans';
 import {
   activeExerciseId,
+  adjustSet,
   changeWeightAt,
   deleteSet,
   finishSession,
@@ -86,7 +87,7 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
         if (!ex) return null;
         return (
           <ExerciseCard
-            key={entry.id}
+            key={`${entry.id}:${exId}`}
             session={session}
             entry={entry}
             exercise={ex}
@@ -186,6 +187,13 @@ function ExerciseCard(props: {
   };
 
   const run = (fn: () => Promise<unknown>) => attempt(fn, setError);
+
+  /** One ± tap: on a logged set it changes the saved value; on an unlogged row, the draft. */
+  const stepRow = (n: number, change: (p: SetPart) => SetPart) => {
+    const log = byNumber.get(n);
+    if (log) return run(() => adjustSet(db, log.id, change));
+    return setRow(n, change(partsOf(n)[0]));
+  };
 
   /** Save new numbers for a row: straight to the database if logged, else into the draft. */
   const setRow = (n: number, part: SetPart) => {
@@ -314,10 +322,12 @@ function ExerciseCard(props: {
                       display={part.weightLb === null ? '' : displayNumber(part.weightLb, unit)}
                       placeholder={kind === 'bodyweight' ? '0' : '–'}
                       wide
-                      onStep={(d) => {
-                        const w = stepWeight(part.weightLb, d, unit);
-                        setRow(n, { ...part, weightLb: kind === 'bodyweight' && w === 0 ? null : w });
-                      }}
+                      onStep={(d) =>
+                        stepRow(n, (p) => {
+                          const w = stepWeight(p.weightLb, d, unit);
+                          return { ...p, weightLb: kind === 'bodyweight' && w === 0 ? null : w };
+                        })
+                      }
                       onCommit={(t) => {
                         const w = parseWeight(t, unit, part.weightLb);
                         setRow(n, { ...part, weightLb: kind === 'bodyweight' && w === 0 ? null : w });
@@ -330,7 +340,7 @@ function ExerciseCard(props: {
                       unitLabel="s"
                       display={part.seconds === null ? '' : String(part.seconds)}
                       placeholder={repHint}
-                      onStep={(d) => setRow(n, { ...part, seconds: Math.max(5, (part.seconds ?? 0) + d * 5) })}
+                      onStep={(d) => stepRow(n, (p) => ({ ...p, seconds: Math.max(5, (p.seconds ?? 0) + d * 5) }))}
                       onCommit={(t) => setRow(n, { ...part, seconds: wholeOrNull(t) })}
                     />
                   ) : (
@@ -339,7 +349,7 @@ function ExerciseCard(props: {
                       unitLabel="reps"
                       display={part.reps === null ? '' : String(part.reps)}
                       placeholder={repHint}
-                      onStep={(d) => setRow(n, { ...part, reps: Math.max(1, (part.reps ?? 0) + d) })}
+                      onStep={(d) => stepRow(n, (p) => ({ ...p, reps: Math.max(1, (p.reps ?? 0) + d) }))}
                       onCommit={(t) => setRow(n, { ...part, reps: wholeOrNull(t) })}
                     />
                   )}
@@ -381,6 +391,7 @@ function ExerciseCard(props: {
 
       {mode && mode.step !== 'set' && (
         <ChangePanel
+          key={`${mode.kind}:${mode.step}:${mode.setNumber}`}
           mode={mode}
           parts={partsOf(mode.setNumber)}
           entry={entry}
@@ -538,7 +549,7 @@ function ChangePanel(props: {
         <div className="change-title">
           Set {mode.setNumber}, from rep {mode.atRep}: new weight
         </div>
-        <div className="chips drops">
+        {base > 0 && <div className="chips drops">
           {[10, 20, 30].map((pct) => {
             const lb = quickDrop(base, pct, unit);
             return (
@@ -547,7 +558,7 @@ function ChangePanel(props: {
               </button>
             );
           })}
-        </div>
+        </div>}
         <div className="inline-form">
           <input inputMode="decimal" aria-label={`New weight in ${unit}`} placeholder={unit} value={typed} onChange={(e) => setTyped(e.target.value)} />
           <button
@@ -601,7 +612,7 @@ function ChangePanel(props: {
 }
 
 function SwapPanel(props: { session: Session; entry: PlanExercise; current: string; original: Exercise | undefined; onDone: () => void }) {
-  const choices = useLiveQuery(() => swapChoices(db, props.entry, props.current), [props.entry, props.current]);
+  const choices = useLiveQuery(() => swapChoices(db, props.entry, props.current), [props.entry.id, props.current]);
   const [search, setSearch] = useState('');
   const [error, setError] = useState<string | null>(null);
   const pick = async (id: string) => {

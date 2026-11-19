@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { WorkoutDB } from './db';
 import { addAlternate, getEntries } from './plans';
+import { makeDateCopy, updatePlanEverywhere } from './reschedule';
+import { addWorkoutToDate } from './schedule';
 import {
   activeExerciseId,
+  adjustSet,
   changeWeightAt,
   deleteSet,
   findSession,
@@ -300,3 +303,56 @@ describe('session-only swap', () => {
     expect(others.length).toBeGreaterThan(20);
   });
 });
+
+describe('fixes from the bug review', () => {
+  it('pre-fill for an older workout never uses a later one', async () => {
+    const db = await freshDb();
+    const bench = await exerciseId(db, 'Bench press');
+    const push = await planId(db, 'Push');
+    const mon = await startOrResume(db, { date: '2026-11-16', planId: push, time: 'morning' });
+    await logSet(db, { sessionId: mon, exerciseId: bench, planExerciseId: null, setNumber: 1, parts: [W(125, 8)] });
+    const thu = await startOrResume(db, { date: '2026-11-19', planId: push, time: 'morning' });
+    await logSet(db, { sessionId: thu, exerciseId: bench, planExerciseId: null, setNumber: 1, parts: [W(135, 8)] });
+    expect(await prefillFor(db, mon, bench, 1)).toEqual([]);
+    expect((await prefillFor(db, thu, bench, 1))[0].weightLb).toBe(125);
+  });
+
+  it('when the exercise filled two slots last time, pre-fill uses one slot, not both mixed', async () => {
+    const db = await freshDb();
+    const bench = await exerciseId(db, 'Bench press');
+    const push = await planId(db, 'Push');
+    const old = await startOrResume(db, { date: '2026-11-12', planId: push, time: 'morning' });
+    for (const n of [1, 2, 3]) await logSet(db, { sessionId: old, exerciseId: bench, planExerciseId: 'slotA', setNumber: n, parts: [W(135, 8)] });
+    await logSet(db, { sessionId: old, exerciseId: bench, planExerciseId: 'slotB', setNumber: 1, parts: [W(95, 15)] });
+    const today = await startOrResume(db, { date: '2026-11-19', planId: push, time: 'morning' });
+    expect((await prefillFor(db, today, bench, 3)).map((r) => r.weightLb)).toEqual([135, 135, 135]);
+  });
+
+  it('two quick ± taps on a logged set both count', async () => {
+    const db = await freshDb();
+    const { sessionId, entries } = await pushSession(db);
+    const bench = entries[0];
+    const id = await logSet(db, { sessionId, exerciseId: bench.exerciseId, planExerciseId: bench.id, setNumber: 1, parts: [W(135, 8)] });
+    const plus5 = (p: { weightLb: number | null; reps: number | null; seconds: number | null }) => ({ ...p, weightLb: (p.weightLb ?? 0) + 5 });
+    await Promise.all([adjustSet(db, id, plus5), adjustSet(db, id, plus5)]);
+    expect((await db.setLogs.get(id))?.parts[0].weightLb).toBe(145);
+  });
+
+  it('keeping a date\'s edited plan everywhere keeps the workout logged from it intact', async () => {
+    const db = await freshDb();
+    const push = await planId(db, 'Push');
+    const date = '2026-11-19';
+    await addWorkoutToDate(db, date, push, 'morning');
+    const copyId = await makeDateCopy(db, date, 0);
+    const sessionId = await startOrResume(db, { date, planId: copyId, time: 'morning' });
+    const [slot] = await getEntries(db, copyId);
+    await logSet(db, { sessionId, exerciseId: slot.exerciseId, planExerciseId: slot.id, setNumber: 1, parts: [W(135, 8)] });
+
+    await updatePlanEverywhere(db, copyId);
+
+    const session = await db.sessions.get(sessionId);
+    expect(session?.planId).toBe(push);
+    expect((await getEntries(db, push)).map((e) => e.id)).toContain(slot.id);
+  });
+});
+

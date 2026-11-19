@@ -138,8 +138,8 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
               )}
             </div>
           ) : w.session ? (
-            <button className="btn-primary block" onClick={() => navigate(`/log/${w.session!.id}`)}>
-              Resume workout · {w.setCount} {w.setCount === 1 ? 'set' : 'sets'} logged
+            <button className={`${isToday ? 'btn-primary' : 'btn-secondary'} block`} onClick={() => navigate(`/log/${w.session!.id}`)}>
+              {isToday ? 'Resume workout' : 'View workout'} · {w.setCount} {w.setCount === 1 ? 'set' : 'sets'} logged
             </button>
           ) : isToday ? (
             <button

@@ -241,6 +241,21 @@ export async function updateSetParts(db: WorkoutDB, setId: string, parts: SetPar
   });
 }
 
+/**
+ * Change a logged single-part set from its current saved value (used by the ±
+ * buttons, so quick repeated taps each count even before the screen refreshes).
+ */
+export async function adjustSet(db: WorkoutDB, setId: string, change: (part: SetPart) => SetPart): Promise<void> {
+  await db.transaction('rw', [db.setLogs, db.exercises], async () => {
+    const log = await db.setLogs.get(setId);
+    if (!log) throw new ValidationError('That set no longer exists.');
+    const parts = [change(log.parts[0])];
+    const ex = await db.exercises.get(log.exerciseId);
+    checkParts(parts, ex?.kind ?? 'weight');
+    await db.setLogs.update(setId, { parts });
+  });
+}
+
 export async function setDifficulty(db: WorkoutDB, setId: string, difficulty: number | null): Promise<void> {
   checkDifficulty(difficulty);
   await db.setLogs.update(setId, { difficulty });
@@ -278,22 +293,32 @@ export interface Prefill {
  * time had fewer sets, the extra rows use its last set. Empty list = first time.
  */
 export async function prefillFor(db: WorkoutDB, sessionId: string, exerciseId: string, rows: number): Promise<Prefill[]> {
-  const logs = (await db.setLogs.where('exerciseId').equals(exerciseId).toArray()).filter((l) => l.sessionId !== sessionId);
+  const current = await db.sessions.get(sessionId);
+  const all = (await db.setLogs.where('exerciseId').equals(exerciseId).toArray()).filter((l) => l.sessionId !== sessionId);
+  if (all.length === 0) return [];
+  const sessions = new Map(
+    (await db.sessions.bulkGet([...new Set(all.map((l) => l.sessionId))])).filter((s): s is Session => !!s).map((s) => [s.id, s]),
+  );
+  // Order sessions by date, then start time; only those before this one count.
+  const order = (s: Session | undefined) => [s?.date ?? '', s?.startedAt ?? 0] as const;
+  const before = (a: readonly [string, number], b: readonly [string, number]) => a[0] < b[0] || (a[0] === b[0] && a[1] < b[1]);
+  const logs = current ? all.filter((l) => before(order(sessions.get(l.sessionId)), order(current))) : all;
   if (logs.length === 0) return [];
-  // Latest session by date, then start time, then when its last set was logged.
   const ids = [...new Set(logs.map((l) => l.sessionId))];
-  const sessions = new Map((await db.sessions.bulkGet(ids)).filter((s): s is Session => !!s).map((s) => [s.id, s]));
   const lastLogged = new Map<string, number>();
   for (const l of logs) lastLogged.set(l.sessionId, Math.max(lastLogged.get(l.sessionId) ?? 0, l.loggedAt));
-  const key = (id: string) => {
-    const s = sessions.get(id);
-    return [s?.date ?? '', s?.startedAt ?? 0, lastLogged.get(id) ?? 0] as const;
-  };
+  const key = (id: string) => [...order(sessions.get(id)), lastLogged.get(id) ?? 0] as const;
   const latestId = ids.reduce((best, id) => {
     const [a, b] = [key(id), key(best)];
     return a[0] > b[0] || (a[0] === b[0] && (a[1] > b[1] || (a[1] === b[1] && a[2] > b[2]))) ? id : best;
   });
-  const lastSets = logs.filter((l) => l.sessionId === latestId).sort((a, b) => a.setNumber - b.setNumber);
+  // If the exercise filled two slots that day, use the slot with the most sets.
+  const bySlot = new Map<string, SetLog[]>();
+  for (const l of logs.filter((x) => x.sessionId === latestId)) {
+    const k = l.planExerciseId ?? '';
+    bySlot.set(k, [...(bySlot.get(k) ?? []), l]);
+  }
+  const lastSets = [...bySlot.values()].reduce((a, b) => (b.length > a.length ? b : a)).sort((a, b) => a.setNumber - b.setNumber);
   const out: Prefill[] = [];
   for (let i = 0; i < rows; i++) {
     const l = lastSets[Math.min(i, lastSets.length - 1)];
