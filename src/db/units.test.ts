@@ -11,9 +11,18 @@ describe('units', () => {
   });
 
   it('switching units changes no stored value: 135 lb shows as 61.23 kg and back as 135 lb', async () => {
-    const stored = 135;
-    expect(formatWeight(stored, 'kg')).toBe('61.23 kg');
-    expect(formatWeight(stored, 'lb')).toBe('135 lb');
+    const db = await freshDb();
+    await db.setLogs.add({
+      id: 'x', sessionId: 's', exerciseId: 'e', planExerciseId: null, setNumber: 1,
+      parts: [{ weightLb: 135, reps: 8, seconds: null }], difficulty: null, toFailure: false, note: '', loggedAt: 1,
+    });
+    await setUnit(db, 'kg');
+    const inKg = (await db.setLogs.get('x'))!.parts[0].weightLb;
+    expect(formatWeight(inKg, await getUnit(db))).toBe('61.23 kg');
+    await setUnit(db, 'lb');
+    const back = (await db.setLogs.get('x'))!.parts[0].weightLb;
+    expect(back).toBe(135);
+    expect(formatWeight(back, await getUnit(db))).toBe('135 lb');
   });
 
   it('a weight typed in kg reads back the same in kg', () => {

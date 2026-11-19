@@ -2,6 +2,24 @@
 
 Newest first.
 
+## 2026-11-19: W-06 logging built; v0.1.0 released
+
+- Release v0.1.0 went live on GitHub Pages (Taylor said publish):
+  https://hengod-the-many.github.io/rep-record/ . Deploys run on every push to main.
+- Built W-06 on `feature/w06-logging`: database version 3 (set parts, difficulty,
+  to failure, open/finished sessions), logging screen, Today buttons, lb/kg.
+  Decision 0003 records the set shape.
+- A test that sometimes failed found a real problem: two sets saved in the
+  same millisecond could pre-fill from the wrong session. Pre-fill now picks the
+  latest session by date and start time.
+- /code-review: 10 findings, all fixed (pre-fill from a later session, quick
+  ± taps lost, kg steps off the 2.5 grid, a kept date copy orphaning its
+  logged workout, and smaller ones). Reviewer: accept after fixes; both fixed.
+- Lesson: browser tests that set input values by script must also fire the
+  blur event; and hot reload drops unsaved drafts, so reload for real first.
+- Requirements: R-04.3 and R-05.1–R-05.10 verified except R-05.6 and R-05.7,
+  which are built; their history part is W-08.
+
 ## 2026-11-18 (evening): W-05 and W-14 built
 
 - Built splits, schedules, calendar, Today, rescheduling and Undo on
