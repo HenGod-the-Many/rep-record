@@ -138,14 +138,14 @@ describe('permanent swap in a plan (R-04.2)', () => {
     const machineFly = fly.exerciseId;
     await db.setLogs.add({
       id: 'old', sessionId: 's', exerciseId: machineFly, planExerciseId: fly.id, setNumber: 1,
-      weightLb: 100, reps: 12, seconds: null, note: '', loggedAt: 1,
+      parts: [{ weightLb: 100, reps: 12, seconds: null }], difficulty: null, toFailure: false, note: '', loggedAt: 1,
     });
 
     await replaceEntryExercise(db, fly.id, await exerciseId(db, 'Cable fly'));
 
     expect((await namesIn(db, push))[2]).toBe('Cable fly');
     expect(await db.exercises.get(machineFly)).toBeDefined();
-    expect(await db.setLogs.get('old')).toMatchObject({ exerciseId: machineFly, weightLb: 100, reps: 12 });
+    expect(await db.setLogs.get('old')).toMatchObject({ exerciseId: machineFly, parts: [{ weightLb: 100, reps: 12, seconds: null }] });
   });
 
   it('drops the new exercise from the alternates if it was one', async () => {
@@ -163,7 +163,7 @@ describe('deleting a plan', () => {
     const push = await planId(db, 'Push');
     await db.setLogs.add({
       id: 'keep', sessionId: 's', exerciseId: await exerciseId(db, 'Bench press'), planExerciseId: null,
-      setNumber: 1, weightLb: 185, reps: 8, seconds: null, note: '', loggedAt: 1,
+      setNumber: 1, parts: [{ weightLb: 185, reps: 8, seconds: null }], difficulty: null, toFailure: false, note: '', loggedAt: 1,
     });
     await deletePlan(db, push);
     expect(await db.plans.get(push)).toBeUndefined();

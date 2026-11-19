@@ -275,8 +275,10 @@ export async function saveCopyAsNewPlan(db: WorkoutDB, copyId: string, name: str
  * could bring a reference back.
  */
 export async function pruneUnusedCopies(db: WorkoutDB): Promise<number> {
-  return db.transaction('rw', [db.plans, db.planExercises, db.dateOverrides], async () => {
+  return db.transaction('rw', [db.plans, db.planExercises, db.dateOverrides, db.sessions], async () => {
     const used = new Set((await db.dateOverrides.toArray()).flatMap((o) => o.workouts.map((w) => w.planId)));
+    // A copy a workout was logged from stays, so that session still shows its plan.
+    for (const s of await db.sessions.toArray()) if (s.planId) used.add(s.planId);
     const orphans = (await db.plans.filter((p) => p.hidden === true).toArray()).filter((p) => !used.has(p.id));
     for (const p of orphans) {
       await db.planExercises.where('planId').equals(p.id).delete();
