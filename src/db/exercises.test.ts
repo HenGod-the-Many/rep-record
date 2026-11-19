@@ -37,7 +37,7 @@ describe('archiving (R-01.3)', () => {
     const id = await exerciseId(db, 'Bench press');
     await db.setLogs.add({
       id: 's1', sessionId: 'x', exerciseId: id, planExerciseId: null, setNumber: 1,
-      weightLb: 185, reps: 8, seconds: null, note: '', loggedAt: 1,
+      parts: [{ weightLb: 185, reps: 8, seconds: null }], difficulty: null, toFailure: false, note: '', loggedAt: 1,
     });
     await setArchived(db, id, true);
     expect((await listExercises(db)).map((e) => e.id)).not.toContain(id);
