@@ -8,7 +8,7 @@ import { navigate } from '../router';
 import { attempt, ErrorText, Header } from './common';
 import { formatTargets } from '../format';
 
-export function PlanDetail({ planId }: { planId: string }) {
+export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string }) {
   const data = useLiveQuery(async () => {
     const plan = await db.plans.get(planId);
     if (!plan) return { plan: null, entries: [], exercises: new Map(), copyDate: null, sourceName: null };
@@ -33,7 +33,8 @@ export function PlanDetail({ planId }: { planId: string }) {
     );
   }
   const { plan, entries, exercises, copyDate, sourceName } = data;
-  const back = plan.hidden ? (copyDate ? `/day/${copyDate}` : '/today') : '/plans';
+  const back = backTo ?? (plan.hidden ? (copyDate ? `/day/${copyDate}` : '/today') : '/plans');
+  const fromScratch = plan.hidden && !plan.sourcePlanId;
 
   const keepEverywhere = async () => {
     if (!window.confirm(`Replace ${sourceName}'s exercises everywhere with this version? This can't be undone.`)) return;
@@ -65,17 +66,21 @@ export function PlanDetail({ planId }: { planId: string }) {
       {plan.hidden && (
         <div className="card">
           <p className="small-print">
-            Changes here apply to {copyDate ? formatDate(copyDate) : 'this date'} only. The {sourceName ?? 'original'} plan is not changed.
+            {fromScratch
+              ? `This workout is for ${copyDate ? formatDate(copyDate) : 'this date'} only. Save it as a plan to reuse it.`
+              : `Changes here apply to ${copyDate ? formatDate(copyDate) : 'this date'} only. The ${sourceName ?? 'original'} plan is not changed.`}
           </p>
           {!keeping ? (
-            <button className="btn-primary block" onClick={() => { setKeeping(true); setNewName(`${plan.name} (edited)`); }}>
-              Keep these changes…
+            <button className="btn-primary block" onClick={() => { setKeeping(true); setNewName(fromScratch ? plan.name : `${plan.name} (edited)`); }}>
+              {fromScratch ? 'Save as a plan…' : 'Keep these changes…'}
             </button>
           ) : (
             <div className="stack">
-              <button className="btn-primary" disabled={!sourceName} onClick={keepEverywhere}>
-                Update {sourceName ?? 'the plan'} everywhere
-              </button>
+              {!fromScratch && (
+                <button className="btn-primary" disabled={!sourceName} onClick={keepEverywhere}>
+                  Update {sourceName ?? 'the plan'} everywhere
+                </button>
+              )}
               <div className="inline-form">
                 <input value={newName} onChange={(e) => setNewName(e.target.value)} aria-label="New plan name" />
                 <button className="btn-secondary" onClick={keepAsNew}>Save as new plan</button>
@@ -85,12 +90,16 @@ export function PlanDetail({ planId }: { planId: string }) {
           )}
         </div>
       )}
-      {plan.hidden ? null : renaming === null ? (
-        <div className="button-row">
-          <button className="btn-secondary" onClick={() => setRenaming(plan.name)}>Rename</button>
-          <button className="btn-secondary" onClick={duplicate}>Duplicate</button>
-          <button className="btn-danger" onClick={remove}>Delete</button>
-        </div>
+      {renaming === null ? (
+        plan.hidden ? (
+          <button className="btn-secondary block" onClick={() => setRenaming(plan.name)}>Rename</button>
+        ) : (
+          <div className="button-row">
+            <button className="btn-secondary" onClick={() => setRenaming(plan.name)}>Rename</button>
+            <button className="btn-secondary" onClick={duplicate}>Duplicate</button>
+            <button className="btn-danger" onClick={remove}>Delete</button>
+          </div>
+        )
       ) : (
         <div className="inline-form">
           <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="Plan name" autoFocus />

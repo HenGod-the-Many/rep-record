@@ -237,6 +237,23 @@ export async function makeDateCopy(db: WorkoutDB, date: string, index: number): 
   });
 }
 
+/**
+ * Add a brand-new, empty workout to one date at a time of day, to be built
+ * from scratch. It is a one-date workout (not listed with the plans) until it
+ * is saved as a plan. Returns its id.
+ */
+export async function createDateWorkout(db: WorkoutDB, date: string, time: string, name = 'New workout'): Promise<string> {
+  const n = name.trim().replace(/\s+/g, ' ');
+  if (!n) throw new ValidationError('Give the workout a name.');
+  return db.transaction('rw', [db.schedules, db.splits, db.splitDays, db.dateOverrides, db.plans], async () => {
+    const day = resolveFrom(await loadCalendar(db), date);
+    const id = newId();
+    await db.plans.add({ id, name: n, notes: '', hidden: true, sourcePlanId: null });
+    await setDateWorkouts(db, date, [...day.workouts, { planId: id, time }]);
+    return id;
+  });
+}
+
 /** Write a date's edited copy back into the plan it came from, everywhere. */
 export async function updatePlanEverywhere(db: WorkoutDB, copyId: string): Promise<void> {
   await db.transaction('rw', [db.plans, db.planExercises, db.dateOverrides, db.sessions], async () => {

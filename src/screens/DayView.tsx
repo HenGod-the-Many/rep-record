@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { formatDate, timeLabel } from '../db/dates';
 import { getEntries } from '../db/plans';
-import { makeDateCopy } from '../db/reschedule';
+import { createDateWorkout, makeDateCopy } from '../db/reschedule';
 import { findSession, reopenSession, startOrResume } from '../db/logging';
 import {
   addWorkoutToDate,
@@ -70,6 +70,14 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
     }
   };
 
+  const buildNew = async () => {
+    let id = '';
+    if (await change(`Added a new workout to ${short}`, async () => { id = await createDateWorkout(db, date, newTime); })) {
+      setAdding(false);
+      navigate(`/plans/${id}?back=${encodeURIComponent(here)}`);
+    }
+  };
+
   const editForDate = async (index: number) => {
     let copyId = '';
     if (await change(`Made ${short}'s workout editable`, async () => { copyId = await makeDateCopy(db, date, index); })) {
@@ -100,7 +108,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
             <div>
               <div className="card-title">
                 {w.plan?.name ?? 'Deleted plan'}
-                {w.plan?.hidden && <span className="tag">edited for this date</span>}
+                {w.plan?.hidden && <span className="tag">{w.plan.sourcePlanId ? "edited for this date" : "this date only"}</span>}
               </div>
               <div className="row-sub">{timeLabel(w.time)}</div>
             </div>
@@ -186,10 +194,12 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
         <div className="card">
           <div className="card-title">Add a workout to {short}</div>
           <div className="stack">
-            <PlanSelect label="Plan to add" value={newPlan} onChange={setNewPlan} />
             <TimeSelect label="Time" value={newTime} onChange={setNewTime} />
+            <button className="btn-primary" onClick={buildNew}>Build a new workout</button>
+            <p className="small-print muted">Starts empty; you add the exercises. Or use one of your plans:</p>
+            <PlanSelect label="Plan to add" value={newPlan} onChange={setNewPlan} />
             <div className="button-row two">
-              <button className="btn-primary" onClick={add}>Add</button>
+              <button className="btn-secondary" onClick={add} disabled={!newPlan}>Add plan</button>
               <button className="btn-secondary" onClick={() => setAdding(false)}>Cancel</button>
             </div>
           </div>
