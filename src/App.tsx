@@ -42,7 +42,7 @@ function Screen() {
   if (section === 'exercises' && id) return <ExerciseForm id={id === 'new' ? null : id} />;
   if (section === 'exercises') return <ExerciseList />;
   if (section === 'plans' && id && sub === 'entry' && subId) return <EntryEdit planId={id} entryId={subId} />;
-  if (section === 'plans' && id) return <PlanDetail planId={id} />;
+  if (section === 'plans' && id) return <PlanDetail planId={id} backTo={back?.startsWith('/') ? back : undefined} />;
   if (section === 'plans') return <PlanList />;
   if (section === 'pick') return <ExercisePicker query={query} />;
   if (section === 'splits' && id) return <SplitEdit splitId={id} />;
