@@ -114,8 +114,8 @@ written only by Taylor.
 | R-05.3 Tap targets on the logging screen are at least 44 × 44 points, and a pre-filled set is logged with one tap | must | Inspection, Demonstration | W-06 | verified | browser size script: no control under 44×44 (incl. Clear, evidence w06/05); 1 tap per pre-filled set; reviewer: met after fix |
 | R-05.4 Weights show in lb by default and in kg when set in Settings; switching units does not change stored values | must | Test | W-06 | verified | units.test.ts; browser: 135 lb ↔ 61.23 kg; reviewer: met |
 | R-05.5 Every logged set is saved the moment it is tapped, so closing the app mid-workout loses nothing | must | Test | W-06 | verified | logSet writes at once; evidence w06/01 after reload; reviewer: met |
-| R-05.6 Every set can carry a difficulty rating from 1 to 10, entered with one tap; it is shown next to that set in history and in the next session's pre-fill, because it is the main sign of being ready to go up in weight | must | Test, Demonstration | W-06 | built | logging stored and shown in pre-fill (evidence w06/02; reviewer: met); "shown in history" waits for W-08 |
-| R-05.7 Within one set you can record a weight change partway through (e.g. 5 reps at 135 lb then 3 at 115 lb) in a few taps; history and PRs count each part at its own weight | should | Test | W-06 | built | parts stored, 135→115 at rep 6 tested (reviewer: met); counting parts in history/PRs waits for W-08 |
+| R-05.6 Every set can carry a difficulty rating from 1 to 10, entered with one tap; it is shown next to that set in history and in the next session's pre-fill, because it is the main sign of being ready to go up in weight | must | Test, Demonstration | W-06 | built | logging stored and shown in pre-fill (evidence w06/02; reviewer: met); shown in history by W-08 (screenshot w08/01; reviewer: met) |
+| R-05.7 Within one set you can record a weight change partway through (e.g. 5 reps at 135 lb then 3 at 115 lb) in a few taps; history and PRs count each part at its own weight | should | Test | W-06 | built | parts stored, 135→115 at rep 6 tested (reviewer: met); W-08 shows each part and counts each part at its own weight (test fails if later parts are ignored; reviewer: met after test fix) |
 | R-05.8 Logging a set, its difficulty and a weight change each takes no more than a few seconds, so it fits in a rest period | must | Demonstration | W-06 | verified | tap counts 1/1/3/3/4 counted in the browser; reviewer: met |
 | R-05.9 Weight changes and rep changes are recorded with their own buttons, separate from adjusting a set's planned weight and reps; you pick which set changed (and for weight, at which rep), and every other set keeps its listed weight and reps | should | Test, Demonstration | W-06 | verified | logging.test.ts "only the chosen set changes"; evidence w06/04; reviewer: met |
 | R-05.10 A set can be marked as taken to failure, with the number of reps reached (e.g. aimed for 10, failed after 8); the mark shows on the set and in the next session's pre-fill | should | Test | W-06 | verified | logging.test.ts "failed"; evidence w06/01, 02; reviewer: met |
@@ -124,10 +124,10 @@ written only by Taylor.
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-06.1 An exercise's history shows every set logged for it (date, weight, reps) from any plan or split, in one list | must | Test | W-08 | planned | |
-| R-06.2 Personal records shown per exercise: heaviest weight, and best estimated 1-rep max | should | Test | W-08 | planned | |
-| R-06.3 Estimated 1-rep max uses the Epley formula, only from sets of 1–12 reps | should | Test | W-08 | planned | |
-| R-06.4 A chart shows weight and estimated 1-rep max over time | should | Demonstration | W-08 | planned | |
+| R-06.1 An exercise's history shows every set logged for it (date, weight, reps) from any plan or split, in one list | must | Test | W-08 | verified | history.test.ts (any plan, swap, scratch workout, archived); evidence w08/01 |
+| R-06.2 Personal records shown per exercise: heaviest weight, and best estimated 1-rep max | should | Test | W-08 | verified | records tests incl. parts at own weight |
+| R-06.3 Estimated 1-rep max uses the Epley formula, only from sets of 1–12 reps | should | Test | W-08 | verified | Epley test 225×5=262.5, 13 reps excluded |
+| R-06.4 A chart shows weight and estimated 1-rep max over time | should | Demonstration | W-08 | verified | chart points test; screenshot w08/01 |
 
 ## KF-07 Keep a journal per workout and per day
 
