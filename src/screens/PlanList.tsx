@@ -28,7 +28,7 @@ export function PlanList() {
 
   return (
     <div className="screen">
-      <Header title="Plans" />
+      <Header title="Plans" action={<button className="link" onClick={() => navigate('/warmups')}>Warm-ups</button>} />
       <ul className="list">
         {(plans ?? []).map((p) => (
           <li key={p.id}>

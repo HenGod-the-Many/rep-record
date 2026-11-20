@@ -34,7 +34,7 @@ comes up first when the workout starts and each move is one tap to tick off.
   routine editor and the warm-up card. — demonstration
 - The project's check command passes: `npm run check`
 
-**Data shape** (database version 6, after W-15's version 5). `warmups`: id, name, moves (list of
+**Data shape** (database version 5; built before W-15, so it took the next number). `warmups`: id, name, moves (list of
 `{ name, reps or seconds }`). `Plan` gains `warmupId` (or null). `Session`
 gains `warmupChecked` (list of move positions checked) and a copy of the
 moves at start, so editing a routine later doesn't change past workouts.

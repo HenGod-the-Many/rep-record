@@ -299,3 +299,17 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .photo-view { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.92); display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 12px); }
 .photo-view img { max-width: 100%; max-height: 75vh; object-fit: contain; margin: 0 auto; }
 .tabbar button { min-width: 0; }
+
+/* Warm-ups (W-16) */
+.move-list { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+.move-row { display: grid; grid-template-columns: 1fr 44px 44px 44px; gap: 4px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px 4px 4px 0; }
+.move-main { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; background: none; border: 0; color: var(--text); font: inherit; text-align: left; }
+.move-row .icon-btn { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 1rem; }
+.move-row .icon-btn:disabled { opacity: 0.35; }
+.warmup-moves { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.warmup-move { width: 100%; min-height: 48px; display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 8px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font: inherit; text-align: left; }
+.warmup-move .tick { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--accent); display: grid; place-items: center; font-weight: 700; color: var(--accent-text); }
+.warmup-move.checked .tick { background: var(--accent); }
+.warmup-move.checked .warmup-name { text-decoration: line-through; color: var(--muted); }
+.warmup-done { display: flex; justify-content: space-between; align-items: center; min-height: 44px; padding-top: 4px; padding-bottom: 4px; }
+.warmup-done .link, .warmup-card .link { min-height: 44px; min-width: 44px; margin-left: auto; }

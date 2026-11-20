@@ -27,7 +27,7 @@ export async function findSession(db: WorkoutDB, input: StartInput): Promise<Ses
 
 /** Start a workout, or resume it if it was already started that day. Returns the session id. */
 export async function startOrResume(db: WorkoutDB, input: StartInput): Promise<string> {
-  return db.transaction('rw', [db.sessions, db.plans], async () => {
+  return db.transaction('rw', [db.sessions, db.plans, db.warmups], async () => {
     const existing = await findSession(db, input);
     if (existing) {
       if (existing.time !== input.time) await db.sessions.update(existing.id, { time: input.time });
@@ -36,6 +36,7 @@ export async function startOrResume(db: WorkoutDB, input: StartInput): Promise<s
     const plan = await db.plans.get(input.planId);
     if (!plan) throw new ValidationError('That plan no longer exists.');
     const id = newId();
+    const warmup = plan.warmupId ? await db.warmups.get(plan.warmupId) : undefined;
     await db.sessions.add({
       id,
       date: input.date,
@@ -47,6 +48,8 @@ export async function startOrResume(db: WorkoutDB, input: StartInput): Promise<s
       startedAt: Date.now(),
       finishedAt: null,
       swaps: {},
+      warmupMoves: warmup ? warmup.moves.map((m) => ({ ...m })) : [],
+      warmupChecked: [],
     });
     return id;
   });

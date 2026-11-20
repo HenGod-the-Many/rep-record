@@ -25,6 +25,22 @@ export interface Plan {
   hidden?: boolean;
   /** For a one-date copy: the plan it was copied from. */
   sourcePlanId?: string | null;
+  /** The warm-up routine shown before this plan's workout (W-16), if any. */
+  warmupId?: string | null;
+}
+
+/** One move of a warm-up: reps or a time, never both. Plain text, not a library exercise. */
+export interface WarmupMove {
+  name: string;
+  reps: number | null;
+  seconds: number | null;
+}
+
+/** A named warm-up routine (W-16). */
+export interface Warmup {
+  id: string;
+  name: string;
+  moves: WarmupMove[];
 }
 
 /** One exercise slot in a plan. For timed exercises repMin/repMax are seconds. */
@@ -100,6 +116,10 @@ export interface Session {
   finishedAt: number | null;
   /** Session-only swaps: plan slot id -> substitute exercise id. The plan is unchanged. */
   swaps: Record<string, string>;
+  /** The warm-up's moves as they were when the workout started, so later edits don't change it (W-16). */
+  warmupMoves?: WarmupMove[];
+  /** Positions in warmupMoves that were checked off. */
+  warmupChecked?: number[];
 }
 
 /** One stretch of a set at one weight. A set whose weight changed mid-set has several. */
@@ -191,6 +211,7 @@ export class WorkoutDB extends Dexie {
   metrics!: EntityTable<Metric, 'id'>;
   metricEntries!: EntityTable<MetricEntry, 'id'>;
   photos!: EntityTable<Photo, 'id'>;
+  warmups!: EntityTable<Warmup, 'id'>;
 
   /**
    * `upTo` declares only the versions up to that number. It exists so a backup
@@ -282,6 +303,9 @@ export class WorkoutDB extends Dexie {
         const t = tx.table('metrics');
         for (const row of builtInRows()) if (!(await t.get(row.id))) await t.add(row);
       });
+    if (upTo < 5) return;
+    // v5: warm-up routines attached to plans (W-16). New fields are optional, so no data changes.
+    this.version(5).stores({ warmups: 'id, name' });
   }
 }
 

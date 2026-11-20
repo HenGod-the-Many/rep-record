@@ -52,7 +52,7 @@ calorie number even when no watch supplied one.
   activity card while logging and the activity history. — demonstration
 - The project's check command passes: `npm run check`
 
-**Data shape** (database version 5, after W-11's version 4). `ExerciseKind` gains `activity`;
+**Data shape** (database version 6, after W-16's version 5). `ExerciseKind` gains `activity`;
 `Exercise` gains `hasDistance` and `met`. `PlanExercise` gains optional
 `targetMinutes` and `targetDistanceMi`. Activity logs are `SetLog` rows with
 one part; duration goes in that part's existing `seconds` (no new duration

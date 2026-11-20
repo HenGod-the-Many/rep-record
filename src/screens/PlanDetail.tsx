@@ -6,6 +6,7 @@ import { dateOfCopy, saveCopyAsNewPlan, updatePlanEverywhere } from '../db/resch
 import { formatDate } from '../db/dates';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header } from './common';
+import { PlanWarmupChoice } from './Warmups';
 import { formatTargets } from '../format';
 
 export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string }) {
@@ -90,6 +91,7 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
           )}
         </div>
       )}
+      <PlanWarmupChoice planId={plan.id} value={plan.warmupId} />
       {renaming === null ? (
         plan.hidden ? (
           <button className="btn-secondary block" onClick={() => setRenaming(plan.name)}>Rename</button>

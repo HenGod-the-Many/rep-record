@@ -25,6 +25,7 @@ import { displayNumber, formatWeight, parseWeight, quickDrop, stepWeight, type U
 import { formatTargets } from '../format';
 import { navigate } from '../router';
 import { WorkoutNote } from './Journal';
+import { WarmupCard } from './Warmups';
 import { attempt, ErrorText, Header } from './common';
 
 const EMPTY: SetPart = { weightLb: null, reps: null, seconds: null };
@@ -93,6 +94,7 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
           </button>
         </div>
       )}
+      <WarmupCard session={session} />
       {entries.length === 0 && <p className="banner">This plan has no exercises.</p>}
       {entries.map((entry) => {
         const exId = activeExerciseId(session, entry);
