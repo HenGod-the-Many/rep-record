@@ -31,7 +31,7 @@ block, and the Awaiting owner list. Requirement status lives in
 | 8 | W-08 | Exercise history, PRs, estimated 1RM, chart | R-06.1–R-06.4 | [W-08](specs/W-08-history-prs.md) | W-06 | no | Awaiting owner | Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 9 | W-09 | Journal: session notes and day notes | R-07.1, R-07.2 | [W-09](specs/W-09-journal.md) | W-06 | no | Awaiting owner | Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 10 | W-10 | Training tips and polish | R-09.1 | not yet | W-09 | no | Not ready | |
-| 11 | W-11 | Body metrics: bodyweight + rolling average, height, optional measurements, body fat %, photos, custom metrics | R-10.1–R-10.7 | [W-11](specs/W-11-body-metrics.md) | W-06 | no | In progress | Added 2026-11-18. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
+| 11 | W-11 | Body metrics: bodyweight + rolling average, height, optional measurements, body fat %, photos, custom metrics | R-10.1–R-10.7 | [W-11](specs/W-11-body-metrics.md) | W-06 | no | Awaiting owner | Added 2026-11-18. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 12 | W-12 | Stats overview with cards you choose | R-11.1, R-11.2 | [W-12](specs/W-12-stats.md) | W-08, W-11 | no | Ready | Added 2026-11-18. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 13 | W-13 | Spike: get Apple Health data into the app (Shortcut or Health export) | KF-12 (risk) | not yet | W-02 | yes | Not ready | Later; result only Taylor can observe |
 | 14 | W-15 | Activities: runs, rides, hikes, swims and custom; duration, distance, optional effort/HR/calories, estimated calories | R-13.1–R-13.5 | [W-15](specs/W-15-activities.md) | W-06, W-11 | no | Ready | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
@@ -40,6 +40,16 @@ block, and the Awaiting owner list. Requirement status lives in
 ## Awaiting owner
 
 Newest first.
+
+### W-11: body metrics
+
+- Delivered in: feature/w11-body-metrics, pull request to `dev`
+- Result: a sixth **Body** tab with bodyweight (entries and a 7-day average line), height (feet and inches, or cm), and any measurements, body fat, progress photos or your own metrics switched on in Settings → Body metrics. One entry per day; a second asks before replacing. Photos stay on the phone, shrunk to 1600 px, and go into backups.
+- Evidence: `npm run check` 178 tests (body tests fail when the window, the always-on rule or the seed is broken); screenshots in `docs/evidence/w11/`; acceptance-reviewer "accept after fixes" (the first review attempt hung and was restarted), fixed; `/code-review` 5 findings, all fixed.
+- Measured: a 3024 × 4032 photo is stored at 1200 × 1600, 439 KB, about 585 KB in a backup.
+- Not verified: adding photos from the iPhone camera and library; storage limits on the phone.
+- Calls made for you: the average line joins entries up to 7 days apart and breaks after a longer gap.
+- To accept: Release 2 steps 5 to 7 and 9 in `docs/verification-plan.md`.
 
 ### W-09: journal
 

@@ -1,3 +1,4 @@
+import Dexie from 'dexie';
 import type { Metric, MetricEntry, Photo, WorkoutDB } from './db';
 import { addDays } from './dates';
 import { ValidationError } from './errors';
@@ -129,7 +130,7 @@ export async function entriesFor(db: WorkoutDB, metricId: string): Promise<Metri
 }
 
 export async function latestEntry(db: WorkoutDB, metricId: string): Promise<MetricEntry | undefined> {
-  return (await entriesFor(db, metricId))[0];
+  return db.metricEntries.where('[metricId+date]').between([metricId, Dexie.minKey], [metricId, Dexie.maxKey]).last();
 }
 
 /** The latest bodyweight on or before a date, in pounds (used by W-15's calorie estimate). */
@@ -145,10 +146,14 @@ export async function bodyweightOn(db: WorkoutDB, date: string): Promise<number 
  */
 export function rollingAverage(entries: { date: string; value: number }[], days = 7): { date: string; value: number }[] {
   const asc = [...entries].sort((a, b) => (a.date < b.date ? -1 : 1));
-  return asc.map((e) => {
+  // Sliding window over the sorted entries: one pass.
+  let start = 0;
+  let sum = 0;
+  return asc.map((e, i) => {
+    sum += e.value;
     const from = addDays(e.date, -(days - 1));
-    const window = asc.filter((x) => x.date >= from && x.date <= e.date);
-    return { date: e.date, value: window.reduce((s, x) => s + x.value, 0) / window.length };
+    while (asc[start].date < from) sum -= asc[start++].value;
+    return { date: e.date, value: sum / (i - start + 1) };
   });
 }
 

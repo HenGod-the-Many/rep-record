@@ -4,6 +4,8 @@ import {
   addCustomMetric,
   addPhoto,
   bodyweightOn,
+  deletePhoto,
+  latestEntry,
   deleteCustomMetric,
   deleteEntry,
   entriesFor,
@@ -20,7 +22,7 @@ import {
   toShown,
   updateEntry,
 } from './body';
-import { exportData, readBackup, restoreBackup } from './backup';
+import { backupParts, exportData, readBackup, restoreBackup } from './backup';
 import { WorkoutDB } from './db';
 import { freshDb } from '../test/helpers';
 
@@ -60,6 +62,8 @@ describe('bodyweight entries (R-10.1)', () => {
     const replaced = await saveEntry(db, 'bodyweight', '2026-11-05', 180.6);
     expect((await entriesFor(db, 'bodyweight')).map((e) => [e.date, e.value])).toEqual([['2026-11-05', 180.6], ['2026-11-01', 182.4]]);
     expect((await entryOn(db, 'bodyweight', '2026-11-05'))?.id).toBe(replaced);
+    expect((await latestEntry(db, 'bodyweight'))?.value).toBe(180.6);
+    expect(await latestEntry(db, 'height')).toBeUndefined();
 
     await updateEntry(db, replaced, '2026-11-06', 180.2);
     expect((await entriesFor(db, 'bodyweight'))[0]).toMatchObject({ date: '2026-11-06', value: 180.2 });
@@ -120,6 +124,17 @@ describe('7-day rolling average (R-10.3)', () => {
       { date: '2026-11-08', value: 300 },
     ]);
     expect(avg.map((a) => a.value)).toEqual([100, 150, 250]);
+  });
+
+  it('matches a plain recount on a long, gappy list', () => {
+    const entries = Array.from({ length: 400 }, (_, i) => ({ date: new Date(Date.UTC(2025, 0, 1) + (i * 2 + (i % 2)) * 86400000).toISOString().slice(0, 10), value: 170 + (i % 11) }));
+    const fast = rollingAverage(entries);
+    const asc = [...entries].sort((a, b) => (a.date < b.date ? -1 : 1));
+    asc.forEach((e, i) => {
+      const from = new Date(Date.parse(`${e.date}T00:00:00Z`) - 6 * 86400000).toISOString().slice(0, 10);
+      const w = asc.filter((x) => x.date >= from && x.date <= e.date);
+      expect(fast[i].value).toBeCloseTo(w.reduce((s, x) => s + x.value, 0) / w.length, 9);
+    });
   });
 });
 
@@ -183,6 +198,8 @@ describe('photos (R-10.6)', () => {
     const b = await addPhoto(db, '2026-11-20', new Blob([new Uint8Array([4, 5])], { type: 'image/jpeg' }), 1200, 1600, 2);
     expect((await listPhotos(db)).map((p) => p.id)).toEqual([b, a]);
     expect((await db.photos.get(a))?.bytes).toBe(3);
+    await deletePhoto(db, a);
+    expect((await listPhotos(db)).map((p) => p.id)).toEqual([b]);
   });
 
   it('go into the backup and come back byte for byte', async () => {
@@ -190,7 +207,9 @@ describe('photos (R-10.6)', () => {
     const bytes = new Uint8Array(5000).map((_, i) => (i * 13) % 256);
     await addPhoto(db, '2026-11-20', new Blob([bytes], { type: 'image/jpeg' }), 1200, 1600);
     await saveEntry(db, 'bodyweight', '2026-11-20', 182.4);
-    const file = JSON.stringify(await exportData(db));
+    const data = await exportData(db);
+    const file = backupParts(data).join('');
+    expect(file).toBe(JSON.stringify(data));
     const other = await freshDb({ seed: false });
     await restoreBackup(other, readBackup(file, other.verno).backup);
     const [p] = await listPhotos(other);

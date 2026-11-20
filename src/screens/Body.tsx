@@ -34,7 +34,7 @@ import { LineChart } from './LineChart';
 export function BodyList() {
   const data = useLiveQuery(async () => {
     const [metrics, unit, all] = await Promise.all([shownMetrics(db), getUnit(db), listMetrics(db)]);
-    const latest = await Promise.all(metrics.map((m) => latestEntry(db, m.id)));
+    const latest = await Promise.all(metrics.map((m) => latestEntry(db, m.id))); // one indexed read each
     const photosOn = all.find((m) => m.id === 'photos')?.enabled ?? false;
     const photoCount = photosOn ? await db.photos.count() : 0;
     return { metrics, latest, unit, photosOn, photoCount };
@@ -179,7 +179,7 @@ export function MetricPage({ metricId }: { metricId: string }) {
   };
 
   const replace = async () => {
-    if (confirm && (await attempt(() => saveEntry(db, metric.id, date, confirm.value), setError))) clear();
+    if (confirm && (await attempt(() => saveEntry(db, metric.id, confirm.old.date, confirm.value), setError))) clear();
   };
 
   return (
@@ -188,7 +188,7 @@ export function MetricPage({ metricId }: { metricId: string }) {
       <section className="card stack">
         <label className="field">
           <span>Date</span>
-          <input type="date" value={date} max={todayLocal()} onChange={(e) => setDate(e.target.value)} />
+          <input type="date" value={date} max={todayLocal()} onChange={(e) => { setDate(e.target.value); setConfirm(null); }} />
         </label>
         {isHeightFtIn ? (
           <HeightInput unit={unit} ft={ft} inch={inch} onChange={(f, i) => { setFt(f); setInch(i); }} />
@@ -198,7 +198,7 @@ export function MetricPage({ metricId }: { metricId: string }) {
         {confirm ? (
           <div className="banner">
             <p>
-              Replace {formatMetric(metric, confirm.old.value, unit)} on {formatDate(date)} with {formatMetric(metric, confirm.value, unit)}?
+              Replace {formatMetric(metric, confirm.old.value, unit)} on {formatDate(confirm.old.date)} with {formatMetric(metric, confirm.value, unit)}?
             </p>
             <div className="button-row two">
               <button className="btn-primary" onClick={replace}>Replace</button>
@@ -288,16 +288,38 @@ function EntryEditor({ metric, unit, entry, onDone }: { metric: Metric; unit: Un
 // ---------- photos ----------
 
 /** Shrink a picked photo to at most `max` pixels on the long side, as JPEG. */
+async function decode(file: File): Promise<{ source: CanvasImageSource; width: number; height: number; done: () => void }> {
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' } as ImageBitmapOptions);
+    return { source: bitmap, width: bitmap.width, height: bitmap.height, done: () => bitmap.close() };
+  } catch {
+    // Older Safari: decode through an <img>, which also applies the photo's rotation.
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    try {
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('unreadable'));
+        img.src = url;
+      });
+    } catch {
+      URL.revokeObjectURL(url);
+      throw new Error('This photo could not be read. Try another one, or take it again.');
+    }
+    return { source: img, width: img.naturalWidth, height: img.naturalHeight, done: () => URL.revokeObjectURL(url) };
+  }
+}
+
 async function shrink(file: File, max = 1600): Promise<{ blob: Blob; width: number; height: number }> {
-  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' } as ImageBitmapOptions);
-  const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
-  const width = Math.round(bitmap.width * scale);
-  const height = Math.round(bitmap.height * scale);
+  const img = await decode(file);
+  const scale = Math.min(1, max / Math.max(img.width, img.height));
+  const width = Math.round(img.width * scale);
+  const height = Math.round(img.height * scale);
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
-  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
+  canvas.getContext('2d')!.drawImage(img.source, 0, 0, width, height);
+  img.done();
   const blob = await new Promise<Blob>((res, rej) => canvas.toBlob((b) => (b ? res(b) : rej(new Error('The photo could not be read.'))), 'image/jpeg', 0.82));
   return { blob, width, height };
 }
