@@ -17,27 +17,16 @@ function formatDay(ms: number | string): string {
   return new Date(ms).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-/** Hand the file to the iPhone share sheet; where files can't be shared, download it. Returns false if cancelled. */
-async function saveFile(json: string, name: string): Promise<boolean> {
-  const file = new File([json], name, { type: 'application/json' });
-  if (navigator.canShare?.({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title: name });
-      return true;
-    } catch (e) {
-      if (e instanceof DOMException && e.name === 'AbortError') return false;
-      // Sharing failed for another reason: fall back to a download.
-    }
-  }
+/** Desktop browsers without file sharing: save the file as a download. */
+function download(file: File): void {
   const url = URL.createObjectURL(file);
   const a = document.createElement('a');
   a.href = url;
-  a.download = name;
+  a.download = file.name;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
-  return true;
 }
 
 /** Settings section: Back up data, Restore from backup, Last backup (W-07). */
@@ -48,20 +37,46 @@ export function BackupSection() {
   const [pending, setPending] = useState<{ backup: BackupFile; summary: BackupSummary } | null>(null);
   const picker = useRef<HTMLInputElement>(null);
 
+  // Two taps on purpose: the iPhone share sheet only opens straight from a tap,
+  // so the file is prepared first and shared by the second tap with no waiting in between.
+  const [ready, setReady] = useState<File | null>(null);
+
   const backUp = async () => {
     setBusy(true);
     setMessage(null);
     try {
-      const file = await exportData(db);
-      if (await saveFile(JSON.stringify(file), backupFileName())) {
+      const data = await exportData(db);
+      const file = new File([JSON.stringify(data)], backupFileName(), { type: 'application/json' });
+      if (navigator.canShare?.({ files: [file] })) {
+        setReady(file);
+      } else {
+        download(file);
         await markBackedUp(db);
-        setMessage({ text: 'Backup saved.' });
+        setMessage({ text: 'Backup downloaded. Keep the file somewhere safe.' });
       }
     } catch (e) {
       setMessage({ text: `Backup failed: ${String(e instanceof Error ? e.message : e)}`, error: true });
     } finally {
       setBusy(false);
     }
+  };
+
+  const share = (file: File) => {
+    navigator
+      .share({ files: [file], title: file.name })
+      .then(async () => {
+        await markBackedUp(db);
+        setReady(null);
+        setMessage({ text: 'Backup saved.' });
+      })
+      .catch((e: unknown) => {
+        if (e instanceof DOMException && e.name === 'AbortError') {
+          setMessage({ text: 'Not saved. Tap Save backup file to try again.' });
+        } else {
+          setReady(null);
+          setMessage({ text: `The backup could not be shared: ${String(e instanceof Error ? e.message : e)}`, error: true });
+        }
+      });
   };
 
   const picked = async (f: File | undefined) => {
@@ -98,9 +113,18 @@ export function BackupSection() {
         Your data is only on this phone. Save a backup to Files or iCloud Drive now and then.
       </p>
       <p>Last backup: {last === undefined ? '…' : last === null ? 'Never' : formatDay(last)}</p>
-      <button className="btn-primary block" onClick={backUp} disabled={busy}>
-        Back up data
-      </button>
+      {ready ? (
+        <>
+          <button className="btn-primary block" onClick={() => share(ready)}>
+            Save backup file
+          </button>
+          <p className="small-print muted">Then choose Save to Files (or iCloud Drive, AirDrop, Mail).</p>
+        </>
+      ) : (
+        <button className="btn-primary block" onClick={backUp} disabled={busy}>
+          Back up data
+        </button>
+      )}
       <button className="btn-secondary block" onClick={() => picker.current?.click()} disabled={busy}>
         Restore from backup
       </button>

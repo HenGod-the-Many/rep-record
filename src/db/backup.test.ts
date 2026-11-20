@@ -133,6 +133,7 @@ describe('damaged or wrong files are refused and change nothing (R-08.4)', () =>
   it('a photo or other binary file', () => refused(() => 'ÿØÿàJFIF', /can't be read/));
   it('JSON from something else', () => refused(() => text({ name: 'my playlist', songs: [] }), /not a Rep Record backup/));
   it('a backup from a newer app', () => refused((g) => text({ ...g, dataVersion: g.dataVersion + 1 }), /newer version/));
+  it('a missing or broken date', () => refused((g) => text({ ...g, exportedAt: 'soon' }), /date is missing/));
   it('a missing table', () =>
     refused((g) => {
       delete g.tables.setLogs;

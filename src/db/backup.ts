@@ -84,12 +84,22 @@ export function backupFileName(now = new Date()): string {
 }
 
 /** Every table, every row. Does not record a backup: call `markBackedUp` once the file is saved. */
+function hasBlob(v: unknown): boolean {
+  if (typeof Blob !== 'undefined' && v instanceof Blob) return true;
+  if (Array.isArray(v)) return v.some(hasBlob);
+  if (v && typeof v === 'object') return Object.values(v).some(hasBlob);
+  return false;
+}
+
 export async function exportData(db: WorkoutDB, now = new Date()): Promise<BackupFile> {
   const tables: Record<string, unknown[]> = {};
   await db.transaction('r', db.tables, async () => {
     for (const t of db.tables) tables[t.name] = await t.toArray();
   });
-  for (const name of Object.keys(tables)) tables[name] = (await encodeValue(tables[name])) as unknown[];
+  // Only rows holding binary values need the (async) encoding; the rest are copied as they are.
+  for (const name of Object.keys(tables)) {
+    tables[name] = await Promise.all(tables[name].map((row) => (hasBlob(row) ? encodeValue(row) : row)));
+  }
   return { app: BACKUP_APP, dataVersion: db.verno, exportedAt: now.toISOString(), tables };
 }
 
@@ -135,6 +145,9 @@ export function readBackup(text: string, currentVersion: number): { backup: Back
   if (f.dataVersion > currentVersion) {
     throw new BackupError('This backup was made by a newer version of Rep Record. Update the app first (close it fully and reopen), then try again.');
   }
+  if (typeof f.exportedAt !== 'string' || Number.isNaN(Date.parse(f.exportedAt))) {
+    throw new BackupError('This backup is damaged: its date is missing.');
+  }
   if (!f.tables || typeof f.tables !== 'object') throw new BackupError('This backup is damaged: it has no data.');
 
   // The tables and keys that a database of the backup's own version has.
@@ -177,13 +190,13 @@ export function readBackup(text: string, currentVersion: number): { backup: Back
 async function upgradeTables(backup: BackupFile): Promise<Record<string, unknown[]>> {
   const name = `rep-record-restore-${newId()}`;
   const old = new WorkoutDB(name, backup.dataVersion);
+  const now = new WorkoutDB(name);
   try {
     await old.open();
     await old.transaction('rw', old.tables, async () => {
       for (const t of old.tables) await t.bulkPut(decodeValue(backup.tables[t.name]) as never[]);
     });
     old.close();
-    const now = new WorkoutDB(name);
     await now.open();
     const out: Record<string, unknown[]> = {};
     for (const t of now.tables) out[t.name] = await t.toArray();
@@ -191,6 +204,7 @@ async function upgradeTables(backup: BackupFile): Promise<Record<string, unknown
     return out;
   } finally {
     old.close();
+    now.close();
     await Dexie.delete(name);
   }
 }
