@@ -155,7 +155,12 @@ export class WorkoutDB extends Dexie {
   dayNotes!: EntityTable<DayNote, 'date'>;
   settings!: EntityTable<Setting, 'key'>;
 
-  constructor(name = DB_NAME) {
+  /**
+   * `upTo` declares only the versions up to that number. It exists so a backup
+   * from an older version can be restored through the same upgrade steps the
+   * app runs on itself (see backup.ts); the app always uses every version.
+   */
+  constructor(name = DB_NAME, upTo = Infinity) {
     super(name);
     this.version(1).stores({
       exercises: 'id, name, muscleGroup, archived',
@@ -170,6 +175,7 @@ export class WorkoutDB extends Dexie {
       dayNotes: 'date',
       settings: 'key',
     });
+    if (upTo < 2) return;
     // v2: several timed workouts per day, schedule offsets (W-05/W-14).
     this.version(2)
       .stores({})
@@ -197,6 +203,7 @@ export class WorkoutDB extends Dexie {
             if (typeof s.offset !== 'number') s.offset = 0;
           });
       });
+    if (upTo < 3) return;
     // v3: set parts (weight changes mid-set), difficulty, to failure; open/finished sessions (W-06).
     this.version(3)
       .stores({ sessions: 'id, date, planId, [date+planId]' })
