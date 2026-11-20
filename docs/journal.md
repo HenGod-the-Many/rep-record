@@ -2,6 +2,31 @@
 
 Newest first.
 
+## 2026-11-20 (morning): v0.6.0 warm-ups; W-12 built, stopped at review
+
+- Released v0.6.0 (W-16 warm-up routines, database version 5).
+- W-12 stats is built on `feature/w12-stats` (pushed, not merged): 201 tests
+  pass, browser-checked at phone size, `/code-review` gave 5 small findings
+  (not yet fixed: week doesn't roll over at midnight while open; e1RM PRs show
+  2 decimals; week range read per card; sets/volume repeat queries; metric
+  page loading header says "Body").
+- **Stopped: the acceptance-reviewer hung a second time** (same failure twice).
+  - What was tried: W-11's first reviewer hung ~1 h after saying it started
+    `npm run check` in the background; it was stopped and a retry told to run
+    everything in the foreground, which worked (as did W-16's reviewer). W-12's
+    reviewer, with the same foreground instruction, wrote a 125-byte draft
+    stub at 06:25 and then nothing for 38 minutes; a status message got no
+    reply; it was stopped at 07:02.
+  - What seems to decide it: both hangs stall right after the first draft
+    save, before any verdict, which points at one long-running command the
+    reviewer waits on (a background `npm run check`, or a test runner left in
+    watch mode such as a bare `npx vitest` instead of `npx vitest run`).
+    Untested.
+  - Next session: give the reviewer the exact commands to use
+    (`npm run check` with a timeout, `npx vitest run <file>`) and forbid
+    `run_in_background`; then finish W-12 (review, the 5 fixes, merge,
+    release) and build W-15 activities, the last release-2 item.
+
 ## 2026-11-20: v0.2.0 and hotfix v0.2.1; specs for W-07, W-08, W-09
 
 - Taylor started an unattended loop: keep developing and push completed
