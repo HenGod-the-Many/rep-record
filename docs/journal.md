@@ -16,6 +16,16 @@ Newest first.
   W-09 (journal), each with questions for Taylor.
 - Lesson: `git checkout -- <file>` to undo a test edit also threw away the
   uncommitted real change in that file. Test edits go in a copy, or commit first.
+- Taylor said yes to Claude approving the release-2 specs. All seven were
+  reviewed, fixed and marked Ready (#16), with default answers listed in each.
+- Built, reviewed and released: W-07 backup (v0.3.0), W-08 history and W-09
+  journal (v0.4.0), W-11 body metrics (v0.5.0, database version 4).
+- Browser checks caught real bugs the tests missed: the photo picker was
+  cleared before its files were read, and an image decode could hang.
+- The first W-11 reviewer hung for an hour after starting `npm run check` in
+  the background. Lesson: tell reviewers to run commands in the foreground.
+- Paused at 81 % of the 5-hour usage window. Next: W-16 warm-ups, W-12 stats,
+  W-15 activities (all Ready).
 
 ## 2026-11-19: W-06 logging built; v0.1.0 released
 
