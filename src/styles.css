@@ -242,3 +242,10 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .done-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
 .done-mark { flex: 1; color: #7ddc9a; font-weight: 700; }
 .diff-foot .link { min-width: 64px; min-height: 44px; padding: 0 10px; font-size: 0.9rem; }
+
+/* App update banner (pwa.ts) */
+.update-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(env(safe-area-inset-top) + 8px) 16px 8px; background: var(--surface-2);
+}
+.update-bar button { min-height: 44px; padding: 0 18px; }
