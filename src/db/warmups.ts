@@ -27,7 +27,7 @@ export function checkMove(m: WarmupMove): WarmupMove {
 }
 
 export async function listWarmups(db: WorkoutDB): Promise<Warmup[]> {
-  return db.warmups.orderBy('name').toArray();
+  return (await db.warmups.toArray()).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 }
 
 export async function createWarmup(db: WorkoutDB, name: string): Promise<string> {

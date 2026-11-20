@@ -106,7 +106,7 @@ function MoveForm(props: { initial?: WarmupMove; submitLabel: string; onSubmit: 
 export function WarmupEdit({ warmupId }: { warmupId: string }) {
   const data = useLiveQuery(async () => {
     const w = await db.warmups.get(warmupId);
-    return w ? { w, used: await plansUsingWarmup(db, warmupId) } : null;
+    return w ? { w, used: await plansUsingWarmup(db, warmupId), dateCopies: await db.plans.filter((p) => !!p.hidden && p.warmupId === warmupId).count() } : null;
   }, [warmupId]);
   const [editing, setEditing] = useState<number | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
@@ -120,10 +120,11 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
       </div>
     );
   }
-  const { w, used } = data;
+  const { w, used, dateCopies } = data;
   const remove = async () => {
-    const msg = used.length
-      ? `Delete ${w.name}? It will be removed from ${used.join(', ')}. Past workouts keep it.`
+    const where = [...used, ...(dateCopies ? [`${dateCopies} edited ${dateCopies === 1 ? 'date' : 'dates'}`] : [])];
+    const msg = where.length
+      ? `Delete ${w.name}? It will be removed from ${where.join(', ')}. Past workouts keep it.`
       : `Delete ${w.name}?`;
     if (window.confirm(msg) && (await attempt(() => deleteWarmup(db, w.id), setError))) navigate('/warmups');
   };
@@ -152,9 +153,9 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
                 <span>{m.name}</span>
                 <span className="muted">{moveAmount(m)}</span>
               </button>
-              <button className="icon-btn" aria-label={`Move ${m.name} up`} disabled={i === 0} onClick={() => attempt(() => reorderMove(db, w.id, i, -1), setError)}>↑</button>
-              <button className="icon-btn" aria-label={`Move ${m.name} down`} disabled={i === w.moves.length - 1} onClick={() => attempt(() => reorderMove(db, w.id, i, 1), setError)}>↓</button>
-              <button className="icon-btn" aria-label={`Remove ${m.name}`} onClick={() => attempt(() => removeMove(db, w.id, i), setError)}>✕</button>
+              <button className="icon-btn" aria-label={`Move ${m.name} up`} disabled={i === 0 || editing !== null} onClick={() => attempt(() => reorderMove(db, w.id, i, -1), setError)}>↑</button>
+              <button className="icon-btn" aria-label={`Move ${m.name} down`} disabled={i === w.moves.length - 1 || editing !== null} onClick={() => attempt(() => reorderMove(db, w.id, i, 1), setError)}>↓</button>
+              <button className="icon-btn" aria-label={`Remove ${m.name}`} disabled={editing !== null} onClick={() => attempt(() => removeMove(db, w.id, i), setError)}>✕</button>
             </li>
           ),
         )}

@@ -202,8 +202,8 @@ least; distance by default; calories estimated; other details optional.*
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-14.1 You can build named warm-up routines: an ordered list of moves, each with reps or a time | should | Test | W-16 | built | warmups.test.ts (build, edit, reorder, refuse bad moves); evidence w16/01 |
-| R-14.2 A plan can have a warm-up routine attached; starting that workout shows the warm-up first, and each move is checked off with one tap | should | Test, Demonstration | W-16 | built | warmups.test.ts (attach, copies keep it, checks, copy at start, backup); browser: card first, one tap each, folds, survives reload (w16/02, w16/03) |
+| R-14.1 You can build named warm-up routines: an ordered list of moves, each with reps or a time | should | Test | W-16 | verified | warmups.test.ts (build, edit, reorder, refuse bad moves); evidence w16/01; reviewer: met |
+| R-14.2 A plan can have a warm-up routine attached; starting that workout shows the warm-up first, and each move is checked off with one tap | should | Test, Demonstration | W-16 | verified | warmups.test.ts (attach, copies keep it, checks, copy at start, backup); browser: card first, one tap each, folds, survives reload (w16/02, w16/03); reviewer: met |
 
 Totals: 31 must, 28 should, 2 could, 1 later.
 

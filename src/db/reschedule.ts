@@ -273,8 +273,9 @@ export async function updatePlanEverywhere(db: WorkoutDB, copyId: string): Promi
         o.workouts = o.workouts.map((w) => (w.planId === copyId ? { ...w, planId: sourceId } : w));
       });
     await db.sessions.where('planId').equals(copyId).modify({ planId: sourceId });
-    // The date's warm-up choice becomes the plan's.
-    await db.plans.update(sourceId, { warmupId: copy.warmupId ?? null });
+    // The date's warm-up choice becomes the plan's. A copy made before warm-ups
+    // existed has no choice recorded, so the plan keeps its own.
+    if (copy.warmupId !== undefined) await db.plans.update(sourceId, { warmupId: copy.warmupId });
     await db.plans.delete(copyId);
   });
 }

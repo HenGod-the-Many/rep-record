@@ -60,6 +60,14 @@ describe('building routines (R-14.1)', () => {
     await expect(createWarmup(db, '')).rejects.toThrow('name');
   });
 
+  it('lists routines alphabetically, ignoring capitals', async () => {
+    const db = await freshDb();
+    await createWarmup(db, 'Upper');
+    await createWarmup(db, 'arm day');
+    await createWarmup(db, 'Legs');
+    expect((await listWarmups(db)).map((w) => w.name)).toEqual(['arm day', 'Legs', 'Upper']);
+  });
+
   it('reordering past either end does nothing', async () => {
     const db = await freshDb();
     const w = await createWarmup(db, 'W');
@@ -108,6 +116,13 @@ describe('attaching to plans (R-14.2)', () => {
     const other = await createWarmup(db, 'Short');
     await setPlanWarmup(db, copy2, other);
     await updatePlanEverywhere(db, copy2);
+    expect((await db.plans.get(push))?.warmupId).toBe(other);
+
+    // A copy from before warm-ups existed (no field at all) leaves the plan's warm-up alone.
+    await addWorkoutToDate(db, '2026-11-22', push, 'morning');
+    const old = await makeDateCopy(db, '2026-11-22', 0);
+    await db.plans.where('id').equals(old).modify((p) => { delete p.warmupId; });
+    await updatePlanEverywhere(db, old);
     expect((await db.plans.get(push))?.warmupId).toBe(other);
   });
 });

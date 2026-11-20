@@ -35,11 +35,20 @@ block, and the Awaiting owner list. Requirement status lives in
 | 12 | W-12 | Stats overview with cards you choose | R-11.1, R-11.2 | [W-12](specs/W-12-stats.md) | W-08, W-11 | no | Ready | Added 2026-11-18. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 13 | W-13 | Spike: get Apple Health data into the app (Shortcut or Health export) | KF-12 (risk) | not yet | W-02 | yes | Not ready | Later; result only Taylor can observe |
 | 14 | W-15 | Activities: runs, rides, hikes, swims and custom; duration, distance, optional effort/HR/calories, estimated calories | R-13.1–R-13.5 | [W-15](specs/W-15-activities.md) | W-06, W-11 | no | Ready | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
-| 15 | W-16 | Warm-up routines attached to plans, checked off before a workout | R-14.1, R-14.2 | [W-16](specs/W-16-warmups.md) | W-06 | no | In progress | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
+| 15 | W-16 | Warm-up routines attached to plans, checked off before a workout | R-14.1, R-14.2 | [W-16](specs/W-16-warmups.md) | W-06 | no | Awaiting owner | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 
 ## Awaiting owner
 
 Newest first.
+
+### W-16: warm-up routines
+
+- Delivered in: feature/w16-warmups, pull request to `dev`
+- Result: Plans → Warm-ups builds routines (moves with reps or a time); a plan's Warm-up choice attaches one; starting that workout shows the warm-up first, one tap per move, folding to "Warm-up done".
+- Evidence: `npm run check` 190 tests (12 warm-up tests; deliberate breaks fail them); screenshots in `docs/evidence/w16/`; acceptance-reviewer "accept"; `/code-review` 5 findings, 4 fixed, 1 skipped (a speed-up not needed at this size).
+- Not verified: on the iPhone.
+- Calls made for you: workouts started before a warm-up was attached show no warm-up (moves are copied when a workout starts).
+- To accept: Release 2 step 11 in `docs/verification-plan.md`.
 
 ### W-11: body metrics
 
