@@ -85,7 +85,7 @@ export async function duplicatePlan(db: WorkoutDB, planId: string): Promise<stri
     const base = `${plan.name.replace(/ \(copy(?: \d+)?\)$/, '')} (copy)`;
     let name = base;
     for (let n = 2; taken.has(name); n++) name = `${base.slice(0, -1)} ${n})`;
-    await db.plans.add({ id: copyId, name, notes: plan.notes });
+    await db.plans.add({ id: copyId, name, notes: plan.notes, warmupId: plan.warmupId ?? null });
     for (const e of await getEntries(db, planId)) {
       await db.planExercises.add({ ...e, id: newId(), planId: copyId, alternateIds: [...e.alternateIds] });
     }

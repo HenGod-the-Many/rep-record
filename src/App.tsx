@@ -13,6 +13,7 @@ import { SplitEdit, SplitList } from './screens/Splits';
 import { Settings } from './screens/Settings';
 import { LogWorkout } from './screens/LogWorkout';
 import { History } from './screens/History';
+import { WarmupEdit, WarmupList } from './screens/Warmups';
 import { BodyList, MetricPage, PhotosPage } from './screens/Body';
 import { todayLocal } from './db/dates';
 import { applyUpdate, useUpdateReady } from './pwa';
@@ -48,6 +49,8 @@ function Screen() {
   if (section === 'plans' && id && sub === 'entry' && subId) return <EntryEdit planId={id} entryId={subId} />;
   if (section === 'plans' && id) return <PlanDetail planId={id} backTo={back?.startsWith('/') ? back : undefined} />;
   if (section === 'plans') return <PlanList />;
+  if (section === 'warmups' && id) return <WarmupEdit warmupId={id} />;
+  if (section === 'warmups') return <WarmupList />;
   if (section === 'pick') return <ExercisePicker query={query} />;
   if (section === 'splits' && id) return <SplitEdit splitId={id} />;
   if (section === 'splits') return <SplitList />;
@@ -69,7 +72,7 @@ const TABS: { key: string; label: string; path: string; sections: string[] }[] =
   { key: 'today', label: 'Today', path: '/today', sections: ['today', 'settings', 'log', ''] },
   { key: 'calendar', label: 'Calendar', path: '/calendar', sections: ['calendar', 'day', 'move'] },
   { key: 'splits', label: 'Splits', path: '/splits', sections: ['splits'] },
-  { key: 'plans', label: 'Plans', path: '/plans', sections: ['plans', 'pick'] },
+  { key: 'plans', label: 'Plans', path: '/plans', sections: ['plans', 'pick', 'warmups'] },
   { key: 'exercises', label: 'Exercises', path: '/exercises', sections: ['exercises'] },
   { key: 'body', label: 'Body', path: '/body', sections: ['body'] },
 ];

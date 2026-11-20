@@ -227,7 +227,7 @@ export async function makeDateCopy(db: WorkoutDB, date: string, index: number): 
     if (!plan) throw new ValidationError('That plan no longer exists.');
     if (plan.hidden) return plan.id;
     const copyId = newId();
-    await db.plans.add({ id: copyId, name: plan.name, notes: plan.notes, hidden: true, sourcePlanId: plan.id });
+    await db.plans.add({ id: copyId, name: plan.name, notes: plan.notes, hidden: true, sourcePlanId: plan.id, warmupId: plan.warmupId ?? null });
     for (const e of await getEntries(db, plan.id)) {
       await db.planExercises.add({ ...e, id: newId(), planId: copyId, alternateIds: [...e.alternateIds] });
     }
@@ -273,6 +273,9 @@ export async function updatePlanEverywhere(db: WorkoutDB, copyId: string): Promi
         o.workouts = o.workouts.map((w) => (w.planId === copyId ? { ...w, planId: sourceId } : w));
       });
     await db.sessions.where('planId').equals(copyId).modify({ planId: sourceId });
+    // The date's warm-up choice becomes the plan's. A copy made before warm-ups
+    // existed has no choice recorded, so the plan keeps its own.
+    if (copy.warmupId !== undefined) await db.plans.update(sourceId, { warmupId: copy.warmupId });
     await db.plans.delete(copyId);
   });
 }
