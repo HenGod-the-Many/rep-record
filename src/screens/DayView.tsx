@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { backupOverdue } from '../db/backup';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { formatDate, timeLabel } from '../db/dates';
@@ -22,6 +23,20 @@ import { attempt, ErrorText, Header } from './common';
 import { PlanSelect, TimeSelect, UndoBar } from './pickers';
 
 /** One date's workouts, with quick changes. Used for Today and for any calendar date. */
+/** One line on Today when the last backup is more than 7 days old (W-07). */
+function BackupReminder() {
+  const overdue = useLiveQuery(() => backupOverdue(db), []);
+  if (!overdue) return null;
+  return (
+    <p className="banner backup-reminder">
+      No backup in the last 7 days.{' '}
+      <button className="link" onClick={() => navigate('/settings')}>
+        Back up now
+      </button>
+    </p>
+  );
+}
+
 export function DayView({ date, isToday, back }: { date: string; isToday?: boolean; back?: string }) {
   const data = useLiveQuery(async () => {
     const day = await resolveDate(db, date);
@@ -89,6 +104,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
     <div className="screen">
       <Header title={title} back={back} action={action} />
       {isToday && <p className="subtitle">{short}</p>}
+      {isToday && <BackupReminder />}
       <UndoBar />
 
       {!day.scheduled && !day.overridden && <p className="banner">Nothing scheduled. Put a split on the calendar from Splits, or add a workout here.</p>}

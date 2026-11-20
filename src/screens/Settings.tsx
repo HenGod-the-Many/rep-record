@@ -4,6 +4,7 @@ import { weekdayName } from '../db/dates';
 import { getWeekStart, setWeekStart } from '../db/schedule';
 import { getUnit, setUnit } from '../db/units';
 import { Header } from './common';
+import { BackupSection } from './Backup';
 
 export function Settings() {
   const weekStart = useLiveQuery(() => getWeekStart(db), []);
@@ -31,6 +32,7 @@ export function Settings() {
           ))}
         </select>
       </label>
+      <BackupSection />
     </div>
   );
 }

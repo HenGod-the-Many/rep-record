@@ -249,3 +249,7 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   padding: calc(env(safe-area-inset-top) + 8px) 16px 8px; background: var(--surface-2);
 }
 .update-bar button { min-height: 44px; padding: 0 18px; }
+
+/* Backup (W-07) */
+.backup-reminder .link { min-height: 44px; }
+.restore-confirm p { margin: 4px 0 8px; color: var(--text); }
