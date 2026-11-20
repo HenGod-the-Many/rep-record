@@ -73,8 +73,11 @@ export function BackupSection() {
         if (e instanceof DOMException && e.name === 'AbortError') {
           setMessage({ text: 'Not saved. Tap Save backup file to try again.' });
         } else {
+          // Sharing isn't possible here: save the same file as a download instead.
           setReady(null);
-          setMessage({ text: `The backup could not be shared: ${String(e instanceof Error ? e.message : e)}`, error: true });
+          download(file);
+          void markBackedUp(db);
+          setMessage({ text: 'Sharing did not work here, so the backup was downloaded instead. Keep the file somewhere safe.' });
         }
       });
   };

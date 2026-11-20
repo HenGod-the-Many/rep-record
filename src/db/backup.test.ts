@@ -159,6 +159,21 @@ describe('damaged or wrong files are refused and change nothing (R-08.4)', () =>
   });
 });
 
+describe('all or nothing', () => {
+  it('a restore that fails part-way leaves the phone exactly as it was, even tables already cleared', async () => {
+    const db = await withData();
+    const good = JSON.parse(text(await exportData(db)));
+    // The phone now differs from the file in a table that is cleared before the bad one.
+    await db.exercises.add({ id: 'extra', name: 'Extra lift', muscleGroup: 'Chest', equipment: 'Barbell', kind: 'weight', archived: false });
+    good.tables.setLogs.push({ ...good.tables.setLogs[0] }); // two rows with one key: fails while adding sets
+    const before = await snapshot(db);
+    const { backup } = readBackup(text(good), db.verno);
+    await expect(restoreBackup(db, backup)).rejects.toThrow();
+    expect(await snapshot(db)).toEqual(before);
+    expect(await db.exercises.get('extra')).toBeDefined();
+  });
+});
+
 describe('older backups', () => {
   it('a version-2 backup is brought up to the current shape by the app’s own upgrade steps', async () => {
     const empty = (name: string) => ({

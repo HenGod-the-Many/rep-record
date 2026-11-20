@@ -76,6 +76,12 @@ file; pick it back with a file input), on Taylor's phone at the next release.
 Until then, the unit tests and desktop browser cover the logic; if the share
 sheet fails, fall back to a download link and say so in the PR.
 
+**Result (2026-11-20).** Built as specified, with one change: backing up is
+two taps (Back up data, then Save backup file), because the iPhone share
+sheet only opens straight from a tap and preparing the file takes longer than
+a tap allows. If sharing fails, the file downloads instead. The share sheet
+is still untested on the iPhone.
+
 ## Slices
 
 1. Format and decision 0004; export and import functions with tests (round
