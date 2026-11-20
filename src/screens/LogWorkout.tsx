@@ -248,9 +248,17 @@ function ExerciseCard(props: {
           </div>
           <div className="row-sub">{formatTargets(entry, kind)}</div>
         </div>
-        <button className="btn-secondary small-btn" onClick={() => setSwapping(!swapping)} aria-expanded={swapping}>
-          Swap
-        </button>
+        <div className="ex-actions">
+          <button
+            className="btn-secondary small-btn"
+            onClick={() => navigate(`/exercises/${exercise.id}/history?back=${encodeURIComponent(`/log/${session.id}`)}`)}
+          >
+            History
+          </button>
+          <button className="btn-secondary small-btn" onClick={() => setSwapping(!swapping)} aria-expanded={swapping}>
+            Swap
+          </button>
+        </div>
       </div>
 
       {swapping && (

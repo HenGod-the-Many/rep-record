@@ -12,6 +12,7 @@ import { Calendar } from './screens/Calendar';
 import { SplitEdit, SplitList } from './screens/Splits';
 import { Settings } from './screens/Settings';
 import { LogWorkout } from './screens/LogWorkout';
+import { History } from './screens/History';
 import { todayLocal } from './db/dates';
 import { applyUpdate, useUpdateReady } from './pwa';
 
@@ -40,6 +41,7 @@ function Screen() {
   const back = query.get('back') ?? undefined;
   const today = useToday();
 
+  if (section === 'exercises' && id && sub === 'history') return <History exerciseId={id} back={back?.startsWith('/') ? back : `/exercises/${id}`} />;
   if (section === 'exercises' && id) return <ExerciseForm id={id === 'new' ? null : id} />;
   if (section === 'exercises') return <ExerciseList />;
   if (section === 'plans' && id && sub === 'entry' && subId) return <EntryEdit planId={id} entryId={subId} />;

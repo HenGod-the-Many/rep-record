@@ -53,7 +53,11 @@ export function ExerciseForm({ id }: { id: string | null }) {
 
   return (
     <div className="screen">
-      <Header title={id ? 'Edit exercise' : 'New exercise'} back="/exercises" />
+      <Header
+        title={id ? 'Edit exercise' : 'New exercise'}
+        back="/exercises"
+        action={id ? <button className="link" onClick={() => navigate(`/exercises/${id}/history`)}>History</button> : undefined}
+      />
       {existing?.archived && <p className="banner">This exercise is archived. It is hidden from lists and pickers.</p>}
       <label className="field">
         <span>Name</span>

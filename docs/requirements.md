@@ -124,10 +124,10 @@ written only by Taylor.
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-06.1 An exercise's history shows every set logged for it (date, weight, reps) from any plan or split, in one list | must | Test | W-08 | planned | |
-| R-06.2 Personal records shown per exercise: heaviest weight, and best estimated 1-rep max | should | Test | W-08 | planned | |
-| R-06.3 Estimated 1-rep max uses the Epley formula, only from sets of 1–12 reps | should | Test | W-08 | planned | |
-| R-06.4 A chart shows weight and estimated 1-rep max over time | should | Demonstration | W-08 | planned | |
+| R-06.1 An exercise's history shows every set logged for it (date, weight, reps) from any plan or split, in one list | must | Test | W-08 | built | history.test.ts (any plan, swap, scratch workout, archived); evidence w08/01 |
+| R-06.2 Personal records shown per exercise: heaviest weight, and best estimated 1-rep max | should | Test | W-08 | built | records tests incl. parts at own weight |
+| R-06.3 Estimated 1-rep max uses the Epley formula, only from sets of 1–12 reps | should | Test | W-08 | built | Epley test 225×5=262.5, 13 reps excluded |
+| R-06.4 A chart shows weight and estimated 1-rep max over time | should | Demonstration | W-08 | built | chart points test; screenshot w08/01 |
 
 ## KF-07 Keep a journal per workout and per day
 
