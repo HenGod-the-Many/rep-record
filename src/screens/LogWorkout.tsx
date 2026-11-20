@@ -24,6 +24,7 @@ import {
 import { displayNumber, formatWeight, parseWeight, quickDrop, stepWeight, type Unit } from '../db/units';
 import { formatTargets } from '../format';
 import { navigate } from '../router';
+import { WorkoutNote } from './Journal';
 import { attempt, ErrorText, Header } from './common';
 
 const EMPTY: SetPart = { weightLb: null, reps: null, seconds: null };
@@ -37,6 +38,18 @@ export function partsText(parts: SetPart[], kind: ExerciseKind, unit: Unit): str
       return `${p.weightLb === null ? '–' : formatWeight(p.weightLb, unit)} × ${p.reps ?? '–'}`;
     })
     .join(' → ');
+}
+
+/**
+ * Typed-but-unlogged numbers and added rows, kept for the life of the app so
+ * they survive leaving the logging screen (for example to look at History)
+ * and coming back. Keyed by workout, plan slot and exercise.
+ */
+const cardDrafts = new Map<string, { drafts: Map<string, SetPart>; extra: number }>();
+function cardDraftsFor(key: string) {
+  let d = cardDrafts.get(key);
+  if (!d) cardDrafts.set(key, (d = { drafts: new Map(), extra: 0 }));
+  return d;
 }
 
 /** The logging screen: one card per exercise in the plan, sets saved the moment they are logged. */
@@ -117,6 +130,7 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
           </ul>
         </section>
       )}
+      <WorkoutNote key={session.id} sessionId={session.id} value={session.journalNote} />
       <ErrorText message={error} />
       {session.finishedAt === null && (
         <button
@@ -153,9 +167,14 @@ function ExerciseCard(props: {
   const { session, entry, exercise, logs, unit } = props;
   const kind = exercise.kind;
   const prefill = useLiveQuery(() => prefillFor(db, session.id, exercise.id, 30), [session.id, exercise.id]);
-  const drafts = useRef(new Map<string, SetPart>());
+  const kept = cardDraftsFor(`${session.id}:${entry.id}:${exercise.id}`);
+  const drafts = useRef(kept.drafts);
   const [, rerender] = useState(0);
-  const [extra, setExtra] = useState(0);
+  const [extra, setExtraState] = useState(kept.extra);
+  const setExtra = (n: number) => {
+    kept.extra = n;
+    setExtraState(n);
+  };
   const [mode, setMode] = useState<Mode | null>(null);
   const [rating, setRating] = useState<number | null>(null);
   const [swapping, setSwapping] = useState(false);
@@ -248,9 +267,17 @@ function ExerciseCard(props: {
           </div>
           <div className="row-sub">{formatTargets(entry, kind)}</div>
         </div>
-        <button className="btn-secondary small-btn" onClick={() => setSwapping(!swapping)} aria-expanded={swapping}>
-          Swap
-        </button>
+        <div className="ex-actions">
+          <button
+            className="btn-secondary small-btn"
+            onClick={() => navigate(`/exercises/${exercise.id}/history?back=${encodeURIComponent(`/log/${session.id}`)}`)}
+          >
+            History
+          </button>
+          <button className="btn-secondary small-btn" onClick={() => setSwapping(!swapping)} aria-expanded={swapping}>
+            Swap
+          </button>
+        </div>
       </div>
 
       {swapping && (

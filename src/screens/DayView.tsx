@@ -18,6 +18,7 @@ import {
 import { DEFAULT_TIME } from '../db/seed';
 import { formatTargets } from '../format';
 import { navigate } from '../router';
+import { DayNoteSection } from './Journal';
 import { withUndo } from '../undo';
 import { attempt, ErrorText, Header } from './common';
 import { PlanSelect, TimeSelect, UndoBar } from './pickers';
@@ -149,6 +150,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
           {w.session && w.session.finishedAt !== null ? (
             <div className="done-line">
               <span className="done-mark">✓ Done · {w.setCount} {w.setCount === 1 ? 'set' : 'sets'}</span>
+              {w.session.journalNote.trim() && <p className="workout-note small-print">{w.session.journalNote}</p>}
               <button className="btn-secondary" onClick={() => navigate(`/log/${w.session!.id}`)}>View</button>
               {isToday && (
                 <button
@@ -232,6 +234,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
         </div>
       )}
       <ErrorText message={error} />
+      <DayNoteSection date={date} />
     </div>
   );
 }
