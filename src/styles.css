@@ -270,7 +270,7 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .header-action .link { min-height: 44px; min-width: 44px; }
 
 /* Journal (W-09) */
-.note-box { width: 100%; min-height: 88px; font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px; resize: vertical; }
+.note-box { width: 100%; min-height: 88px; font: inherit; font-size: 17px; /* 16px+ stops iOS zooming on focus */ color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px; resize: vertical; }
 .rating-row { display: grid; grid-template-columns: 76px 1fr; align-items: center; gap: 8px; margin-bottom: 8px; }
 .rating-label { color: var(--muted); }
 .rating-buttons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
@@ -279,4 +279,5 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .done-line { flex-wrap: wrap; }
 .done-line .workout-note { flex-basis: 100%; order: 10; margin: 4px 0 0; color: var(--muted); white-space: pre-wrap; }
 /* A note mark looks different from the round "changed by hand" dot: a short bar. */
-.cal-note { width: 10px; height: 3px; border-radius: 2px; background: var(--accent); display: inline-block; margin-left: 2px; }
+.cal-note { width: 12px; height: 4px; border-radius: 2px; background: var(--accent); display: inline-block; margin-left: 2px; }
+.note-box:focus { outline: 2px solid var(--accent); outline-offset: 1px; }

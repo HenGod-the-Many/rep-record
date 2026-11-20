@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { getDayNote, nextRating, RATINGS, saveDayNote, setSessionNote, type Rating } from '../db/journal';
+import { getDayNote, RATINGS, saveDayNote, setSessionNote, tapDayRating, type Rating } from '../db/journal';
 import { ErrorText } from './common';
 
 /**
@@ -23,10 +23,15 @@ function AutoSaveText(props: { label: string; value: string; placeholder?: strin
     window.clearTimeout(timer.current);
     const t = latest.current;
     if (t === saved.current) return;
+    const before = saved.current;
     saved.current = t;
     onSave.current(t).then(
       () => setError(null),
-      (e: unknown) => setError(e instanceof Error ? e.message : String(e)),
+      (e: unknown) => {
+        // Not saved: forget that it was, so the next blur, hide or close tries again.
+        if (saved.current === t) saved.current = before;
+        setError(e instanceof Error ? e.message : String(e));
+      },
     );
   };
 
@@ -94,7 +99,7 @@ export function DayNoteSection({ date }: { date: string }) {
   const [error, setError] = useState<string | null>(null);
   if (!note) return null;
   const rate = (r: Rating, n: number) =>
-    saveDayNote(db, date, { [r]: nextRating(note[r], n) }).then(
+    tapDayRating(db, date, r, n).then(
       () => setError(null),
       (e: unknown) => setError(e instanceof Error ? e.message : String(e)),
     );

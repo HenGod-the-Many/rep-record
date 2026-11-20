@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { datesWithNotes, getDayNote, nextRating, saveDayNote, setSessionNote } from './journal';
-import { startOrResume } from './logging';
-import { freshDb, planId } from '../test/helpers';
+import { datesWithNotes, getDayNote, nextRating, saveDayNote, setSessionNote, tapDayRating } from './journal';
+import { exerciseHistory } from './history';
+import { logSet, startOrResume } from './logging';
+import { exerciseId, freshDb, planId } from '../test/helpers';
 
 describe('workout note (R-07.1)', () => {
   it('is saved on the workout and read back', async () => {
@@ -43,6 +44,14 @@ describe('day note (R-07.2)', () => {
     expect(nextRating(4, 4)).toBeNull();
   });
 
+  it('two quick taps on the same number set it and then clear it', async () => {
+    const db = await freshDb();
+    await Promise.all([tapDayRating(db, '2026-11-20', 'energy', 4), tapDayRating(db, '2026-11-20', 'energy', 4)]);
+    expect((await getDayNote(db, '2026-11-20')).energy).toBeNull();
+    await tapDayRating(db, '2026-11-20', 'energy', 2);
+    expect((await getDayNote(db, '2026-11-20')).energy).toBe(2);
+  });
+
   it('a note emptied of everything is removed', async () => {
     const db = await freshDb();
     await saveDayNote(db, '2026-11-20', { energy: 2, note: 'x' });
@@ -54,6 +63,17 @@ describe('day note (R-07.2)', () => {
     const db = await freshDb();
     await saveDayNote(db, '2026-11-22', { soreness: 5 });
     expect((await getDayNote(db, '2026-11-22')).soreness).toBe(5);
+  });
+});
+
+describe('workout note in history', () => {
+  it("an exercise's history carries each workout's note", async () => {
+    const db = await freshDb();
+    const bench = await exerciseId(db, 'Bench press');
+    const s = await startOrResume(db, { date: '2026-11-20', planId: await planId(db, 'Push'), time: 'morning' });
+    await logSet(db, { sessionId: s, exerciseId: bench, planExerciseId: null, setNumber: 1, parts: [{ weightLb: 135, reps: 8, seconds: null }] });
+    await setSessionNote(db, s, 'Left shoulder tight');
+    expect((await exerciseHistory(db, bench))[0].session.journalNote).toBe('Left shoulder tight');
   });
 });
 

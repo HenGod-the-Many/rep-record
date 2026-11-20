@@ -39,6 +39,17 @@ export async function saveDayNote(db: WorkoutDB, date: string, patch: Partial<Om
   });
 }
 
+/**
+ * One tap on a rating number, read and written in one transaction so two quick
+ * taps on the same number set it and then clear it.
+ */
+export async function tapDayRating(db: WorkoutDB, date: string, rating: Rating, n: number): Promise<void> {
+  await db.transaction('rw', db.dayNotes, async () => {
+    const current = (await getDayNote(db, date))[rating];
+    await saveDayNote(db, date, { [rating]: nextRating(current, n) });
+  });
+}
+
 /** Tapping the chosen number again clears it. */
 export function nextRating(current: number | null, tapped: number): number | null {
   return current === tapped ? null : tapped;
