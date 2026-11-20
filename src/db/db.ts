@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
+import { builtInRows, type MetricKind } from './metricsData';
 
 /** How an exercise is measured. */
 export type ExerciseKind = 'weight' | 'bodyweight' | 'timed';
@@ -140,6 +141,39 @@ export interface Setting {
   value: unknown;
 }
 
+/** A body metric (W-11): built in (bodyweight, height, measurements, body fat, photos) or named by the user. */
+export interface Metric {
+  id: string;
+  name: string;
+  kind: MetricKind;
+  /** For custom metrics: the unit shown, e.g. "bpm". */
+  unit: string;
+  builtIn: boolean;
+  /** Bodyweight and height cannot be switched off. */
+  alwaysOn: boolean;
+  enabled: boolean;
+  order: number;
+}
+
+/** One value of a metric on a date. Weight in pounds, length in inches, percent and custom as typed. */
+export interface MetricEntry {
+  id: string;
+  metricId: string;
+  date: string;
+  value: number;
+}
+
+/** A progress photo, kept only on the phone. */
+export interface Photo {
+  id: string;
+  date: string;
+  image: Blob;
+  width: number;
+  height: number;
+  bytes: number;
+  addedAt: number;
+}
+
 export const DB_NAME = 'workout-journal';
 
 export class WorkoutDB extends Dexie {
@@ -154,6 +188,9 @@ export class WorkoutDB extends Dexie {
   setLogs!: EntityTable<SetLog, 'id'>;
   dayNotes!: EntityTable<DayNote, 'date'>;
   settings!: EntityTable<Setting, 'key'>;
+  metrics!: EntityTable<Metric, 'id'>;
+  metricEntries!: EntityTable<MetricEntry, 'id'>;
+  photos!: EntityTable<Photo, 'id'>;
 
   /**
    * `upTo` declares only the versions up to that number. It exists so a backup
@@ -231,6 +268,19 @@ export class WorkoutDB extends Dexie {
             if (x.finishedAt === undefined) x.finishedAt = x.startedAt;
             if (!x.swaps) x.swaps = {};
           });
+      });
+    if (upTo < 4) return;
+    // v4: body metrics and progress photos (W-11). Built-in metrics are added here for
+    // existing data and by ensureSeeded for a new install.
+    this.version(4)
+      .stores({
+        metrics: 'id, order',
+        metricEntries: 'id, metricId, date, [metricId+date]',
+        photos: 'id, date',
+      })
+      .upgrade(async (tx) => {
+        const t = tx.table('metrics');
+        for (const row of builtInRows()) if (!(await t.get(row.id))) await t.add(row);
       });
   }
 }

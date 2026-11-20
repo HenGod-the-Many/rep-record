@@ -5,6 +5,7 @@ import { getWeekStart, setWeekStart } from '../db/schedule';
 import { getUnit, setUnit } from '../db/units';
 import { Header } from './common';
 import { BackupSection } from './Backup';
+import { BodyMetricsSection } from './Body';
 
 export function Settings() {
   const weekStart = useLiveQuery(() => getWeekStart(db), []);
@@ -32,6 +33,7 @@ export function Settings() {
           ))}
         </select>
       </label>
+      <BodyMetricsSection />
       <BackupSection />
     </div>
   );
