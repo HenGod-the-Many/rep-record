@@ -142,8 +142,8 @@ written only by Taylor.
 |---|---|---|---|---|---|
 | R-08.1 The app installs to the iPhone home screen and opens and works with no network after the first load | must | Demonstration | W-02 | planned | |
 | R-08.2 Data is still there after closing the app, restarting the phone, and 8 days without opening it | must | Demonstration | W-02 | planned | |
-| R-08.3 Export writes all data to a JSON file; importing that file into an empty app restores it exactly | must | Test | W-07 | planned | |
-| R-08.4 Importing a damaged or wrong file is refused with a message, and existing data is left unchanged | must | Test | W-07 | planned | |
+| R-08.3 Export writes all data to a JSON file; importing that file into an empty app restores it exactly | must | Test | W-07 | built | round-trip test in src/db/backup.test.ts; browser check docs/evidence/w07/ |
+| R-08.4 Importing a damaged or wrong file is refused with a message, and existing data is left unchanged | must | Test | W-07 | built | 8 refusal tests compare all data before and after |
 
 ## KF-09 See the training tips
 
