@@ -24,6 +24,7 @@ import {
 import { displayNumber, formatWeight, parseWeight, quickDrop, stepWeight, type Unit } from '../db/units';
 import { formatTargets } from '../format';
 import { navigate } from '../router';
+import { WorkoutNote } from './Journal';
 import { attempt, ErrorText, Header } from './common';
 
 const EMPTY: SetPart = { weightLb: null, reps: null, seconds: null };
@@ -129,6 +130,7 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
           </ul>
         </section>
       )}
+      <WorkoutNote key={session.id} sessionId={session.id} value={session.journalNote} />
       <ErrorText message={error} />
       {session.finishedAt === null && (
         <button

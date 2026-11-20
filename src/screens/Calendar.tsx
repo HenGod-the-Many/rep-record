@@ -3,6 +3,7 @@ import { db } from '../db/db';
 import { formatMonth, monthGrid, shiftMonth, todayLocal, weekdayName } from '../db/dates';
 import { getWeekStart, loadCalendar, resolveFrom } from '../db/schedule';
 import { navigate } from '../router';
+import { datesWithNotes } from '../db/journal';
 import { Header } from './common';
 import { UndoBar } from './pickers';
 
@@ -18,7 +19,8 @@ export function Calendar({ month }: { month: string }) {
     const names = new Map(plans.map((p) => [p.id, p.name]));
     const days = monthGrid(month, weekStart).map((d) => ({ ...resolveFrom(cal, d), names: [] as string[] }));
     for (const d of days) d.names = d.workouts.map((w) => shortName(names.get(w.planId) ?? '?'));
-    return { weekStart, days };
+    const notes = await datesWithNotes(db, days.map((d) => d.date));
+    return { weekStart, days, notes };
   }, [month]);
 
   const go = (m: string) => navigate(`/calendar?m=${m}`, { replace: true });
@@ -51,6 +53,7 @@ export function Calendar({ month }: { month: string }) {
                 <span className="cal-num">
                   {Number(d.date.slice(8))}
                   {d.overridden && <span className="cal-dot" title="Changed by hand" />}
+                  {data.notes.has(d.date) && <span className="cal-note" title="Has a note" aria-label="has a note" />}
                 </span>
                 {!empty && <span className="cal-label">{d.names[0]}</span>}
                 {d.names.length > 1 && <span className="cal-label">+{d.names.length - 1}</span>}
