@@ -39,6 +39,18 @@ export function partsText(parts: SetPart[], kind: ExerciseKind, unit: Unit): str
     .join(' → ');
 }
 
+/**
+ * Typed-but-unlogged numbers and added rows, kept for the life of the app so
+ * they survive leaving the logging screen (for example to look at History)
+ * and coming back. Keyed by workout, plan slot and exercise.
+ */
+const cardDrafts = new Map<string, { drafts: Map<string, SetPart>; extra: number }>();
+function cardDraftsFor(key: string) {
+  let d = cardDrafts.get(key);
+  if (!d) cardDrafts.set(key, (d = { drafts: new Map(), extra: 0 }));
+  return d;
+}
+
 /** The logging screen: one card per exercise in the plan, sets saved the moment they are logged. */
 export function LogWorkout({ sessionId }: { sessionId: string }) {
   const data = useLiveQuery(async () => {
@@ -153,9 +165,14 @@ function ExerciseCard(props: {
   const { session, entry, exercise, logs, unit } = props;
   const kind = exercise.kind;
   const prefill = useLiveQuery(() => prefillFor(db, session.id, exercise.id, 30), [session.id, exercise.id]);
-  const drafts = useRef(new Map<string, SetPart>());
+  const kept = cardDraftsFor(`${session.id}:${entry.id}:${exercise.id}`);
+  const drafts = useRef(kept.drafts);
   const [, rerender] = useState(0);
-  const [extra, setExtra] = useState(0);
+  const [extra, setExtraState] = useState(kept.extra);
+  const setExtra = (n: number) => {
+    kept.extra = n;
+    setExtraState(n);
+  };
   const [mode, setMode] = useState<Mode | null>(null);
   const [rating, setRating] = useState<number | null>(null);
   const [swapping, setSwapping] = useState(false);

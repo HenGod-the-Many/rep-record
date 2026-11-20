@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type ExerciseKind } from '../db/db';
-import { formatDate, timeLabel } from '../db/dates';
+import { addDays, formatDate, timeLabel, todayLocal } from '../db/dates';
 import { chartPoints, exerciseHistory, records, type ChartPoint, type Mark } from '../db/history';
 import { displayNumber, formatWeight, getUnit, type Unit } from '../db/units';
 import { Header } from './common';
@@ -16,14 +16,12 @@ const SERIES: Record<ExerciseKind, { label: string; unit: 'weight' | 'reps' | 's
   timed: [{ label: 'Longest hold', unit: 's' }],
 };
 
-function shortDate(date: string): string {
-  return formatDate(date).split(' ').slice(1).join(' '); // "2 Nov"
-}
+const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-function daysBefore(date: string, days: number): string {
-  const d = new Date(`${date}T12:00:00Z`);
-  d.setUTCDate(d.getUTCDate() - days);
-  return d.toISOString().slice(0, 10);
+/** "2 Nov". */
+function shortDate(date: string): string {
+  const [, m, d] = date.split('-').map(Number);
+  return `${d} ${MONTH_SHORT[m - 1]}`;
 }
 
 /**
@@ -118,6 +116,10 @@ export function History({ exerciseId, back }: { exerciseId: string; back: string
     return { exercise, history: await exerciseHistory(db, exerciseId), unit: await getUnit(db) };
   }, [exerciseId]);
   const [all, setAll] = useState(false);
+  const summary = useMemo(
+    () => (data ? { r: records(data.history, data.exercise.kind), points: chartPoints(data.history, data.exercise.kind) } : null),
+    [data],
+  );
 
   if (data === undefined) return <div className="screen"><Header title="History" back={back} /></div>;
   if (data === null) {
@@ -130,10 +132,9 @@ export function History({ exerciseId, back }: { exerciseId: string; back: string
   }
   const { exercise, history, unit } = data;
   const kind = exercise.kind;
-  const r = records(history, kind);
-  const points = chartPoints(history, kind);
-  const latest = points.length ? points[points.length - 1].date : '';
-  const shown = all || !latest ? points : points.filter((p) => p.date >= daysBefore(latest, 91));
+  const { r, points } = summary!;
+  const from = addDays(todayLocal(), -91);
+  const shown = all ? points : points.filter((p) => p.date >= from);
   const wt = (lb: number) => formatWeight(lb, unit);
 
   return (
@@ -172,7 +173,11 @@ export function History({ exerciseId, back }: { exerciseId: string; back: string
                   </button>
                 </div>
               </div>
-              <Chart points={shown} kind={kind} unit={unit} />
+              {shown.length ? (
+                <Chart points={shown} kind={kind} unit={unit} />
+              ) : (
+                <p className="small-print muted">Nothing logged in the last 3 months. Tap All to see everything.</p>
+              )}
             </section>
           )}
 

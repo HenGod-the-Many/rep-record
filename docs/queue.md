@@ -28,7 +28,7 @@ block, and the Awaiting owner list. Requirement status lives in
 | 5b | W-14 | Rescheduling: move within the week, move all future, quick day edits, edit one date and keep changes | R-04.4–R-04.9 | [W-05/W-14](specs/W-05-splits-schedules-today.md) | W-05 | no | Awaiting owner | Spec approved by Taylor 2026-11-18; PR #4 merged to dev |
 | 6 | W-06 | Logging screen: pre-fill, one-tap sets, difficulty 1–10 per set, mid-set weight changes, session-only swap, units setting | R-04.3, R-05.1–R-05.10 | [W-06](specs/W-06-logging.md) | W-14 | no | Awaiting owner | Spec approved by Taylor 2026-11-18 with changes; built 2026-11-19 |
 | 7 | W-07 | JSON export and import | R-08.3, R-08.4 | [W-07](specs/W-07-export-import.md) | W-06 | no | Awaiting owner | Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
-| 8 | W-08 | Exercise history, PRs, estimated 1RM, chart | R-06.1–R-06.4 | [W-08](specs/W-08-history-prs.md) | W-06 | no | In progress | Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
+| 8 | W-08 | Exercise history, PRs, estimated 1RM, chart | R-06.1–R-06.4 | [W-08](specs/W-08-history-prs.md) | W-06 | no | Awaiting owner | Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 9 | W-09 | Journal: session notes and day notes | R-07.1, R-07.2 | [W-09](specs/W-09-journal.md) | W-06 | no | Ready | Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 10 | W-10 | Training tips and polish | R-09.1 | not yet | W-09 | no | Not ready | |
 | 11 | W-11 | Body metrics: bodyweight + rolling average, height, optional measurements, body fat %, photos, custom metrics | R-10.1–R-10.7 | [W-11](specs/W-11-body-metrics.md) | W-06 | no | Ready | Added 2026-11-18. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
@@ -40,6 +40,15 @@ block, and the Awaiting owner list. Requirement status lives in
 ## Awaiting owner
 
 Newest first.
+
+### W-08: exercise history, PRs, chart
+
+- Delivered in: feature/w08-history, pull request to `dev`
+- Result: each exercise has a History screen (from the exercise in Exercises, or the History button while logging): heaviest weight and best estimated 1-rep max with dates, a two-line chart (3 months or All), every set by workout with parts, difficulty and to-failure.
+- Evidence: `npm run check` 152 tests (10 history tests; deliberate breaks fail them); screenshots in `docs/evidence/w08/`; acceptance-reviewer "accept after fixes", fixed; `/code-review` 5 findings, all fixed (typed numbers now survive a trip to History).
+- Not verified: kg display on this screen (uses the tested unit formatting); speed on the phone.
+- Calls made for you: parts are written "135 lb × 5 → 115 lb × 3" as on the logging screen.
+- To accept: Release 2 steps 1 to 3 in `docs/verification-plan.md`.
 
 ### W-07: backup (export and restore)
 

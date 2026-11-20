@@ -98,6 +98,17 @@ describe('records (R-06.2, R-05.7)', () => {
     expect(r.bestE1rm).toMatchObject({ date: '2026-11-09', weightLb: 125, reps: 10 });
   });
 
+  it('a later part of a set can set the record', async () => {
+    const db = await freshDb();
+    const bench = await exerciseId(db, 'Bench press');
+    const s = await startOrResume(db, { date: '2026-11-02', planId: await planId(db, 'Push'), time: 'morning' });
+    // Went up mid-set: 5 × 100, then 2 × 130.
+    await log(db, s, bench, 1, [w(100, 5), w(130, 2)]);
+    const r = records(await exerciseHistory(db, bench), 'weight');
+    expect(r.heaviest).toMatchObject({ value: 130, reps: 2 });
+    expect(r.bestE1rm?.value).toBeCloseTo(138.667, 2); // 130 × (1 + 2/30) beats 100 × (1 + 5/30) = 116.67
+  });
+
   it('bodyweight: most reps in one set and heaviest added weight; timed: longest hold', async () => {
     const db = await freshDb();
     const s = await startOrResume(db, { date: '2026-11-02', planId: await planId(db, 'Pull'), time: 'morning' });
