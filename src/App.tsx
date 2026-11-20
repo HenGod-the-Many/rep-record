@@ -11,6 +11,7 @@ import { MoveDay } from './screens/MoveDay';
 import { Calendar } from './screens/Calendar';
 import { SplitEdit, SplitList } from './screens/Splits';
 import { Settings } from './screens/Settings';
+import { LogWorkout } from './screens/LogWorkout';
 import { todayLocal } from './db/dates';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -41,7 +42,7 @@ function Screen() {
   if (section === 'exercises' && id) return <ExerciseForm id={id === 'new' ? null : id} />;
   if (section === 'exercises') return <ExerciseList />;
   if (section === 'plans' && id && sub === 'entry' && subId) return <EntryEdit planId={id} entryId={subId} />;
-  if (section === 'plans' && id) return <PlanDetail planId={id} />;
+  if (section === 'plans' && id) return <PlanDetail planId={id} backTo={back?.startsWith('/') ? back : undefined} />;
   if (section === 'plans') return <PlanList />;
   if (section === 'pick') return <ExercisePicker query={query} />;
   if (section === 'splits' && id) return <SplitEdit splitId={id} />;
@@ -53,11 +54,12 @@ function Screen() {
   if (section === 'day' && id && DATE.test(id)) return <DayView date={id} back={back ?? `/calendar?m=${id.slice(0, 7)}`} />;
   if (section === 'move' && id && DATE.test(id)) return <MoveDay date={id} back={back ?? `/day/${id}`} />;
   if (section === 'settings') return <Settings />;
+  if (section === 'log' && id) return <LogWorkout sessionId={id} />;
   return <DayView key={today} date={today} isToday />;
 }
 
 const TABS: { key: string; label: string; path: string; sections: string[] }[] = [
-  { key: 'today', label: 'Today', path: '/today', sections: ['today', 'settings', ''] },
+  { key: 'today', label: 'Today', path: '/today', sections: ['today', 'settings', 'log', ''] },
   { key: 'calendar', label: 'Calendar', path: '/calendar', sections: ['calendar', 'day', 'move'] },
   { key: 'splits', label: 'Splits', path: '/splits', sections: ['splits'] },
   { key: 'plans', label: 'Plans', path: '/plans', sections: ['plans', 'pick'] },

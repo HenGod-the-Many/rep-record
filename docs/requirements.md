@@ -97,7 +97,7 @@ written only by Taylor.
 |---|---|---|---|---|---|
 | R-04.1 You can override a single date with a different plan or rest without changing the split | must | Test | W-05 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
 | R-04.2 You can permanently replace an exercise in a plan; the old exercise's past history is unchanged | must | Test | W-04 | verified | plans.test.ts permanent swap; evidence 5; reviewer: met |
-| R-04.3 During a session you can swap an exercise for that session only; its sets are logged against the substitute and the plan is unchanged | must | Test | W-06 | planned | |
+| R-04.3 During a session you can swap an exercise for that session only; its sets are logged against the substitute and the plan is unchanged | must | Test | W-06 | verified | logging.test.ts swap tests; browser: Machine fly → Cable fly, plan unchanged; reviewer: met |
 | R-04.4 *Move within the week:* moving a planned day to a later or earlier date in the same week puts it there; the other planned days from the earlier of the two dates on keep their order and move later only as far as needed, so rest days (and the day left empty) absorb the shift; nothing moves past the last day of the week (moving earlier added by Taylor, 2026-11-18) | must | Test | W-14 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
 | R-04.5 After a move within the week, if the number of rest days between the new date and the end of the week has gone down, the app says so before you confirm | must | Test | W-14 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
 | R-04.6 If the shifted workouts don't fit before the week ends, you choose: drop the trailing workouts, or pick which workouts to drop | must | Test | W-14 | verified | PR #4; reviewer: met (schedule/reschedule tests, evidence w05-w14) |
@@ -109,16 +109,16 @@ written only by Taylor.
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-05.1 You can log each set's weight and reps (seconds for timed exercises; reps with optional added weight for bodyweight) | must | Test | W-06 | planned | |
-| R-05.2 Each exercise's sets are pre-filled from the last session that exercise was done, whichever plan it was in | must | Test | W-06 | planned | |
-| R-05.3 Tap targets on the logging screen are at least 44 × 44 points, and a pre-filled set is logged with one tap | must | Inspection, Demonstration | W-06 | planned | |
-| R-05.4 Weights show in lb by default and in kg when set in Settings; switching units does not change stored values | must | Test | W-06 | planned | |
-| R-05.5 Every logged set is saved the moment it is tapped, so closing the app mid-workout loses nothing | must | Test | W-06 | planned | |
-| R-05.6 Every set can carry a difficulty rating from 1 to 10, entered with one tap; it is shown next to that set in history and in the next session's pre-fill, because it is the main sign of being ready to go up in weight | must | Test, Demonstration | W-06 | planned | |
-| R-05.7 Within one set you can record a weight change partway through (e.g. 5 reps at 135 lb then 3 at 115 lb) in a few taps; history and PRs count each part at its own weight | should | Test | W-06 | planned | |
-| R-05.8 Logging a set, its difficulty and a weight change each takes no more than a few seconds, so it fits in a rest period | must | Demonstration | W-06 | planned | |
-| R-05.9 Weight changes and rep changes are recorded with their own buttons, separate from adjusting a set's planned weight and reps; you pick which set changed (and for weight, at which rep), and every other set keeps its listed weight and reps | should | Test, Demonstration | W-06 | planned | |
-| R-05.10 A set can be marked as taken to failure, with the number of reps reached (e.g. aimed for 10, failed after 8); the mark shows on the set and in the next session's pre-fill | should | Test | W-06 | planned | |
+| R-05.1 You can log each set's weight and reps (seconds for timed exercises; reps with optional added weight for bodyweight) | must | Test | W-06 | verified | logging.test.ts "three kinds"; reviewer: met |
+| R-05.2 Each exercise's sets are pre-filled from the last session that exercise was done, whichever plan it was in | must | Test | W-06 | verified | logging.test.ts pre-fill tests; evidence w06/02; reviewer: met |
+| R-05.3 Tap targets on the logging screen are at least 44 × 44 points, and a pre-filled set is logged with one tap | must | Inspection, Demonstration | W-06 | verified | browser size script: no control under 44×44 (incl. Clear, evidence w06/05); 1 tap per pre-filled set; reviewer: met after fix |
+| R-05.4 Weights show in lb by default and in kg when set in Settings; switching units does not change stored values | must | Test | W-06 | verified | units.test.ts; browser: 135 lb ↔ 61.23 kg; reviewer: met |
+| R-05.5 Every logged set is saved the moment it is tapped, so closing the app mid-workout loses nothing | must | Test | W-06 | verified | logSet writes at once; evidence w06/01 after reload; reviewer: met |
+| R-05.6 Every set can carry a difficulty rating from 1 to 10, entered with one tap; it is shown next to that set in history and in the next session's pre-fill, because it is the main sign of being ready to go up in weight | must | Test, Demonstration | W-06 | built | logging stored and shown in pre-fill (evidence w06/02; reviewer: met); "shown in history" waits for W-08 |
+| R-05.7 Within one set you can record a weight change partway through (e.g. 5 reps at 135 lb then 3 at 115 lb) in a few taps; history and PRs count each part at its own weight | should | Test | W-06 | built | parts stored, 135→115 at rep 6 tested (reviewer: met); counting parts in history/PRs waits for W-08 |
+| R-05.8 Logging a set, its difficulty and a weight change each takes no more than a few seconds, so it fits in a rest period | must | Demonstration | W-06 | verified | tap counts 1/1/3/3/4 counted in the browser; reviewer: met |
+| R-05.9 Weight changes and rep changes are recorded with their own buttons, separate from adjusting a set's planned weight and reps; you pick which set changed (and for weight, at which rep), and every other set keeps its listed weight and reps | should | Test, Demonstration | W-06 | verified | logging.test.ts "only the chosen set changes"; evidence w06/04; reviewer: met |
+| R-05.10 A set can be marked as taken to failure, with the number of reps reached (e.g. aimed for 10, failed after 8); the mark shows on the set and in the next session's pre-fill | should | Test | W-06 | verified | logging.test.ts "failed"; evidence w06/01, 02; reviewer: met |
 
 ## KF-06 See each exercise's whole history, PRs and progress
 

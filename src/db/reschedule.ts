@@ -237,9 +237,26 @@ export async function makeDateCopy(db: WorkoutDB, date: string, index: number): 
   });
 }
 
+/**
+ * Add a brand-new, empty workout to one date at a time of day, to be built
+ * from scratch. It is a one-date workout (not listed with the plans) until it
+ * is saved as a plan. Returns its id.
+ */
+export async function createDateWorkout(db: WorkoutDB, date: string, time: string, name = 'New workout'): Promise<string> {
+  const n = name.trim().replace(/\s+/g, ' ');
+  if (!n) throw new ValidationError('Give the workout a name.');
+  return db.transaction('rw', [db.schedules, db.splits, db.splitDays, db.dateOverrides, db.plans], async () => {
+    const day = resolveFrom(await loadCalendar(db), date);
+    const id = newId();
+    await db.plans.add({ id, name: n, notes: '', hidden: true, sourcePlanId: null });
+    await setDateWorkouts(db, date, [...day.workouts, { planId: id, time }]);
+    return id;
+  });
+}
+
 /** Write a date's edited copy back into the plan it came from, everywhere. */
 export async function updatePlanEverywhere(db: WorkoutDB, copyId: string): Promise<void> {
-  await db.transaction('rw', [db.plans, db.planExercises, db.dateOverrides], async () => {
+  await db.transaction('rw', [db.plans, db.planExercises, db.dateOverrides, db.sessions], async () => {
     const copy = await db.plans.get(copyId);
     if (!copy?.hidden) throw new ValidationError('This workout is not a one-date copy.');
     const sourceId = copy.sourcePlanId;
@@ -247,15 +264,15 @@ export async function updatePlanEverywhere(db: WorkoutDB, copyId: string): Promi
       throw new ValidationError('The original plan no longer exists. Save this as a new plan instead.');
     }
     await db.planExercises.where('planId').equals(sourceId).delete();
-    for (const e of await getEntries(db, copyId)) {
-      await db.planExercises.add({ ...e, id: newId(), planId: sourceId, alternateIds: [...e.alternateIds] });
-    }
+    // The copy's entries move across keeping their ids, so sets already logged
+    // from this date's workout still belong to their exercise slots.
+    await db.planExercises.where('planId').equals(copyId).modify({ planId: sourceId });
     await db.dateOverrides
       .filter((o) => o.workouts.some((w) => w.planId === copyId))
       .modify((o) => {
         o.workouts = o.workouts.map((w) => (w.planId === copyId ? { ...w, planId: sourceId } : w));
       });
-    await db.planExercises.where('planId').equals(copyId).delete();
+    await db.sessions.where('planId').equals(copyId).modify({ planId: sourceId });
     await db.plans.delete(copyId);
   });
 }
@@ -275,8 +292,10 @@ export async function saveCopyAsNewPlan(db: WorkoutDB, copyId: string, name: str
  * could bring a reference back.
  */
 export async function pruneUnusedCopies(db: WorkoutDB): Promise<number> {
-  return db.transaction('rw', [db.plans, db.planExercises, db.dateOverrides], async () => {
+  return db.transaction('rw', [db.plans, db.planExercises, db.dateOverrides, db.sessions], async () => {
     const used = new Set((await db.dateOverrides.toArray()).flatMap((o) => o.workouts.map((w) => w.planId)));
+    // A copy a workout was logged from stays, so that session still shows its plan.
+    for (const s of await db.sessions.toArray()) if (s.planId) used.add(s.planId);
     const orphans = (await db.plans.filter((p) => p.hidden === true).toArray()).filter((p) => !used.has(p.id));
     for (const p of orphans) {
       await db.planExercises.where('planId').equals(p.id).delete();

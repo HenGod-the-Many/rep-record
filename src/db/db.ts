@@ -87,11 +87,26 @@ export interface DateOverride {
 export interface Session {
   id: string;
   date: string;
+  /** The planned workout's time, so two workouts on one day stay apart. */
+  time: WorkoutTime;
   planId: string | null;
   /** Snapshot so the session still reads correctly if the plan is renamed or deleted. */
   planName: string;
   splitId: string | null;
   journalNote: string;
+  startedAt: number;
+  /** null while the workout is open. */
+  finishedAt: number | null;
+  /** Session-only swaps: plan slot id -> substitute exercise id. The plan is unchanged. */
+  swaps: Record<string, string>;
+}
+
+/** One stretch of a set at one weight. A set whose weight changed mid-set has several. */
+export interface SetPart {
+  /** Stored in pounds at full precision; kg is a display conversion. null = no weight (bodyweight, timed). */
+  weightLb: number | null;
+  reps: number | null;
+  seconds: number | null;
 }
 
 /** One performed set. History, PRs and pre-fill always key on exerciseId. */
@@ -102,10 +117,12 @@ export interface SetLog {
   /** The plan slot this set filled, if any (records session-only swaps). */
   planExerciseId: string | null;
   setNumber: number;
-  /** Stored in pounds at full precision; kg is a display conversion. */
-  weightLb: number | null;
-  reps: number | null;
-  seconds: number | null;
+  /** At least one. */
+  parts: SetPart[];
+  /** 1 (very easy) to 10 (couldn't do another rep), or null if not given. */
+  difficulty: number | null;
+  /** The set was taken to failure. */
+  toFailure: boolean;
   note: string;
   loggedAt: number;
 }
@@ -178,6 +195,34 @@ export class WorkoutDB extends Dexie {
           .toCollection()
           .modify((s: Schedule) => {
             if (typeof s.offset !== 'number') s.offset = 0;
+          });
+      });
+    // v3: set parts (weight changes mid-set), difficulty, to failure; open/finished sessions (W-06).
+    this.version(3)
+      .stores({ sessions: 'id, date, planId, [date+planId]' })
+      .upgrade(async (tx) => {
+        await tx
+          .table('setLogs')
+          .toCollection()
+          .modify((l: SetLog & { weightLb?: number | null; reps?: number | null; seconds?: number | null }) => {
+            if (!Array.isArray(l.parts)) {
+              l.parts = [{ weightLb: l.weightLb ?? null, reps: l.reps ?? null, seconds: l.seconds ?? null }];
+            }
+            delete l.weightLb;
+            delete l.reps;
+            delete l.seconds;
+            if (l.difficulty === undefined) l.difficulty = null;
+            if (typeof l.toFailure !== 'boolean') l.toFailure = false;
+          });
+        await tx
+          .table('sessions')
+          .toCollection()
+          .modify((x: Session) => {
+            if (!x.time) x.time = 'morning';
+            if (typeof x.startedAt !== 'number') x.startedAt = 0;
+            // Sessions from before this version are treated as finished.
+            if (x.finishedAt === undefined) x.finishedAt = x.startedAt;
+            if (!x.swaps) x.swaps = {};
           });
       });
   }

@@ -101,6 +101,35 @@ wide, so the picker likely needs two rows of five or a pop-up strip. Spike
 first: a throwaway static page at 390 × 844 with one exercise card, screenshot
 it, record the chosen layout here, then build.
 
+**Result (2026-11-19).** Checked on the real screen at 390 × 844 instead of a
+throwaway page: the arithmetic left no doubt (330 points of card width), so
+the screen itself served as the spike. Layout chosen:
+
+- Each set is two lines: set number, "last:" line, delete and a 56 × 48 ✓ on
+  top; weight and reps steppers (44-point − and +, typeable middle) below.
+- The difficulty picker opens under a set as soon as it is logged: two rows of
+  five 59 × 44 buttons. Once picked it folds to a "Difficulty 8" chip.
+- Weight change / Rep change / Failed sit in one row of three under the sets.
+  Picking the set is a tap on that set's row (it shows "Set 3" over the row).
+- Every visible button and box measured at least 44 × 44 (script check in the
+  browser: zero controls below 44 in either direction).
+
+Tap counts, counted in the browser: log a pre-filled set 1; difficulty 1;
+rep change 3 (button, set, reps); failed 3 (button, set, reps); weight
+change 4 with a quick drop (button, set, rep, drop).
+
+**Cases the spec left open, decided while building (Taylor can overrule):**
+
+- First time an exercise is done, an untouched set copies the set above it, so
+  sets 2 onward are still one tap. The spec said rows start empty; set 1 does.
+- Timed exercises show no Weight change / Rep change / Failed buttons; seconds
+  are changed with ± or by typing.
+- A plan edited while its workout is open: the screen follows the current
+  plan, and sets logged in a slot that no longer exists are listed under "Also
+  logged in this workout". Nothing is lost.
+- Tapping ✓ on a set that's already logged reopens its difficulty picker; it
+  never re-saves old numbers over an edit.
+
 ## Slices
 
 1. Spike: the layout page above. Record the result in this spec.

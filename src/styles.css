@@ -143,7 +143,7 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   border-radius: 12px; padding: 4px 4px 4px 12px; margin-bottom: 12px; font-size: 0.92rem;
 }
 .undo-bar span { flex: 1; }
-.undo-close, .icon-btn {
+.undo-close, .icon-btn { font-size: 1.1rem;
   min-width: 44px; min-height: 44px; background: none; border: 1px solid var(--border); border-radius: 10px; color: var(--muted);
 }
 .alert { background: #3a2a10; border: 1px solid #c98a1b; color: #ffd38a; border-radius: 12px; padding: 10px 14px; }
@@ -171,3 +171,74 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .workout-line { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-top: 1px solid var(--border); }
 .workout-actions { display: flex; gap: 6px; align-items: center; }
 .tabbar button { font-size: 0.82rem; padding: 0 2px; }
+
+/* W-06: logging */
+.small-btn { min-height: 44px; padding: 0 14px; }
+.ex-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.set-list { list-style: none; margin: 8px 0; padding: 0; }
+.set-row { position: relative; border-top: 1px solid var(--border); padding: 8px 0; }
+.set-row:first-child { border-top: 0; }
+.set-row.logged .set-num { background: var(--accent); color: var(--accent-text); }
+.set-line { display: flex; align-items: center; gap: 8px; }
+.set-num {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); display: inline-flex;
+  align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex: none;
+}
+.set-last { flex: 1; color: var(--muted); font-size: 0.82rem; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.fail-tag { background: #4a1f1f; color: #ffb3b3; }
+.check-btn {
+  width: 56px; height: 48px; border-radius: 12px; border: 2px solid var(--accent); background: transparent;
+  color: var(--accent); font-size: 1.4rem; font-weight: 700; flex: none;
+}
+.check-btn.done { background: var(--accent); color: var(--accent-text); }
+.set-steppers { display: flex; gap: 8px; margin-top: 6px; }
+.stepper-box { display: grid; grid-template-columns: 44px 1fr 44px; flex: 1; min-width: 0; }
+.stepper-box.wide { flex: 1.25; }
+.step-btn {
+  height: 48px; background: var(--surface-2); border: 1px solid var(--border); font-size: 1.3rem; padding: 0;
+}
+.step-btn:first-child { border-radius: 12px 0 0 12px; }
+.step-btn:last-child { border-radius: 0 12px 12px 0; }
+.step-value { position: relative; display: block; min-width: 0; }
+.step-value input {
+  height: 48px; min-height: 48px; border-radius: 0; border-left: 0; border-right: 0; text-align: center;
+  padding: 0 2px 10px; font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums;
+}
+.step-unit { position: absolute; left: 0; right: 0; bottom: 3px; text-align: center; font-size: 0.66rem; color: var(--muted); pointer-events: none; }
+.parts-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; font-weight: 600; }
+.diff-chip {
+  margin-top: 6px; min-height: 44px; padding: 0 14px; border-radius: 22px; background: var(--surface-2);
+  border: 1px solid var(--border); font-size: 0.9rem;
+}
+.diff-picker { margin-top: 6px; }
+.diff-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.diff-grid button {
+  min-height: 44px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border);
+  font-weight: 700; font-size: 1.05rem;
+}
+.diff-grid button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.diff-foot { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-top: 2px; }
+.pick-overlay {
+  position: absolute; inset: 2px 0; border-radius: 12px; border: 2px dashed var(--accent);
+  background: rgba(17, 20, 24, 0.82); color: var(--accent); font-weight: 700; font-size: 1.1rem;
+}
+.change-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 4px; }
+.change-buttons button { min-height: 44px; padding: 0 4px; font-size: 0.85rem; }
+.change-buttons button.active { border-color: var(--accent); color: var(--accent); }
+.add-set { margin-top: 8px; }
+.change-panel { background: var(--surface-2); border: 1px solid var(--accent); border-radius: 12px; padding: 10px; margin: 8px 0; display: flex; flex-direction: column; gap: 8px; }
+.change-title { font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button {
+  min-width: 44px; min-height: 44px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border);
+  font-weight: 700; padding: 0 8px;
+}
+.chips.drops button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; }
+.chips.drops small { font-weight: 400; color: var(--muted); font-size: 0.75rem; }
+.swap-panel { margin: 8px 0; }
+.swap-list { max-height: 50vh; overflow-y: auto; }
+.finished-banner { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.finish { margin: 16px 0; }
+.done-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.done-mark { flex: 1; color: #7ddc9a; font-weight: 700; }
+.diff-foot .link { min-width: 64px; min-height: 44px; padding: 0 10px; font-size: 0.9rem; }

@@ -3,7 +3,8 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { formatDate, timeLabel } from '../db/dates';
 import { getEntries } from '../db/plans';
-import { makeDateCopy } from '../db/reschedule';
+import { createDateWorkout, makeDateCopy } from '../db/reschedule';
+import { findSession, reopenSession, startOrResume } from '../db/logging';
 import {
   addWorkoutToDate,
   clearDate,
@@ -26,11 +27,18 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
     const day = await resolveDate(db, date);
     const exercises = new Map((await db.exercises.toArray()).map((e) => [e.id, e]));
     const workouts = await Promise.all(
-      day.workouts.map(async (w) => ({
-        ...w,
-        plan: await db.plans.get(w.planId),
-        entries: await getEntries(db, w.planId),
-      })),
+      day.workouts.map(async (w) => {
+        const plannedTimes = day.workouts.filter((x) => x.planId === w.planId).map((x) => x.time);
+        const session = await findSession(db, { date, planId: w.planId, time: w.time, plannedTimes });
+        return {
+          ...w,
+          plannedTimes,
+          session,
+          setCount: session ? await db.setLogs.where('sessionId').equals(session.id).count() : 0,
+          plan: await db.plans.get(w.planId),
+          entries: await getEntries(db, w.planId),
+        };
+      }),
     );
     return { day, workouts, exercises };
   }, [date]);
@@ -59,6 +67,14 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
     if (await change(`Added a workout to ${short}`, () => addWorkoutToDate(db, date, newPlan, newTime))) {
       setAdding(false);
       setNewPlan('');
+    }
+  };
+
+  const buildNew = async () => {
+    let id = '';
+    if (await change(`Added a new workout to ${short}`, async () => { id = await createDateWorkout(db, date, newTime); })) {
+      setAdding(false);
+      navigate(`/plans/${id}?back=${encodeURIComponent(here)}`);
     }
   };
 
@@ -92,7 +108,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
             <div>
               <div className="card-title">
                 {w.plan?.name ?? 'Deleted plan'}
-                {w.plan?.hidden && <span className="tag">edited for this date</span>}
+                {w.plan?.hidden && <span className="tag">{w.plan.sourcePlanId ? "edited for this date" : "this date only"}</span>}
               </div>
               <div className="row-sub">{timeLabel(w.time)}</div>
             </div>
@@ -114,9 +130,42 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
             })}
             {w.entries.length === 0 && <li className="muted">No exercises in this plan yet.</li>}
           </ul>
-          <button className="btn-primary block" disabled title="Logging arrives in the next update">
-            Start workout (logging comes next)
-          </button>
+          {w.session && w.session.finishedAt !== null ? (
+            <div className="done-line">
+              <span className="done-mark">✓ Done · {w.setCount} {w.setCount === 1 ? 'set' : 'sets'}</span>
+              <button className="btn-secondary" onClick={() => navigate(`/log/${w.session!.id}`)}>View</button>
+              {isToday && (
+                <button
+                  className="btn-secondary"
+                  onClick={async () => {
+                    if (await attempt(() => reopenSession(db, w.session!.id), setError)) navigate(`/log/${w.session!.id}`);
+                  }}
+                >
+                  Reopen
+                </button>
+              )}
+            </div>
+          ) : w.session ? (
+            <button className={`${isToday ? 'btn-primary' : 'btn-secondary'} block`} onClick={() => navigate(`/log/${w.session!.id}`)}>
+              {isToday ? 'Resume workout' : 'View workout'} · {w.setCount} {w.setCount === 1 ? 'set' : 'sets'} logged
+            </button>
+          ) : isToday ? (
+            <button
+              className="btn-primary block"
+              disabled={!w.plan}
+              onClick={async () => {
+                let id = '';
+                const ok = await attempt(async () => {
+                  id = await startOrResume(db, { date, planId: w.planId, time: w.time, plannedTimes: w.plannedTimes });
+                }, setError);
+                if (ok) navigate(`/log/${id}`);
+              }}
+            >
+              Start workout
+            </button>
+          ) : (
+            <p className="small-print muted">Workouts are logged on the day, from Today.</p>
+          )}
           {replacing === i ? (
             <div className="inline-form">
               <PlanSelect
@@ -145,10 +194,12 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
         <div className="card">
           <div className="card-title">Add a workout to {short}</div>
           <div className="stack">
-            <PlanSelect label="Plan to add" value={newPlan} onChange={setNewPlan} />
             <TimeSelect label="Time" value={newTime} onChange={setNewTime} />
+            <button className="btn-primary" onClick={buildNew}>Build a new workout</button>
+            <p className="small-print muted">Starts empty; you add the exercises. Or use one of your plans:</p>
+            <PlanSelect label="Plan to add" value={newPlan} onChange={setNewPlan} />
             <div className="button-row two">
-              <button className="btn-primary" onClick={add}>Add</button>
+              <button className="btn-secondary" onClick={add} disabled={!newPlan}>Add plan</button>
               <button className="btn-secondary" onClick={() => setAdding(false)}>Cancel</button>
             </div>
           </div>
