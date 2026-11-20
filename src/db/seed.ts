@@ -1,8 +1,16 @@
 import type { WorkoutDB } from './db';
 import { newId } from './ids';
+import { builtInRows } from './metricsData';
 import { SEED_EXERCISES, SEED_PLANS, SEED_SPLIT } from './seedData';
 
 const SEEDED_KEY = 'seeded';
+
+/** Add any built-in body metric that is missing (a new install, or data restored from an older backup). */
+export async function ensureBuiltInMetrics(db: WorkoutDB): Promise<void> {
+  await db.transaction('rw', db.metrics, async () => {
+    for (const row of builtInRows()) if (!(await db.metrics.get(row.id))) await db.metrics.add(row);
+  });
+}
 /** Time given to seeded and newly added workouts until the user picks one. */
 export const DEFAULT_TIME = 'morning';
 
@@ -12,6 +20,7 @@ export const DEFAULT_TIME = 'morning';
  * duplicates data even if two tabs start at once.
  */
 export async function ensureSeeded(db: WorkoutDB): Promise<boolean> {
+  await ensureBuiltInMetrics(db);
   return db.transaction(
     'rw',
     [db.settings, db.exercises, db.plans, db.planExercises, db.splits, db.splitDays],

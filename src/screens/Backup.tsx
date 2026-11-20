@@ -4,6 +4,7 @@ import { db } from '../db/db';
 import {
   BackupError,
   backupFileName,
+  backupParts,
   exportData,
   getLastBackup,
   markBackedUp,
@@ -46,7 +47,7 @@ export function BackupSection() {
     setMessage(null);
     try {
       const data = await exportData(db);
-      const file = new File([JSON.stringify(data)], backupFileName(), { type: 'application/json' });
+      const file = new File(backupParts(data), backupFileName(), { type: 'application/json' });
       if (navigator.canShare?.({ files: [file] })) {
         setReady(file);
       } else {

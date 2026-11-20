@@ -13,6 +13,7 @@ import { SplitEdit, SplitList } from './screens/Splits';
 import { Settings } from './screens/Settings';
 import { LogWorkout } from './screens/LogWorkout';
 import { History } from './screens/History';
+import { BodyList, MetricPage, PhotosPage } from './screens/Body';
 import { todayLocal } from './db/dates';
 import { applyUpdate, useUpdateReady } from './pwa';
 
@@ -57,6 +58,9 @@ function Screen() {
   if (section === 'day' && id && DATE.test(id)) return <DayView date={id} back={back ?? `/calendar?m=${id.slice(0, 7)}`} />;
   if (section === 'move' && id && DATE.test(id)) return <MoveDay date={id} back={back ?? `/day/${id}`} />;
   if (section === 'settings') return <Settings />;
+  if (section === 'body' && id === 'photos') return <PhotosPage />;
+  if (section === 'body' && id) return <MetricPage metricId={id} />;
+  if (section === 'body') return <BodyList />;
   if (section === 'log' && id) return <LogWorkout sessionId={id} />;
   return <DayView key={today} date={today} isToday />;
 }
@@ -67,6 +71,7 @@ const TABS: { key: string; label: string; path: string; sections: string[] }[] =
   { key: 'splits', label: 'Splits', path: '/splits', sections: ['splits'] },
   { key: 'plans', label: 'Plans', path: '/plans', sections: ['plans', 'pick'] },
   { key: 'exercises', label: 'Exercises', path: '/exercises', sections: ['exercises'] },
+  { key: 'body', label: 'Body', path: '/body', sections: ['body'] },
 ];
 
 export function App() {

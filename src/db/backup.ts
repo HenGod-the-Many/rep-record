@@ -103,6 +103,22 @@ export async function exportData(db: WorkoutDB, now = new Date()): Promise<Backu
   return { app: BACKUP_APP, dataVersion: db.verno, exportedAt: now.toISOString(), tables };
 }
 
+/**
+ * The backup file's text as a list of pieces (one per row), so a backup with
+ * many photos is never one giant string in memory. Joined, the pieces are
+ * exactly JSON.stringify(file).
+ */
+export function backupParts(file: BackupFile): string[] {
+  const parts: string[] = [`{"app":${JSON.stringify(file.app)},"dataVersion":${file.dataVersion},"exportedAt":${JSON.stringify(file.exportedAt)},"tables":{`];
+  Object.entries(file.tables).forEach(([name, rows], t) => {
+    parts.push(`${t ? ',' : ''}${JSON.stringify(name)}:[`);
+    rows.forEach((row, i) => parts.push((i ? ',' : '') + JSON.stringify(row)));
+    parts.push(']');
+  });
+  parts.push('}}');
+  return parts;
+}
+
 export async function markBackedUp(db: WorkoutDB, at = Date.now()): Promise<void> {
   await db.settings.put({ key: LAST_BACKUP_KEY, value: at });
 }
