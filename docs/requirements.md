@@ -133,8 +133,8 @@ written only by Taylor.
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-07.1 Each workout session has a free-text note | should | Test | W-09 | planned | |
-| R-07.2 Each day has a note with energy, sleep and soreness (1–5, optional) and free text | should | Test | W-09 | planned | |
+| R-07.1 Each workout session has a free-text note | should | Test | W-09 | verified | journal.test.ts; saved after typing then tapping Back at once (browser); evidence w09/03; reviewer: met |
+| R-07.2 Each day has a note with energy, sleep and soreness (1–5, optional) and free text | should | Test | W-09 | verified | journal.test.ts (1–5, clear, empty removed, rest day); evidence w09/01, w09/02; reviewer: met |
 
 ## KF-08 Use it on my iPhone with bad gym wifi without losing my data
 
