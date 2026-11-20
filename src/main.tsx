@@ -1,14 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { registerSW } from 'virtual:pwa-register';
 import { App } from './App';
+import './pwa'; // registers the service worker; see pwa.ts for how updates are applied
 import { db } from './db/db';
 import { ensureSeeded } from './db/seed';
 import { pruneUnusedCopies } from './db/reschedule';
 import './styles.css';
-
-// New versions install in the background and take over on the next full app launch.
-registerSW({ immediate: true });
 
 // Ask Safari/Chrome not to evict our data under storage pressure.
 navigator.storage?.persist?.().catch(() => undefined);
