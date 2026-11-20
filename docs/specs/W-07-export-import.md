@@ -1,7 +1,7 @@
 # W-07: Export and import (backup)
 
-Status: draft 2026-11-20, awaiting Taylor's approval (questions at the end)
-Cleared to run unattended: not yet
+Status: approved 2026-11-20 by Claude on Taylor's say-so (Taylor delegated release-2 spec approval); reviewed by acceptance-reviewer, fixes made. Taylor can overrule any answer under "Answers".
+Cleared to run unattended: yes
 Satisfies: R-08.3, R-08.4
 
 ## Goal
@@ -15,15 +15,16 @@ put back exactly what was there, or refuse and change nothing.
 
 - *Export (R-08.3).* Settings has **Back up data**. It makes one JSON file
   named `rep-record-backup-YYYY-MM-DD.json` holding every table in the
-  database (exercises, plans, plan entries, splits, schedules, date changes,
-  sessions, sets, day notes, settings), plus the app name, the data version
+  database (exercises, plans, plan entries, splits, split days, schedules,
+  date changes, sessions, sets, day notes, settings), plus the app name, the data version
   and the time of export. On iPhone it opens the share sheet, so the file can
   go to Files, iCloud Drive, AirDrop or mail. Where sharing a file isn't
   possible, it downloads instead. — test, demonstration
 - *Every table, now and later.* Export reads the table list from the database
   itself, so tables added later (body metrics, photos, activities) are
   included without changing this code. A test fails if any table is missing
-  from the file. — test
+  from the file. Binary values (photos, from W-11) are written as base64 text
+  with their type and read back byte for byte. — test
 - *Round trip (R-08.3).* Export, wipe, import: every row in every table is
   equal to the original, field by field, including weights in pounds at full
   precision and finished/unfinished sessions. — test
@@ -38,11 +39,16 @@ put back exactly what was there, or refuse and change nothing.
   newer version of the app: refused with a plain message saying which, and
   the data on the phone is unchanged. A test checks each case and compares
   the database before and after. — test
-- *Older backups still restore.* A backup from an older data version (v1, v2)
-  is brought up to the current shape with the same upgrade steps the app runs
-  on itself, then restored. — test
-- *Last backup shown.* Settings shows "Last backup: 20 Nov 2026" (or "Never"),
-  so Taylor can see when one is overdue. — test
+- *Older backups still restore.* A backup made before a later item raised the
+  data version (for example a v3 backup restored after W-11 adds tables) is
+  brought up to the current shape with the same upgrade steps the app runs on
+  itself, then restored. "Missing table" means missing for that backup's own
+  version. — test
+- *Last backup shown.* Settings shows "Last backup: 20 Nov 2026" (or "Never").
+  Restoring keeps the phone's own last-backup date, not the older one from the
+  file. Once at least one workout is logged, Today shows a one-line reminder
+  linking to Settings when the last backup is more than 7 days old or never
+  happened. — test
 - Controls are at least 44 × 44 points; phone-size screenshots of Settings,
   the restore summary and a refusal message. — demonstration
 - The project's check command passes: `npm run check`
@@ -97,9 +103,8 @@ Release 1 step 8 in [verification-plan.md](../verification-plan.md), in more det
 4. Try to restore a photo or any other non-backup file: it's refused with a
    message and nothing changes.
 
-## Questions for Taylor
+## Answers (decided 2026-11-20 under Taylor's delegation; Taylor can overrule)
 
-1. Restore replaces everything on the phone (simple and exact). Merging a
-   backup into existing data is left out. OK?
-2. Should the app nudge you when the last backup is more than 7 days old (a
-   line on Today), or is the "Last backup" line in Settings enough?
+1. Restore replaces everything on the phone; no merging.
+2. Yes to a nudge: a one-line reminder on Today when the last backup is more
+   than 7 days old (see "Last backup shown").

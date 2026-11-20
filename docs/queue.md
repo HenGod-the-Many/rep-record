@@ -27,19 +27,30 @@ block, and the Awaiting owner list. Requirement status lives in
 | 5 | W-05 | Splits with a cycle, several timed workouts per day, schedules, calendar, single-date overrides, Today | R-03.1, R-03.3–R-03.7, R-04.1 | [W-05/W-14](specs/W-05-splits-schedules-today.md) | W-04 | no | Awaiting owner | Spec approved by Taylor 2026-11-18; PR #4 merged to dev |
 | 5b | W-14 | Rescheduling: move within the week, move all future, quick day edits, edit one date and keep changes | R-04.4–R-04.9 | [W-05/W-14](specs/W-05-splits-schedules-today.md) | W-05 | no | Awaiting owner | Spec approved by Taylor 2026-11-18; PR #4 merged to dev |
 | 6 | W-06 | Logging screen: pre-fill, one-tap sets, difficulty 1–10 per set, mid-set weight changes, session-only swap, units setting | R-04.3, R-05.1–R-05.10 | [W-06](specs/W-06-logging.md) | W-14 | no | Awaiting owner | Spec approved by Taylor 2026-11-18 with changes; built 2026-11-19 |
-| 7 | W-07 | JSON export and import | R-08.3, R-08.4 | [W-07](specs/W-07-export-import.md) (draft) | W-06 | no | Not ready | |
-| 8 | W-08 | Exercise history, PRs, estimated 1RM, chart | R-06.1–R-06.4 | [W-08](specs/W-08-history-prs.md) (draft) | W-06 | no | Not ready | |
-| 9 | W-09 | Journal: session notes and day notes | R-07.1, R-07.2 | [W-09](specs/W-09-journal.md) (draft) | W-06 | no | Not ready | |
+| 7 | W-07 | JSON export and import | R-08.3, R-08.4 | [W-07](specs/W-07-export-import.md) | W-06 | no | Ready | Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
+| 8 | W-08 | Exercise history, PRs, estimated 1RM, chart | R-06.1–R-06.4 | [W-08](specs/W-08-history-prs.md) | W-06 | no | Ready | Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
+| 9 | W-09 | Journal: session notes and day notes | R-07.1, R-07.2 | [W-09](specs/W-09-journal.md) | W-06 | no | Ready | Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 10 | W-10 | Training tips and polish | R-09.1 | not yet | W-09 | no | Not ready | |
-| 11 | W-11 | Body metrics: bodyweight + rolling average, height, optional measurements, body fat %, photos, custom metrics | R-10.1–R-10.7 | not yet | W-06 | no | Not ready | Added 2026-11-18 |
-| 12 | W-12 | Stats overview with cards you choose | R-11.1, R-11.2 | not yet | W-08, W-11 | no | Not ready | Added 2026-11-18 |
+| 11 | W-11 | Body metrics: bodyweight + rolling average, height, optional measurements, body fat %, photos, custom metrics | R-10.1–R-10.7 | [W-11](specs/W-11-body-metrics.md) | W-06 | no | Ready | Added 2026-11-18. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
+| 12 | W-12 | Stats overview with cards you choose | R-11.1, R-11.2 | [W-12](specs/W-12-stats.md) | W-08, W-11 | no | Ready | Added 2026-11-18. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 13 | W-13 | Spike: get Apple Health data into the app (Shortcut or Health export) | KF-12 (risk) | not yet | W-02 | yes | Not ready | Later; result only Taylor can observe |
-| 14 | W-15 | Activities: runs, rides, hikes, swims and custom; duration, distance, optional effort/HR/calories, estimated calories | R-13.1–R-13.5 | not yet | W-06, W-11 | no | Not ready | Added 2026-11-18; release 2 |
-| 15 | W-16 | Warm-up routines attached to plans, checked off before a workout | R-14.1, R-14.2 | not yet | W-06 | no | Not ready | Added 2026-11-18; release 2 |
+| 14 | W-15 | Activities: runs, rides, hikes, swims and custom; duration, distance, optional effort/HR/calories, estimated calories | R-13.1–R-13.5 | [W-15](specs/W-15-activities.md) | W-06, W-11 | no | Ready | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
+| 15 | W-16 | Warm-up routines attached to plans, checked off before a workout | R-14.1, R-14.2 | [W-16](specs/W-16-warmups.md) | W-06 | no | Ready | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 
 ## Awaiting owner
 
 Newest first.
+
+### Release 2 specs approved for you (2026-11-20)
+
+- You said yes to Claude approving the release-2 specs so the loop can keep
+  building. Each was checked by the acceptance-reviewer and fixed.
+- Every open question took a default, listed under "Answers" at the end of each
+  spec (W-07, W-08, W-09, W-11, W-12, W-15, W-16). Overrule any of them and the
+  build follows your answer.
+- Biggest calls: restore replaces all data; a backup reminder on Today after 7
+  days; a sixth **Body** tab that becomes **Stats**; one bodyweight per day;
+  one rep counts as its own 1-rep max.
 
 ### W-06: logging screen
 
