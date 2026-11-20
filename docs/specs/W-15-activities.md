@@ -1,7 +1,7 @@
 # W-15: Activities: runs, rides, hikes, swims and your own
 
-Status: draft 2026-11-20, awaiting Taylor's approval (questions at the end)
-Cleared to run unattended: not yet
+Status: approved 2026-11-20 by Claude on Taylor's say-so (Taylor delegated release-2 spec approval); reviewed by acceptance-reviewer, fixes made. Taylor can overrule any answer under "Answers".
+Cleared to run unattended: yes
 Satisfies: R-13.1 to R-13.5
 
 ## Goal
@@ -13,7 +13,9 @@ calorie number even when no watch supplied one.
 ## Done when
 
 - *Activities are exercises (R-13.1).* A new exercise kind, **activity**.
-  Built in: run, walk, bike, hike, swim, row, elliptical. **New exercise**
+  Built in: run, walk, bike, hike, swim, row (with distance) and elliptical
+  (no distance). If an exercise with one of those names already exists, it is
+  left as it is and no duplicate is added. **New exercise**
   can make your own activity (such as "Rock climbing"), with a "has distance"
   switch. Activities are archived like any exercise, never deleted. — test
 - *In plans and splits (R-13.5).* An activity can be added to a plan like
@@ -29,13 +31,17 @@ calorie number even when no watch supplied one.
   logged, by `exerciseId`, like sets. — test, demonstration
 - *Estimated calories (R-13.4).* If calories are left blank, the app shows
   MET × bodyweight in kg × hours, using the latest bodyweight entry (W-11),
-  rounded to the nearest 5 and labelled "≈ 410 kcal (estimate)". MET values
+  rounded to the nearest 5 and labelled "≈ 410 kcal (estimate)". The
+  bodyweight used is the latest entry on or before the activity's date, so a
+  later weigh-in doesn't change past rides. MET values
   built in: walk 3.5, hike 6.0, bike 7.5, run 9.8, swim 7.0, row 7.0,
   elliptical 5.0; a custom activity asks for one (default 5.0) and can be
   changed. With no bodyweight entered it says "Enter your bodyweight to
   estimate calories" and links to it. Typed calories always win and are never
   labelled an estimate. Worked example in the tests: 30 min bike at 180 lb
   (81.6 kg) = 7.5 × 81.6 × 0.5 = 306 → 305 kcal. — test
+- *Not sets.* Activities are left out of W-12's "Sets this week" and volume
+  cards, and out of lifting records. — test
 - *Units.* Distance is stored in miles at full precision; km is display only,
   like weights. — test
 - *History.* An activity's history (W-08's screen) lists date, duration,
@@ -46,12 +52,14 @@ calorie number even when no watch supplied one.
   activity card while logging and the activity history. — demonstration
 - The project's check command passes: `npm run check`
 
-**Data shape** (next database version). `ExerciseKind` gains `activity`;
+**Data shape** (database version 5, after W-11's version 4). `ExerciseKind` gains `activity`;
 `Exercise` gains `hasDistance` and `met`. `PlanExercise` gains optional
 `targetMinutes` and `targetDistanceMi`. Activity logs are `SetLog` rows with
-one part and new optional fields `seconds`, `distanceMi`, `avgHr`,
-`calories`; effort uses the existing `difficulty`. The upgrade adds the seven
-built-in activities.
+one part; duration goes in that part's existing `seconds` (no new duration
+field). New optional fields on the row: `distanceMi`, `avgHr`, `calories`;
+effort uses the existing `difficulty`. The seven built-in activities are
+added both by the first-launch seed and by the upgrade; a test opens a
+brand-new database and finds them.
 
 ## Out of scope
 
@@ -93,9 +101,8 @@ search) and add a test for each that runs with an activity.
 
 Release 2 step 10 in [verification-plan.md](../verification-plan.md).
 
-## Questions for Taylor
+## Answers (decided 2026-11-20 under Taylor's delegation; Taylor can overrule)
 
-1. Are the MET values above fine as defaults (the standard Compendium of
-   Physical Activities values for moderate effort)?
-2. Distance ± buttons step 0.5 mi / 0.5 km. Good, or would you rather type
-   it?
+1. The MET values above are the defaults (standard moderate-effort values);
+   each activity's MET can be changed.
+2. Distance ± steps 0.5 mi / 0.5 km, and it can be typed.

@@ -1,7 +1,7 @@
 # W-08: Exercise history, PRs, estimated 1-rep max and chart
 
-Status: draft 2026-11-20, awaiting Taylor's approval (questions at the end)
-Cleared to run unattended: not yet
+Status: approved 2026-11-20 by Claude on Taylor's say-so (Taylor delegated release-2 spec approval); reviewed by acceptance-reviewer, fixes made. Taylor can overrule any answer under "Answers".
+Cleared to run unattended: yes
 Satisfies: R-06.1 to R-06.4, and the history parts of R-05.6 and R-05.7
 
 ## Goal
@@ -30,11 +30,14 @@ that show whether it is going up.
   show longest hold. — test
 - *Estimated 1-rep max (R-06.3).* Epley: weight × (1 + reps ÷ 30), using only
   parts of 1 to 12 reps (1 rep = the weight itself). Parts of 13 or more reps
-  are left out of the estimate but still listed. — test with worked numbers
-- *Chart (R-06.4).* Under the records, a chart with one point per session:
-  heaviest weight that day and best estimated 1-rep max that day, two lines,
+  are left out of the estimate but still listed. Worked numbers: 225 × 5 =
+  262.5; 135 × 1 = 135; 100 × 13 is left out. — test with worked numbers
+- *Chart (R-06.4).* Under the records, a chart with one point per date
+  (two workouts on one date make one point): heaviest weight that date and
+  best estimated 1-rep max that date, two lines,
   dates along the bottom. It fits 390 points wide, is drawn without a new
-  library, and follows the lb/kg setting. With one session it shows one
+  library, and follows the lb/kg setting. It shows the last 3 months, with
+  an "All" button for everything. With one session it shows one
   point; with none it says "No sets logged yet". — test of the numbers,
   demonstration of the drawing
 - *Units.* Everything follows the lb/kg setting; stored pounds are never
@@ -92,10 +95,10 @@ Release 2 steps 1 to 3 in [verification-plan.md](../verification-plan.md):
 3. The records panel shows heaviest weight and best estimated 1-rep max.
 4. The chart shows one point per session.
 
-## Questions for Taylor
+## Answers (decided 2026-11-20 under Taylor's delegation; Taylor can overrule)
 
-1. Is "heaviest weight" and "best estimated 1-rep max" enough as records for
-   now, or do you also want best weight for a given number of reps (best 5,
-   best 10)?
-2. Should the chart show the last 3 months by default with a way to see all,
-   or always everything?
+1. Records are heaviest weight and best estimated 1-rep max for now; best
+   weight for a given rep count can come later.
+2. The chart shows the last 3 months, with an "All" button.
+3. One rep counts as the weight itself (plain Epley would add about 3 %), so a
+   true single is its own 1-rep max.

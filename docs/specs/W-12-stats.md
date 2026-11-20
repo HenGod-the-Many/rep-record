@@ -1,7 +1,7 @@
 # W-12: Stats overview with cards you choose
 
-Status: draft 2026-11-20, awaiting Taylor's approval (questions at the end)
-Cleared to run unattended: not yet
+Status: approved 2026-11-20 by Claude on Taylor's say-so (Taylor delegated release-2 spec approval); reviewed by acceptance-reviewer, fixes made. Taylor can overrule any answer under "Answers".
+Cleared to run unattended: yes
 Satisfies: R-11.1, R-11.2
 
 ## Goal
@@ -16,14 +16,17 @@ each exercise or metric. Taylor picks what matters; the rest stays hidden.
 - *Cards available (R-11.1).* Each card shows one number (or a short list)
   and what it is:
   - Bodyweight: latest entry, its date, and the 7-day average.
-  - Workouts this week and this month: finished sessions, counted Monday to
-    Sunday and by calendar month.
-  - Sets this week: logged sets, Monday to Sunday.
+  - Workouts this week, and Workouts this month (two cards): finished
+    sessions, the week following the "first day of the week" setting
+    (`weekStart`, R-03.7), the month by calendar month.
+  - Sets this week: logged sets of lifting exercises (activities from W-15
+    are not sets and are left out).
   - Volume this week: sum of weight × reps over every part of every weight
     set this week, in the display unit. Bodyweight and timed sets are left
     out, and the card says so.
   - Recent PRs: the last 5 new records (heaviest weight or best estimated
-    1-rep max, as defined in W-08), with exercise and date.
+    1-rep max, as defined in W-08), with exercise and date. An exercise's
+    first-ever session sets its starting mark and is not counted as a PR.
   - One card per switched-on metric: its latest value and date.
   - Activities this week (only once W-15 is built): count, total time and
     distance.
@@ -32,8 +35,8 @@ each exercise or metric. Taylor picks what matters; the rest stays hidden.
 - *Choose and order (R-11.2).* **Edit cards** shows every available card with
   a switch and up/down buttons. The choice and order are saved in settings
   and are the same after closing the app. A card whose metric is switched
-  off disappears and comes back with it. Default: Bodyweight, Workouts this
-  week, Sets this week, Recent PRs. — test
+  off disappears and comes back with it. Default, in order: Workouts this
+  week, Sets this week, Recent PRs, Bodyweight. — test
 - *Empty states.* A card with no data says so ("No workouts this week")
   instead of showing 0 or a blank. — test
 - *Tap through.* Tapping a card opens what it summarises (the metric page,
@@ -49,7 +52,8 @@ streaks, sharing a stats image, Apple Health numbers (W-13).
 
 ## Decisions already made
 
-- Week runs Monday to Sunday (the default split starts on Monday).
+- The week follows the existing "first day of the week" setting
+  (`weekStart`, R-03.7).
 - PRs as defined in W-08; bodyweight average as defined in W-11.
 - Card choice lives in the `settings` table; no database version change.
 
@@ -76,8 +80,8 @@ record list updated when a set is logged.
 
 Release 2 step 8 in [verification-plan.md](../verification-plan.md).
 
-## Questions for Taylor
+## Answers (decided 2026-11-20 under Taylor's delegation; Taylor can overrule)
 
-1. Volume counts weight sets only (weight × reps). Should bodyweight sets
-   count your bodyweight as the weight (needs a recent bodyweight entry)?
-2. Week = Monday to Sunday. OK?
+1. Volume counts weight sets only (weight × reps); bodyweight sets are left
+   out and the card says so.
+2. (Removed: the week follows the existing first-day-of-week setting.)

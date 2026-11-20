@@ -1,7 +1,7 @@
 # W-16: Warm-up routines
 
-Status: draft 2026-11-20, awaiting Taylor's approval (questions at the end)
-Cleared to run unattended: not yet
+Status: approved 2026-11-20 by Claude on Taylor's say-so (Taylor delegated release-2 spec approval); reviewed by acceptance-reviewer, fixes made. Taylor can overrule any answer under "Answers".
+Cleared to run unattended: yes
 Satisfies: R-14.1, R-14.2
 
 ## Goal
@@ -19,7 +19,10 @@ comes up first when the workout starts and each move is one tap to tick off.
   PRs. — test
 - *Attach to a plan (R-14.2).* A plan has a "Warm-up" choice (none or a
   routine). One routine can be attached to many plans. Deleting a routine
-  detaches it from its plans after a confirm that names them. — test
+  detaches it from its plans after a confirm that names them. Duplicate, a
+  one-date edit (`makeDateCopy`), "save as a new plan" and "update
+  everywhere" all keep the warm-up (today these copy fields by name, in
+  `src/db/plans.ts` and `src/db/reschedule.ts`). — test
 - *Shown first (R-14.2).* Starting a workout whose plan has a warm-up shows a
   Warm-up card above the exercises: each move with a ✓, one tap to check it
   off, tap again to undo. Checks are saved at once and survive closing the
@@ -31,7 +34,7 @@ comes up first when the workout starts and each move is one tap to tick off.
   routine editor and the warm-up card. — demonstration
 - The project's check command passes: `npm run check`
 
-**Data shape** (next database version). `warmups`: id, name, moves (list of
+**Data shape** (database version 6, after W-15's version 5). `warmups`: id, name, moves (list of
 `{ name, reps or seconds }`). `Plan` gains `warmupId` (or null). `Session`
 gains `warmupChecked` (list of move positions checked) and a copy of the
 moves at start, so editing a routine later doesn't change past workouts.
@@ -70,9 +73,7 @@ done.
 
 Release 2 step 11 in [verification-plan.md](../verification-plan.md).
 
-## Questions for Taylor
+## Answers (decided 2026-11-20 under Taylor's delegation; Taylor can overrule)
 
-1. Warm-up moves are plain text (not exercises from the library), so they
-   stay out of history. OK?
-2. Should a timed move have a simple countdown you can start, or is showing
-   the time enough for now?
+1. Warm-up moves are plain text and stay out of history.
+2. Timed moves show their time; no countdown for now.

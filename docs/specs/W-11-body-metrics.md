@@ -1,7 +1,7 @@
 # W-11: Body metrics
 
-Status: draft 2026-11-20, awaiting Taylor's approval (questions at the end)
-Cleared to run unattended: not yet
+Status: approved 2026-11-20 by Claude on Taylor's say-so (Taylor delegated release-2 spec approval); reviewed by acceptance-reviewer, fixes made. Taylor can overrule any answer under "Answers".
+Cleared to run unattended: yes
 Satisfies: R-10.1 to R-10.7
 
 ## Goal
@@ -46,7 +46,8 @@ stay out of the way.
   iPhone camera or library. The photo is shrunk to at most 1600 pixels on the
   long side (JPEG) and stored in the app's database on the phone, never
   uploaded. Photos show by date, newest first; tap to see full size; can be
-  deleted. W-07's backup includes them. The PR reports the measured size per
+  deleted. W-07's backup includes them as base64 text; a test exports and restores a
+  photo and gets it back byte for byte. The PR reports the measured size per
   photo and what that means for the backup file. — test, demonstration
 - *Units (R-10.7).* Bodyweight stored in pounds, lengths in inches, at full
   precision; shown in kg and cm when the unit setting is kg. Switching back
@@ -59,8 +60,11 @@ stay out of the way.
   demonstration
 - The project's check command passes: `npm run check`
 
-**Data shape** (next database version, with an upgrade that adds the built-in
-metric definitions). `metrics`: id, name, kind (`weight`, `length`,
+**Data shape** (database version 4, the next after W-06's version 3). The
+built-in metric definitions are added both by the first-launch seed
+(`ensureSeeded` in `src/db/seed.ts`) and by the upgrade from version 3, so a
+new install and an existing phone both have them; a test opens a brand-new
+database and finds Bodyweight and Height. `metrics`: id, name, kind (`weight`, `length`,
 `percent`, `custom`), unit text for custom, built-in or not, on or off, order.
 `metricEntries`: id, metricId, date, value (pounds, inches, % or as typed),
 with an index on `[metricId+date]`. `photos`: id, date, image (Blob), width,
@@ -111,10 +115,8 @@ back byte for byte. Taylor's phone confirms storage at the next release.
 
 Release 2 steps 5 to 7 and 9 in [verification-plan.md](../verification-plan.md).
 
-## Questions for Taylor
+## Answers (decided 2026-11-20 under Taylor's delegation; Taylor can overrule)
 
-1. Body metrics get their own **Body** tab (six tabs, each still wide enough
-   to tap). W-12 would later put the Stats cards at the top of that tab and
-   rename it **Stats**. OK, or would you rather reach Body from Today?
-2. One bodyweight per day (a second one replaces the first). Or do you weigh
-   in more than once a day and want both kept?
+1. A sixth **Body** tab; W-12 puts the Stats cards at its top and renames it
+   **Stats**.
+2. One bodyweight per date; a second entry replaces the first after a confirm.
