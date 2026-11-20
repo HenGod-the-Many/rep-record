@@ -159,13 +159,13 @@ makes them; show the real data and a rolling average.*
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-10.1 You can log bodyweight with a date (several days, any gaps); entries can be edited and deleted | should | Test | W-11 | planned | |
-| R-10.2 You can record height; it is kept as the current value and used wherever height is needed | should | Test | W-11 | planned | |
-| R-10.3 A bodyweight chart shows every real entry and a 7-day rolling average, where the average for a date uses only entries from that date and the 6 days before it; a gap in entries leaves a gap, not an invented value | should | Test, Demonstration | W-11 | planned | |
-| R-10.4 In Settings you can switch on optional metrics: body measurements (waist, chest, hips, upper arm, thigh, neck, calf), body fat %, progress photos, and custom metrics you name with a unit; switched-off metrics are hidden but their data is kept | should | Test | W-11 | planned | |
-| R-10.5 Each switched-on numeric metric can be logged by date and shows its own history and chart | should | Test | W-11 | planned | |
-| R-10.6 Progress photos are taken or picked on the phone, stored only on the phone, shown by date, and included in the export | could | Test, Demonstration | W-11 | planned | |
-| R-10.7 Bodyweight and measurements store in pounds and inches and display in kg and cm when the unit setting is metric | should | Test | W-11 | planned | |
+| R-10.1 You can log bodyweight with a date (several days, any gaps); entries can be edited and deleted | should | Test | W-11 | verified | body.test.ts (gaps, replace, edit, delete); browser replace prompt; reviewer: met |
+| R-10.2 You can record height; it is kept as the current value and used wherever height is needed | should | Test | W-11 | verified | body.test.ts; 5 ft 10.5 in shown as 5′ 10.5″; reviewer: met |
+| R-10.3 A bodyweight chart shows every real entry and a 7-day rolling average, where the average for a date uses only entries from that date and the 6 days before it; a gap in entries leaves a gap, not an invented value | should | Test, Demonstration | W-11 | verified | worked example 180/182/179 → 180/181/179 in tests and chart (w11/02); reviewer: met |
+| R-10.4 In Settings you can switch on optional metrics: body measurements (waist, chest, hips, upper arm, thigh, neck, calf), body fat %, progress photos, and custom metrics you name with a unit; switched-off metrics are hidden but their data is kept | should | Test | W-11 | verified | switch off keeps entries; custom metrics (tests, browser, w11/03); reviewer: met |
+| R-10.5 Each switched-on numeric metric can be logged by date and shows its own history and chart | should | Test | W-11 | verified | each metric page has list, entry and chart; reviewer: met |
+| R-10.6 Progress photos are taken or picked on the phone, stored only on the phone, shown by date, and included in the export | could | Test, Demonstration | W-11 | verified | photos stored, shrunk to 1600 px (439 KB measured), backup byte-for-byte test (w11/04); reviewer: met |
+| R-10.7 Bodyweight and measurements store in pounds and inches and display in kg and cm when the unit setting is metric | should | Test | W-11 | verified | kg/cm display tests; browser 81 kg, 83.8 cm and back; reviewer: met |
 
 ## KF-11 See an overview of my body, gym and workout stats, with the cards I pick
 

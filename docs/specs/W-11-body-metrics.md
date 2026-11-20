@@ -93,6 +93,11 @@ Check first with a throwaway script in the desktop browser: store ten
 1600-pixel JPEGs, measure the size, export them as base64 and import them
 back byte for byte. Taylor's phone confirms storage at the next release.
 
+**Result (2026-11-20).** Spike passed in the desktop browser: ten 1600-pixel
+JPEGs stored as Blobs and came back byte for byte, and through base64. A real
+3024 × 4032 photo (1.4 MB) is stored at 1200 × 1600, 439 KB, about 585 KB in a
+backup. Storage on the iPhone itself is still to be confirmed after release.
+
 ## Slices
 
 1. Data shape, upgrade, decision 0005; functions with tests (log, replace,
