@@ -74,7 +74,7 @@ const TABS: { key: string; label: string; path: string; sections: string[] }[] =
   { key: 'splits', label: 'Splits', path: '/splits', sections: ['splits'] },
   { key: 'plans', label: 'Plans', path: '/plans', sections: ['plans', 'pick', 'warmups'] },
   { key: 'exercises', label: 'Exercises', path: '/exercises', sections: ['exercises'] },
-  { key: 'body', label: 'Body', path: '/body', sections: ['body'] },
+  { key: 'body', label: 'Stats', path: '/body', sections: ['body'] },
 ];
 
 export function App() {
