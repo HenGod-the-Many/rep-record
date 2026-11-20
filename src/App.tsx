@@ -13,6 +13,7 @@ import { SplitEdit, SplitList } from './screens/Splits';
 import { Settings } from './screens/Settings';
 import { LogWorkout } from './screens/LogWorkout';
 import { todayLocal } from './db/dates';
+import { applyUpdate, useUpdateReady } from './pwa';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -70,8 +71,15 @@ export function App() {
   const { parts } = useRoute();
   const section = parts[0] ?? '';
   const active = TABS.find((t) => t.sections.includes(section))?.key ?? 'today';
+  const updateReady = useUpdateReady();
   return (
     <div className="app">
+      {updateReady && (
+        <div className="update-bar" role="status">
+          <span>A new version of Rep Record is ready.</span>
+          <button className="btn-primary" onClick={applyUpdate}>Update</button>
+        </div>
+      )}
       <main className="content">
         <Screen key={parts.join('/')} />
       </main>
