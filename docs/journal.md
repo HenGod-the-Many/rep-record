@@ -2,6 +2,21 @@
 
 Newest first.
 
+## 2026-11-20: v0.2.0 and hotfix v0.2.1; specs for W-07, W-08, W-09
+
+- Taylor started an unattended loop: keep developing and push completed
+  releases. Released v0.2.0 (logging, build-a-workout-from-scratch, #12).
+- Found on the live site: a new version downloaded but never took over; a
+  reload kept the old one (the 2026-11-08 fix waited for a full close, which a
+  home-screen app rarely gets). Hotfix v0.2.1 (#13): an "Update" bar applies a
+  waiting version, and the app checks for updates whenever it returns to the
+  screen. Checked with two local production builds; not yet on the iPhone.
+- Preflight: no queue item is Ready, so nothing more can be built until Taylor
+  approves a spec. Drafted specs W-07 (backup), W-08 (history, PRs, chart),
+  W-09 (journal), each with questions for Taylor.
+- Lesson: `git checkout -- <file>` to undo a test edit also threw away the
+  uncommitted real change in that file. Test edits go in a copy, or commit first.
+
 ## 2026-11-19: W-06 logging built; v0.1.0 released
 
 - Release v0.1.0 went live on GitHub Pages (Taylor said publish):
