@@ -16,6 +16,7 @@ const SERIES: Record<ExerciseKind, { label: string; weight: boolean; unit: strin
   ],
   bodyweight: [{ label: 'Most reps', weight: false, unit: '' }],
   timed: [{ label: 'Longest hold', weight: false, unit: 's' }],
+  activity: [{ label: 'Duration', weight: false, unit: 'min' }],
 };
 
 /** Chart points in the unit shown: weights converted to kg when that is the setting. */

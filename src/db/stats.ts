@@ -26,6 +26,7 @@ const FIXED: CardInfo[] = [
   { id: 'sets-week', label: 'Sets this week' },
   { id: 'volume-week', label: 'Volume this week' },
   { id: 'recent-prs', label: 'Recent PRs' },
+  { id: 'activities-week', label: 'Activities this week' },
 ];
 
 /** Every card that can be shown now: the fixed ones plus one per switched-on metric (not bodyweight or photos). */

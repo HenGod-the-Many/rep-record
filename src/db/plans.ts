@@ -9,6 +9,16 @@ export interface Targets {
   note?: string;
 }
 
+const DEFAULT_TARGETS: Targets = { targetSets: 3, repMin: 8, repMax: 12 };
+
+/** An activity's target in a plan: minutes, and optionally a distance in miles. */
+export async function setActivityTarget(db: WorkoutDB, entryId: string, minutes: number, distanceMi: number | null): Promise<void> {
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 1440) throw new ValidationError('Minutes must be a whole number from 1 to 1440.');
+  if (distanceMi !== null && (!Number.isFinite(distanceMi) || distanceMi <= 0)) throw new ValidationError('The distance must be above 0.');
+  if (!(await db.planExercises.get(entryId))) throw new ValidationError('That entry no longer exists.');
+  await db.planExercises.update(entryId, { targetSets: 1, repMin: minutes, repMax: minutes, targetDistanceMi: distanceMi });
+}
+
 function checkTargets(t: Targets): Targets {
   const whole = (n: number) => Number.isInteger(n);
   if (!whole(t.targetSets) || t.targetSets < 1 || t.targetSets > 20) {
@@ -97,12 +107,13 @@ export async function addEntry(
   db: WorkoutDB,
   planId: string,
   exerciseId: string,
-  targets: Targets = { targetSets: 3, repMin: 8, repMax: 12 },
+  targets: Targets = DEFAULT_TARGETS,
 ): Promise<string> {
-  const t = checkTargets(targets);
   return db.transaction('rw', [db.plans, db.planExercises, db.exercises], async () => {
     if (!(await db.plans.get(planId))) throw new ValidationError('That plan no longer exists.');
-    if (!(await db.exercises.get(exerciseId))) throw new ValidationError('That exercise no longer exists.');
+    const ex = await db.exercises.get(exerciseId);
+    if (!ex) throw new ValidationError('That exercise no longer exists.');
+    const t = checkTargets(ex.kind === 'activity' && targets === DEFAULT_TARGETS ? { targetSets: 1, repMin: 30, repMax: 30 } : targets);
     const entries = await getEntries(db, planId);
     const order = entries.length ? entries[entries.length - 1].order + 1 : 0;
     const id = newId();

@@ -1,8 +1,9 @@
 import Dexie, { type EntityTable } from 'dexie';
 import { builtInRows, type MetricKind } from './metricsData';
+import { BUILT_IN_ACTIVITIES } from './activityData';
 
 /** How an exercise is measured. */
-export type ExerciseKind = 'weight' | 'bodyweight' | 'timed';
+export type ExerciseKind = 'weight' | 'bodyweight' | 'timed' | 'activity';
 
 export interface Exercise {
   id: string;
@@ -12,6 +13,10 @@ export interface Exercise {
   kind: ExerciseKind;
   /** Archived exercises are hidden from pickers but never deleted. */
   archived: boolean;
+  /** Activities (W-15): whether a distance is logged. */
+  hasDistance?: boolean;
+  /** Activities: MET value for the calorie estimate. */
+  met?: number;
 }
 
 export interface Plan {
@@ -54,6 +59,8 @@ export interface PlanExercise {
   repMax: number;
   /** Exercises offered as a quick swap for this slot. */
   alternateIds: string[];
+  /** Activities: target distance in miles (the target minutes are repMin/repMax). */
+  targetDistanceMi?: number | null;
   /** Free text shown with the targets, e.g. "per leg". */
   note: string;
 }
@@ -144,6 +151,11 @@ export interface SetLog {
   difficulty: number | null;
   /** The set was taken to failure. */
   toFailure: boolean;
+  /** Activities (W-15): duration is parts[0].seconds; effort is difficulty. */
+  distanceMi?: number | null;
+  avgHr?: number | null;
+  /** Calories typed by hand. When empty the screen shows an estimate instead. */
+  calories?: number | null;
   note: string;
   loggedAt: number;
 }
@@ -306,6 +318,19 @@ export class WorkoutDB extends Dexie {
     if (upTo < 5) return;
     // v5: warm-up routines attached to plans (W-16). New fields are optional, so no data changes.
     this.version(5).stores({ warmups: 'id, name' });
+    if (upTo < 6) return;
+    // v6: activities as a fourth exercise kind (W-15). Built-in activities are added here
+    // for existing data and by ensureSeeded for a new install; an existing exercise with
+    // the same name is left alone.
+    this.version(6)
+      .stores({})
+      .upgrade(async (tx) => {
+        const t = tx.table('exercises');
+        const names = new Set((await t.toArray()).map((e: Exercise) => e.name.trim().toLowerCase()));
+        for (const a of BUILT_IN_ACTIVITIES) {
+          if (!names.has(a.name.toLowerCase())) await t.add({ ...a, archived: false });
+        }
+      });
   }
 }
 

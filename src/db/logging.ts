@@ -159,8 +159,8 @@ function mergeSameWeight(parts: SetPart[]): SetPart[] {
 export function checkParts(parts: SetPart[], kind: ExerciseKind): void {
   if (parts.length === 0) throw new ValidationError('A set needs at least one part.');
   for (const p of parts) {
-    if (kind === 'timed') {
-      if (!p.seconds || p.seconds <= 0) throw new ValidationError('Enter the seconds first.');
+    if (kind === 'timed' || kind === 'activity') {
+      if (!p.seconds || p.seconds <= 0) throw new ValidationError(kind === 'activity' ? 'Enter the duration first.' : 'Enter the seconds first.');
     } else {
       if (!p.reps || p.reps < 1 || !Number.isInteger(p.reps)) throw new ValidationError('Enter the reps first.');
       if (kind === 'weight' && (p.weightLb === null || p.weightLb < 0)) throw new ValidationError('Enter the weight first.');

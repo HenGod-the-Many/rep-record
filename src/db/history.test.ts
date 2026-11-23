@@ -127,7 +127,7 @@ describe('records (R-06.2, R-05.7)', () => {
   });
 
   it('no sets: no records', () => {
-    expect(records([], 'weight')).toEqual({ heaviest: null, bestE1rm: null, mostReps: null, longest: null });
+    expect(records([], 'weight')).toEqual({ heaviest: null, bestE1rm: null, mostReps: null, longest: null, longestDistance: null });
   });
 });
 

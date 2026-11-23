@@ -108,7 +108,7 @@ describe('backup round trip', () => {
   it('summarises the file before restoring', async () => {
     const db = await withData();
     const { summary } = readBackup(text(await exportData(db, new Date('2026-11-20T10:00:00Z'))), db.verno);
-    expect(summary).toEqual({ exportedAt: '2026-11-20T10:00:00.000Z', dataVersion: db.verno, exercises: 37, workouts: 2, sets: 2 });
+    expect(summary).toEqual({ exportedAt: '2026-11-20T10:00:00.000Z', dataVersion: db.verno, exercises: 44, workouts: 2, sets: 2 }); // 37 from the brief + 7 built-in activities
   });
 });
 

@@ -1,15 +1,19 @@
 import type { Exercise, ExerciseKind, WorkoutDB } from './db';
 import { ValidationError } from './errors';
 import { newId } from './ids';
+import { DEFAULT_MET } from './activityData';
 
 export interface ExerciseInput {
   name: string;
   muscleGroup: string;
   equipment: string;
   kind: ExerciseKind;
+  /** Activities only. */
+  hasDistance?: boolean;
+  met?: number;
 }
 
-const KINDS: ExerciseKind[] = ['weight', 'bodyweight', 'timed'];
+const KINDS: ExerciseKind[] = ['weight', 'bodyweight', 'timed', 'activity'];
 
 export const normalizeName = (name: string) => name.trim().replace(/\s+/g, ' ').toLowerCase();
 
@@ -17,12 +21,11 @@ function clean(input: ExerciseInput): ExerciseInput {
   const name = input.name.trim().replace(/\s+/g, ' ');
   if (!name) throw new ValidationError('Give the exercise a name.');
   if (!KINDS.includes(input.kind)) throw new ValidationError('Choose how the exercise is measured.');
-  return {
-    name,
-    muscleGroup: input.muscleGroup.trim(),
-    equipment: input.equipment.trim(),
-    kind: input.kind,
-  };
+  const base = { name, muscleGroup: input.muscleGroup.trim(), equipment: input.equipment.trim(), kind: input.kind };
+  if (input.kind !== 'activity') return base;
+  const met = input.met ?? DEFAULT_MET;
+  if (!Number.isFinite(met) || met < 1 || met > 25) throw new ValidationError('The MET value should be between 1 and 25.');
+  return { ...base, hasDistance: input.hasDistance ?? true, met };
 }
 
 async function assertNameFree(db: WorkoutDB, name: string, exceptId?: string) {
