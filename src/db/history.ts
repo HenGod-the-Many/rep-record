@@ -54,8 +54,10 @@ export interface Records {
   bestE1rm: Mark | null;
   /** Bodyweight: most reps in one set. */
   mostReps: Mark | null;
-  /** Timed: longest hold in one set. */
+  /** Timed: longest hold in one set. Activities: longest duration (seconds). */
   longest: Mark | null;
+  /** Activities: longest distance (miles). */
+  longestDistance: Mark | null;
 }
 
 const totalReps = (l: SetLog) => l.parts.reduce((n, p) => n + (p.reps ?? 0), 0);
@@ -76,8 +78,14 @@ export function records(history: HistorySession[], kind: ExerciseKind): Records 
   let bestE1rm: Mark | null = null;
   let mostReps: Mark | null = null;
   let longest: Mark | null = null;
+  let longestDistance: Mark | null = null;
   for (const { session, sets } of chronological(history)) {
     for (const l of sets) {
+      if (kind === 'activity') {
+        longest = better(longest, totalSeconds(l), session.date, null, null);
+        longestDistance = better(longestDistance, l.distanceMi ?? 0, session.date, null, null);
+        continue;
+      }
       if (kind === 'timed') {
         longest = better(longest, totalSeconds(l), session.date, null, null);
         continue;
@@ -93,7 +101,7 @@ export function records(history: HistorySession[], kind: ExerciseKind): Records 
       }
     }
   }
-  return { heaviest, bestE1rm, mostReps, longest };
+  return { heaviest, bestE1rm, mostReps, longest, longestDistance };
 }
 
 export interface ChartPoint {
@@ -118,7 +126,9 @@ export function chartPoints(history: HistorySession[], kind: ExerciseKind): Char
           ? [r.heaviest?.value ?? null, r.bestE1rm?.value ?? null]
           : kind === 'bodyweight'
             ? [r.mostReps?.value ?? null]
-            : [r.longest?.value ?? null];
+            : kind === 'activity'
+              ? [r.longest ? Math.round(r.longest.value / 60) : null]
+              : [r.longest?.value ?? null];
       return { date, values };
     })
     .filter((p) => p.values.some((v) => v !== null));

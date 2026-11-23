@@ -1,9 +1,22 @@
 import type { WorkoutDB } from './db';
 import { newId } from './ids';
 import { builtInRows } from './metricsData';
+import { BUILT_IN_ACTIVITIES } from './activityData';
 import { SEED_EXERCISES, SEED_PLANS, SEED_SPLIT } from './seedData';
 
 const SEEDED_KEY = 'seeded';
+
+/** Add any built-in activity that is missing, unless an exercise already has that name. */
+export async function ensureBuiltInActivities(db: WorkoutDB): Promise<void> {
+  await db.transaction('rw', db.exercises, async () => {
+    const all = await db.exercises.toArray();
+    const ids = new Set(all.map((e) => e.id));
+    const names = new Set(all.map((e) => e.name.trim().toLowerCase()));
+    for (const a of BUILT_IN_ACTIVITIES) {
+      if (!ids.has(a.id) && !names.has(a.name.toLowerCase())) await db.exercises.add({ ...a, archived: false });
+    }
+  });
+}
 
 /** Add any built-in body metric that is missing (a new install, or data restored from an older backup). */
 export async function ensureBuiltInMetrics(db: WorkoutDB): Promise<void> {
@@ -21,6 +34,7 @@ export const DEFAULT_TIME = 'morning';
  */
 export async function ensureSeeded(db: WorkoutDB): Promise<boolean> {
   await ensureBuiltInMetrics(db);
+  await ensureBuiltInActivities(db);
   return db.transaction(
     'rw',
     [db.settings, db.exercises, db.plans, db.planExercises, db.splits, db.splitDays],

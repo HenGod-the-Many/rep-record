@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { backupOverdue } from '../db/backup';
+import { getUnit } from '../db/units';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { formatDate, timeLabel } from '../db/dates';
@@ -56,7 +57,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
         };
       }),
     );
-    return { day, workouts, exercises };
+    return { day, workouts, exercises, unit: await getUnit(db) };
   }, [date]);
   const [replacing, setReplacing] = useState<number | null>(null);
   const [adding, setAdding] = useState(false);
@@ -141,7 +142,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
               return (
                 <li key={e.id}>
                   <span>{ex?.name ?? 'Unknown exercise'}</span>
-                  <span className="muted">{ex ? formatTargets(e, ex.kind) : ''}</span>
+                  <span className="muted">{ex ? formatTargets(e, ex.kind, data.unit) : ''}</span>
                 </li>
               );
             })}

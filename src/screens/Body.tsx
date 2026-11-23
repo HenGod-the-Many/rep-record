@@ -27,6 +27,7 @@ import { getUnit, type Unit } from '../db/units';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header } from './common';
 import { LineChart } from './LineChart';
+import { StatsCards } from './Stats';
 
 // ---------- Body tab ----------
 
@@ -39,10 +40,12 @@ export function BodyList() {
     const photoCount = photosOn ? await db.photos.count() : 0;
     return { metrics, latest, unit, photosOn, photoCount };
   }, []);
-  if (!data) return <div className="screen"><Header title="Body" /></div>;
+  if (!data) return <div className="screen"><Header title="Stats" /></div>;
   return (
     <div className="screen">
-      <Header title="Body" action={<button className="link" onClick={() => navigate('/settings')}>Settings</button>} />
+      <Header title="Stats" action={<button className="link" onClick={() => navigate('/settings')}>Settings</button>} />
+      <StatsCards />
+      <div className="section-head"><h2>Body</h2></div>
       <ul className="list">
         {data.metrics.map((m, i) => {
           const e = data.latest[i];
@@ -142,11 +145,11 @@ export function MetricPage({ metricId }: { metricId: string }) {
     }));
   }, [data]);
 
-  if (data === undefined) return <div className="screen"><Header title="Body" back="/body" /></div>;
+  if (data === undefined) return <div className="screen"><Header title="Stats" back="/body" /></div>;
   if (data === null) {
     return (
       <div className="screen">
-        <Header title="Body" back="/body" />
+        <Header title="Stats" back="/body" />
         <p className="muted">This metric no longer exists.</p>
       </div>
     );

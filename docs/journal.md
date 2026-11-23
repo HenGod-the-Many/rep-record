@@ -2,6 +2,49 @@
 
 Newest first.
 
+## 2026-11-22: release 2 finished (W-12, W-15) and released as v0.7.0
+
+- Taylor: "Finish release 2 and push it."
+- W-12 stats: fixed the 5 code-review findings, reviewed (accept after fixes:
+  added the Edit cards screenshot), merged (#27).
+- The reviewer hang is understood well enough to avoid: reviewers given an
+  exact list of allowed commands (`npm run check` once with a timeout,
+  `npx vitest run <file>`, never in the background, no dev server) finished
+  in about a minute, twice. Both earlier hangs were open-ended runs.
+- W-15 activities built in a separate git worktree (`.worktrees/w15`) while
+  W-12 was in review, then rebased onto dev. Reviewed (accept), 5 code-review
+  findings and 2 reviewer notes fixed, merged (#28). Database version 6.
+- Lesson: the browser check found the activity steppers squeezed to 40 px
+  next to the ✓ button; tests can't see that. Keep measuring control sizes.
+- Release 2 is complete: W-07, W-08, W-09, W-11, W-12, W-15, W-16 are all
+  Awaiting owner. Left in the queue: W-02 and W-13 (spikes only Taylor can
+  run on the phone) and W-10 (release 3, training tips).
+
+## 2026-11-20 (morning): v0.6.0 warm-ups; W-12 built, stopped at review
+
+- Released v0.6.0 (W-16 warm-up routines, database version 5).
+- W-12 stats is built on `feature/w12-stats` (pushed, not merged): 201 tests
+  pass, browser-checked at phone size, `/code-review` gave 5 small findings
+  (not yet fixed: week doesn't roll over at midnight while open; e1RM PRs show
+  2 decimals; week range read per card; sets/volume repeat queries; metric
+  page loading header says "Body").
+- **Stopped: the acceptance-reviewer hung a second time** (same failure twice).
+  - What was tried: W-11's first reviewer hung ~1 h after saying it started
+    `npm run check` in the background; it was stopped and a retry told to run
+    everything in the foreground, which worked (as did W-16's reviewer). W-12's
+    reviewer, with the same foreground instruction, wrote a 125-byte draft
+    stub at 06:25 and then nothing for 38 minutes; a status message got no
+    reply; it was stopped at 07:02.
+  - What seems to decide it: both hangs stall right after the first draft
+    save, before any verdict, which points at one long-running command the
+    reviewer waits on (a background `npm run check`, or a test runner left in
+    watch mode such as a bare `npx vitest` instead of `npx vitest run`).
+    Untested.
+  - Next session: give the reviewer the exact commands to use
+    (`npm run check` with a timeout, `npx vitest run <file>`) and forbid
+    `run_in_background`; then finish W-12 (review, the 5 fixes, merge,
+    release) and build W-15 activities, the last release-2 item.
+
 ## 2026-11-20: v0.2.0 and hotfix v0.2.1; specs for W-07, W-08, W-09
 
 - Taylor started an unattended loop: keep developing and push completed

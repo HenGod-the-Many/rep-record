@@ -6,6 +6,7 @@ import { dateOfCopy, saveCopyAsNewPlan, updatePlanEverywhere } from '../db/resch
 import { formatDate } from '../db/dates';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header } from './common';
+import { getUnit } from '../db/units';
 import { PlanWarmupChoice } from './Warmups';
 import { formatTargets } from '../format';
 
@@ -17,7 +18,7 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
     const exercises = new Map((await db.exercises.toArray()).map((e) => [e.id, e]));
     const copyDate = plan.hidden ? await dateOfCopy(db, planId) : null;
     const source = plan.sourcePlanId ? await db.plans.get(plan.sourcePlanId) : undefined;
-    return { plan, entries, exercises, copyDate, sourceName: source?.name ?? null };
+    return { plan, entries, exercises, copyDate, sourceName: source?.name ?? null, unit: await getUnit(db) };
   }, [planId]);
   const [renaming, setRenaming] = useState<string | null>(null);
   const [keeping, setKeeping] = useState(false);
@@ -125,7 +126,7 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
                   {ex?.archived && <span className="tag">archived</span>}
                 </span>
                 <span className="row-sub">
-                  {ex ? formatTargets(entry, ex.kind) : ''}
+                  {ex ? formatTargets(entry, ex.kind, data.unit ?? 'lb') : ''}
                   {alts.length > 0 && ` · or ${alts.join(', ')}`}
                 </span>
               </button>
