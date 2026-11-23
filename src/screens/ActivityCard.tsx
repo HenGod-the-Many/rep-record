@@ -6,6 +6,7 @@ import type { Unit } from '../db/units';
 import { formatTargets } from '../format';
 import { navigate } from '../router';
 import { attempt, ErrorText } from './common';
+import { SwapPanel } from './LogWorkout';
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
 
@@ -15,7 +16,7 @@ const round1 = (v: number) => Math.round(v * 10) / 10;
  * and under "More": effort 1–10, average heart rate and calories. Pre-filled from
  * the last time this activity was logged, in any plan.
  */
-export function ActivityCard(props: { session: Session; entry: PlanExercise; exercise: Exercise; log: SetLog | undefined; unit: Unit; swapButton?: React.ReactNode }) {
+export function ActivityCard(props: { session: Session; entry: PlanExercise; exercise: Exercise; original: Exercise | undefined; log: SetLog | undefined; unit: Unit }) {
   const { session, entry, exercise, log, unit } = props;
   const last = useLiveQuery(async () => (await lastActivity(db, session.id, exercise.id)) ?? null, [session.id, exercise.id]);
   const calories = useLiveQuery(async () => (log ? caloriesFor(db, log, exercise, session.date) : null), [log, exercise, session.date]);
@@ -26,6 +27,7 @@ export function ActivityCard(props: { session: Session; entry: PlanExercise; exe
   const [hr, setHr] = useState('');
   const [kcal, setKcal] = useState('');
   const [more, setMore] = useState(false);
+  const [swapping, setSwapping] = useState(false);
   const [filled, setFilled] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +57,11 @@ export function ActivityCard(props: { session: Session; entry: PlanExercise; exe
           exerciseId: exercise.id,
           planExerciseId: entry.id,
           seconds: Math.round(Number(minutes.replace(',', '.')) * 60),
-          distanceMi: exercise.hasDistance && distance.trim() ? fromShownDistance(Number(distance.replace(',', '.')), unit) : null,
+          distanceMi: !exercise.hasDistance || !distance.trim()
+            ? null
+            : log?.distanceMi && String(round1(toShownDistance(log.distanceMi, unit))) === distance.trim()
+              ? log.distanceMi // unchanged on screen: keep the stored miles, don't round them
+              : fromShownDistance(Number(distance.replace(',', '.')), unit),
           difficulty: effort,
           avgHr: hr.trim() ? Number(hr) : null,
           calories: kcal.trim() ? Number(kcal) : null,
@@ -74,8 +80,11 @@ export function ActivityCard(props: { session: Session; entry: PlanExercise; exe
           <div className="card-title">{exercise.name}</div>
           <div className="row-sub">{formatTargets(entry, 'activity', unit)}</div>
         </div>
-        {props.swapButton}
+        <button className="btn-secondary small-btn" onClick={() => setSwapping(!swapping)} aria-expanded={swapping}>Swap</button>
       </div>
+      {swapping && (
+        <SwapPanel session={session} entry={entry} current={exercise.id} original={props.original} onDone={() => setSwapping(false)} />
+      )}
       <div className="activity-head">
         <p className="small-print muted">{lastLine}</p>
         <button className={`check-btn${log ? ' done' : ''}`} aria-label={log ? 'Update activity' : 'Log activity'} onClick={save}>✓</button>

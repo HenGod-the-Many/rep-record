@@ -109,6 +109,7 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
               session={session}
               entry={entry}
               exercise={ex}
+              original={exercises.get(entry.exerciseId)}
               log={logs.find((l) => l.planExerciseId === entry.id && l.exerciseId === exId)}
               unit={unit}
             />
@@ -264,7 +265,7 @@ function ExerciseCard(props: {
 
   const lastLine = (n: number) => {
     const p = prefill?.[n - 1];
-    if (!p) return n === 1 && !prefill?.length ? `target ${formatTargets(entry, kind)}` : '';
+    if (!p) return n === 1 && !prefill?.length ? `target ${formatTargets(entry, kind, unit)}` : '';
     const bits = [`last: ${partsText(p.last.parts, kind, unit)}`];
     if (p.last.difficulty !== null) bits.push(`${p.last.difficulty}/10`);
     if (p.last.toFailure) bits.push('to failure');
@@ -281,7 +282,7 @@ function ExerciseCard(props: {
             {exercise.name}
             {swapped && <span className="tag">swapped for this workout</span>}
           </div>
-          <div className="row-sub">{formatTargets(entry, kind)}</div>
+          <div className="row-sub">{formatTargets(entry, kind, unit)}</div>
         </div>
         <div className="ex-actions">
           <button
@@ -654,7 +655,7 @@ function ChangePanel(props: {
   );
 }
 
-function SwapPanel(props: { session: Session; entry: PlanExercise; current: string; original: Exercise | undefined; onDone: () => void }) {
+export function SwapPanel(props: { session: Session; entry: PlanExercise; current: string; original: Exercise | undefined; onDone: () => void }) {
   const choices = useLiveQuery(() => swapChoices(db, props.entry, props.current), [props.entry.id, props.current]);
   const [search, setSearch] = useState('');
   const [error, setError] = useState<string | null>(null);

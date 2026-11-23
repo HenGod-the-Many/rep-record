@@ -14,7 +14,7 @@ import {
 import { WorkoutDB } from './db';
 import { createExercise, setArchived } from './exercises';
 import { addEntry, getEntries, setActivityTarget, createPlan } from './plans';
-import { startOrResume } from './logging';
+import { startOrResume, swapChoices } from './logging';
 import { saveEntry } from './body';
 import { exerciseHistory, records } from './history';
 import { liftingTotals, recentPrs } from './stats';
@@ -110,6 +110,19 @@ describe('logging (R-13.2, R-13.3)', () => {
     await expect(logActivity(db, { sessionId: s, exerciseId: await exerciseId(db, 'Bench press'), planExerciseId: null, seconds: 60, distanceMi: null })).rejects.toThrow('not an activity');
   });
 
+  it('a swap offers other activities for an activity slot, and lifting exercises for a lifting slot', async () => {
+    const db = await freshDb();
+    const { s, entry, plan } = await rideWorkout(db, '2026-11-20', 30, 8);
+    const e = (await getEntries(db, plan)).find((x) => x.id === entry)!;
+    const forRide = await swapChoices(db, e, e.exerciseId);
+    expect(forRide.others.every((x) => x.kind === 'activity')).toBe(true);
+    expect(forRide.others.map((x) => x.name)).toContain('Run');
+    const push = (await getEntries(db, await planId(db, 'Push')))[0];
+    const forBench = await swapChoices(db, push, push.exerciseId);
+    expect(forBench.others.some((x) => x.kind === 'activity')).toBe(false);
+    expect(s).toBeTruthy();
+  });
+
   it('pre-fills from the last time that activity was logged, in any plan', async () => {
     const db = await freshDb();
     await rideWorkout(db, '2026-11-10', 40, 10);
@@ -178,6 +191,7 @@ describe('display', () => {
     expect(formatDuration(3900)).toBe('1 h 5 min');
     expect(paceOrSpeed('Run', 1800, 3, 'lb')).toBe('10:00 /mi');
     expect(paceOrSpeed('Bike', 1800, 8, 'lb')).toBe('16 mi/h');
+    expect(paceOrSpeed('Run', 659.6, 1, 'lb')).toBe('11:00 /mi'); // carries to the next minute
   });
 
   it('a plan with a lifting slot is unaffected', async () => {

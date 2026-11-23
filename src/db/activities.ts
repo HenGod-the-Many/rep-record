@@ -3,6 +3,7 @@ import { bodyweightOn } from './body';
 import { ValidationError } from './errors';
 import { logSet } from './logging';
 import { LB_PER_KG, type Unit } from './units';
+import { DEFAULT_MET } from './activityData';
 
 /**
  * Activities (W-15): runs, rides, hikes, swims and your own. Stored as one set
@@ -41,10 +42,8 @@ export function paceOrSpeed(exerciseName: string, seconds: number, mi: number, u
   if (d <= 0 || seconds <= 0) return '';
   const u = distanceUnit(unit);
   if (/run|walk|hike/i.test(exerciseName)) {
-    const perUnit = seconds / d;
-    const min = Math.floor(perUnit / 60);
-    const sec = Math.round(perUnit % 60);
-    return `${min}:${String(sec === 60 ? 59 : sec).padStart(2, '0')} /${u}`;
+    const total = Math.round(seconds / d); // whole seconds per mile or km, then split
+    return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')} /${u}`;
   }
   return `${Math.round((d / (seconds / 3600)) * 10) / 10} ${u}/h`;
 }
@@ -87,16 +86,19 @@ export async function logActivity(db: WorkoutDB, input: ActivityInput): Promise<
   }
   const avgHr = checkOptional(input.avgHr, 'heart rate', 250);
   const calories = checkOptional(input.calories, 'calories', 10000);
-  const id = await logSet(db, {
-    sessionId: input.sessionId,
-    exerciseId: input.exerciseId,
-    planExerciseId: input.planExerciseId,
-    setNumber: 1,
-    parts: [{ weightLb: null, reps: null, seconds: Math.round(input.seconds) }],
-    difficulty: input.difficulty ?? null,
+  // One transaction, so the set and its distance, heart rate and calories are saved together or not at all.
+  return db.transaction('rw', [db.setLogs, db.exercises, db.sessions], async () => {
+    const id = await logSet(db, {
+      sessionId: input.sessionId,
+      exerciseId: input.exerciseId,
+      planExerciseId: input.planExerciseId,
+      setNumber: 1,
+      parts: [{ weightLb: null, reps: null, seconds: Math.round(input.seconds) }],
+      difficulty: input.difficulty ?? null,
+    });
+    await db.setLogs.update(id, { distanceMi, avgHr, calories });
+    return id;
   });
-  await db.setLogs.update(id, { distanceMi, avgHr, calories });
-  return id;
 }
 
 /** The most recent earlier log of this activity (any plan), for pre-filling. */
@@ -126,7 +128,7 @@ export async function caloriesFor(db: WorkoutDB, log: SetLog, exercise: Exercise
   const lb = await bodyweightOn(db, date);
   const seconds = log.parts[0]?.seconds ?? 0;
   if (lb === null) return { kcal: null, needsBodyweight: true };
-  return { kcal: estimateCalories(exercise.met ?? 5, lb, seconds), estimated: true };
+  return { kcal: estimateCalories(exercise.met ?? DEFAULT_MET, lb, seconds), estimated: true };
 }
 
 /** Activities in a date range: how many, total time and total distance (W-12's card). */
