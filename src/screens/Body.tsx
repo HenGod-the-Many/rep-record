@@ -145,11 +145,11 @@ export function MetricPage({ metricId }: { metricId: string }) {
     }));
   }, [data]);
 
-  if (data === undefined) return <div className="screen"><Header title="Body" back="/body" /></div>;
+  if (data === undefined) return <div className="screen"><Header title="Stats" back="/body" /></div>;
   if (data === null) {
     return (
       <div className="screen">
-        <Header title="Body" back="/body" />
+        <Header title="Stats" back="/body" />
         <p className="muted">This metric no longer exists.</p>
       </div>
     );

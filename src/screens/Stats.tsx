@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { formatDate, todayLocal } from '../db/dates';
+import { formatDate } from '../db/dates';
+import { useToday } from '../useToday';
 import { formatMetric } from '../db/body';
 import {
   availableCards,
@@ -13,12 +14,11 @@ import {
   moveCard,
   recentPrs,
   setCardShown,
-  setsBetween,
-  volumeBetween,
+  liftingTotals,
   weekRange,
   type CardInfo,
 } from '../db/stats';
-import { displayNumber, formatWeight, getUnit, type Unit } from '../db/units';
+import { displayNumber, getUnit, toDisplay, type Unit } from '../db/units';
 import { navigate } from '../router';
 import { attempt, ErrorText } from './common';
 
@@ -31,8 +31,21 @@ interface CardView {
   to: string;
 }
 
-async function buildCard(info: CardInfo, unit: Unit, today: string): Promise<CardView> {
-  const wk = await weekRange(db, today);
+interface Ctx {
+  unit: Unit;
+  today: string;
+  wk: { from: string; to: string };
+  /** Shared by the Sets and Volume cards, worked out once per refresh. */
+  totals: () => Promise<{ sets: number; volumeLb: number }>;
+}
+
+/** Weights on cards: at most one decimal, in the display unit. */
+function cardWeight(lb: number, unit: Unit): string {
+  return `${Math.round(toDisplay(lb, unit) * 10) / 10} ${unit}`;
+}
+
+async function buildCard(info: CardInfo, ctx: Ctx): Promise<CardView> {
+  const { unit, today, wk } = ctx;
   switch (info.id) {
     case 'workouts-week': {
       const n = await finishedWorkouts(db, wk.from, wk.to);
@@ -44,11 +57,11 @@ async function buildCard(info: CardInfo, unit: Unit, today: string): Promise<Car
       return { info, big: n ? String(n) : null, sub: 'This calendar month', empty: 'No workouts this month', to: `/calendar?m=${today.slice(0, 7)}` };
     }
     case 'sets-week': {
-      const n = await setsBetween(db, wk.from, wk.to);
+      const n = (await ctx.totals()).sets;
       return { info, big: n ? String(n) : null, sub: 'Lifting sets logged', empty: 'No sets this week', to: '/calendar' };
     }
     case 'volume-week': {
-      const lb = await volumeBetween(db, wk.from, wk.to);
+      const lb = (await ctx.totals()).volumeLb;
       return {
         info,
         big: lb ? `${Number(displayNumber(lb, unit)).toLocaleString()} ${unit}` : null,
@@ -65,7 +78,7 @@ async function buildCard(info: CardInfo, unit: Unit, today: string): Promise<Car
         sub: '',
         empty: 'No new records yet. A first session sets the starting mark.',
         list: prs.map((p) => ({
-          text: `${p.name} · ${p.record === 'heaviest' ? 'heaviest' : 'est. 1-rep max'} ${formatWeight(p.valueLb, unit)}`,
+          text: `${p.name} · ${p.record === 'heaviest' ? 'heaviest' : 'est. 1-rep max'} ${cardWeight(p.valueLb, unit)}`,
           sub: formatDate(p.date),
           to: `/exercises/${p.exerciseId}/history?back=${encodeURIComponent('/body')}`,
         })),
@@ -76,8 +89,8 @@ async function buildCard(info: CardInfo, unit: Unit, today: string): Promise<Car
       const b = await bodyweightCard(db);
       return {
         info,
-        big: b ? formatWeight(b.valueLb, unit) : null,
-        sub: b ? `${formatDate(b.date)} · 7-day average ${formatWeight(b.averageLb, unit)}` : '',
+        big: b ? cardWeight(b.valueLb, unit) : null,
+        sub: b ? `${formatDate(b.date)} · 7-day average ${cardWeight(b.averageLb, unit)}` : '',
         empty: 'No bodyweight yet',
         to: '/body/bodyweight',
       };
@@ -98,11 +111,14 @@ async function buildCard(info: CardInfo, unit: Unit, today: string): Promise<Car
 
 /** The cards at the top of the Stats tab (W-12), with Edit cards. */
 export function StatsCards() {
-  const today = todayLocal();
+  const today = useToday();
   const data = useLiveQuery(async () => {
     const unit = await getUnit(db);
     const chosen = await chosenCards(db);
-    return { cards: await Promise.all(chosen.map((c) => buildCard(c, unit, today))), available: await availableCards(db) };
+    const wk = await weekRange(db, today);
+    let totals: Promise<{ sets: number; volumeLb: number }> | null = null;
+    const ctx: Ctx = { unit, today, wk, totals: () => (totals ??= liftingTotals(db, wk.from, wk.to)) };
+    return { cards: await Promise.all(chosen.map((c) => buildCard(c, ctx))), available: await availableCards(db) };
   }, [today]);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);

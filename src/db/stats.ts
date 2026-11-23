@@ -97,19 +97,27 @@ async function liftingSetsBetween(db: WorkoutDB, from: string, to: string): Prom
   return { sets: sets.filter((l) => LIFTING.has(kinds.get(l.exerciseId) ?? '')), kinds: kinds as Map<string, Exercise['kind']> };
 }
 
-export async function setsBetween(db: WorkoutDB, from: string, to: string): Promise<number> {
-  return (await liftingSetsBetween(db, from, to)).sets.length;
-}
-
-/** Sum of weight × reps over every part of every weight set, in pounds. Bodyweight and timed sets are left out. */
-export async function volumeBetween(db: WorkoutDB, from: string, to: string): Promise<number> {
+/**
+ * Lifting sets in a date range, and their volume: weight × reps over every part
+ * of every weight set, in pounds (bodyweight and timed sets are left out).
+ * One pass, so the Sets and Volume cards share it.
+ */
+export async function liftingTotals(db: WorkoutDB, from: string, to: string): Promise<{ sets: number; volumeLb: number }> {
   const { sets, kinds } = await liftingSetsBetween(db, from, to);
-  let total = 0;
+  let volumeLb = 0;
   for (const l of sets) {
     if (kinds.get(l.exerciseId) !== 'weight') continue;
-    for (const p of l.parts) total += (p.weightLb ?? 0) * (p.reps ?? 0);
+    for (const p of l.parts) volumeLb += (p.weightLb ?? 0) * (p.reps ?? 0);
   }
-  return total;
+  return { sets: sets.length, volumeLb };
+}
+
+export async function setsBetween(db: WorkoutDB, from: string, to: string): Promise<number> {
+  return (await liftingTotals(db, from, to)).sets;
+}
+
+export async function volumeBetween(db: WorkoutDB, from: string, to: string): Promise<number> {
+  return (await liftingTotals(db, from, to)).volumeLb;
 }
 
 export interface PrEvent {

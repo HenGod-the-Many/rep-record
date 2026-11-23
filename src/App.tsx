@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useRoute, navigate } from './router';
 import { ExerciseList } from './screens/ExerciseList';
 import { ExerciseForm } from './screens/ExerciseForm';
@@ -15,27 +14,11 @@ import { LogWorkout } from './screens/LogWorkout';
 import { History } from './screens/History';
 import { WarmupEdit, WarmupList } from './screens/Warmups';
 import { BodyList, MetricPage, PhotosPage } from './screens/Body';
-import { todayLocal } from './db/dates';
+import { useToday } from './useToday';
 import { applyUpdate, useUpdateReady } from './pwa';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Today's date, kept current when the app comes back to the screen or the clock passes midnight. */
-function useToday(): string {
-  const [today, setToday] = useState(todayLocal);
-  useEffect(() => {
-    const check = () => setToday(todayLocal());
-    const timer = window.setInterval(check, 60_000);
-    document.addEventListener('visibilitychange', check);
-    window.addEventListener('focus', check);
-    return () => {
-      window.clearInterval(timer);
-      document.removeEventListener('visibilitychange', check);
-      window.removeEventListener('focus', check);
-    };
-  }, []);
-  return today;
-}
 
 function Screen() {
   const { parts, query } = useRoute();
