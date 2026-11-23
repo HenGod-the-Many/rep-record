@@ -2,6 +2,24 @@
 
 Newest first.
 
+## 2026-11-22: release 2 finished (W-12, W-15) and released as v0.7.0
+
+- Taylor: "Finish release 2 and push it."
+- W-12 stats: fixed the 5 code-review findings, reviewed (accept after fixes:
+  added the Edit cards screenshot), merged (#27).
+- The reviewer hang is understood well enough to avoid: reviewers given an
+  exact list of allowed commands (`npm run check` once with a timeout,
+  `npx vitest run <file>`, never in the background, no dev server) finished
+  in about a minute, twice. Both earlier hangs were open-ended runs.
+- W-15 activities built in a separate git worktree (`.worktrees/w15`) while
+  W-12 was in review, then rebased onto dev. Reviewed (accept), 5 code-review
+  findings and 2 reviewer notes fixed, merged (#28). Database version 6.
+- Lesson: the browser check found the activity steppers squeezed to 40 px
+  next to the ✓ button; tests can't see that. Keep measuring control sizes.
+- Release 2 is complete: W-07, W-08, W-09, W-11, W-12, W-15, W-16 are all
+  Awaiting owner. Left in the queue: W-02 and W-13 (spikes only Taylor can
+  run on the phone) and W-10 (release 3, training tips).
+
 ## 2026-11-20 (morning): v0.6.0 warm-ups; W-12 built, stopped at review
 
 - Released v0.6.0 (W-16 warm-up routines, database version 5).
