@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { formatDate } from '../db/dates';
 import { useToday } from '../useToday';
+import { activityTotals, formatDistance, formatDuration } from '../db/activities';
 import { formatMetric } from '../db/body';
 import {
   availableCards,
@@ -83,6 +84,16 @@ async function buildCard(info: CardInfo, ctx: Ctx): Promise<CardView> {
           to: `/exercises/${p.exerciseId}/history?back=${encodeURIComponent('/body')}`,
         })),
         to: '/exercises',
+      };
+    }
+    case 'activities-week': {
+      const a = await activityTotals(db, wk.from, wk.to);
+      return {
+        info,
+        big: a.count ? String(a.count) : null,
+        sub: a.count ? `${formatDuration(a.seconds)}${a.distanceMi ? ` · ${formatDistance(a.distanceMi, unit)}` : ''}` : '',
+        empty: 'No activities this week',
+        to: '/calendar',
       };
     }
     case 'bodyweight': {

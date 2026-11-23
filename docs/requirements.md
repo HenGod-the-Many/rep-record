@@ -192,11 +192,11 @@ least; distance by default; calories estimated; other details optional.*
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-13.1 Activities are a kind of exercise: run, walk, bike, hike, swim, row and elliptical are built in, and you can add your own | should | Test | W-15 | planned | |
-| R-13.2 An activity is logged with duration and distance (miles or km by the unit setting); distance can be left out for activities without one | should | Test | W-15 | planned | |
-| R-13.3 Optional fields per activity: effort 1–10, average heart rate, and calories typed in by hand | should | Test | W-15 | planned | |
-| R-13.4 If calories are not typed in, the app estimates them from the activity's standard MET value, the duration and your latest bodyweight, and labels the number as an estimate | should | Test | W-15 | planned | |
-| R-13.5 Activities can go in plans and splits like lifting exercises, so a day can hold "Bike ride 45 min" | should | Test | W-15 | planned | |
+| R-13.1 Activities are a kind of exercise: run, walk, bike, hike, swim, row and elliptical are built in, and you can add your own | should | Test | W-15 | verified | activities.test.ts (7 built-ins, upgrade leaves an existing Run alone, custom activity); browser: Rock climbing added; reviewer: met |
+| R-13.2 An activity is logged with duration and distance (miles or km by the unit setting); distance can be left out for activities without one | should | Test | W-15 | verified | tests for duration and distance, none for elliptical; browser 30 min 8 mi with ± taps; reviewer: met |
+| R-13.3 Optional fields per activity: effort 1–10, average heart rate, and calories typed in by hand | should | Test | W-15 | verified | effort, heart rate, typed calories (tests; browser w15/02); reviewer: met |
+| R-13.4 If calories are not typed in, the app estimates them from the activity's standard MET value, the duration and your latest bodyweight, and labels the number as an estimate | should | Test | W-15 | verified | worked example 30 min bike at 180 lb = 305 kcal in tests and browser (w15/01); bodyweight on or before the date; reviewer: met |
+| R-13.5 Activities can go in plans and splits like lifting exercises, so a day can hold "Bike ride 45 min" | should | Test | W-15 | verified | activity in a plan with 45 min · 12 mi target (tests, browser); reviewer: met |
 
 ## KF-14 Build warm-up routines and use them before a workout
 

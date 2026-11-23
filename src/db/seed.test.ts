@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { BUILT_IN_ACTIVITIES } from './activityData';
 import { ensureSeeded } from './seed';
 import { getEntries } from './plans';
 import { freshDb } from '../test/helpers';
@@ -37,9 +38,12 @@ function parsePlan(line: string): Expected[] {
 }
 
 describe('seed data (R-01.1, R-02.2, R-03.2)', () => {
-  it('library holds every exercise named in the brief, once each, with "or" split in two', async () => {
+  it('library holds every exercise named in the brief, once each, with "or" split in two, plus the built-in activities (R-13.1)', async () => {
     const db = await freshDb();
-    const expected = new Set(Object.values(BRIEF).flatMap((l) => parsePlan(l).flatMap((e) => e.names)));
+    const expected = new Set([
+      ...Object.values(BRIEF).flatMap((l) => parsePlan(l).flatMap((e) => e.names)),
+      ...BUILT_IN_ACTIVITIES.map((a) => a.name),
+    ]);
     const names = (await db.exercises.toArray()).map((e) => e.name);
     expect(new Set(names)).toEqual(expected);
     expect(names.length).toBe(expected.size); // no duplicates

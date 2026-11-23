@@ -330,3 +330,13 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .edit-card-row { display: grid; grid-template-columns: 1fr 44px 44px; gap: 6px; align-items: center; min-height: 48px; border-top: 1px solid var(--border); }
 .edit-card-row .icon-btn { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); }
 .edit-card-row .icon-btn:disabled { opacity: 0.35; }
+
+/* Activities (W-15) */
+.activity-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+.calories-line { margin: 8px 0 0; font-weight: 600; }
+.calories-line .link { min-height: 44px; }
+.more-toggle { min-height: 44px; margin-top: 4px; }
+.activity-line { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.activity-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.activity-head p { margin: 0; flex: 1; }
+.more-toggle { min-width: 44px; }

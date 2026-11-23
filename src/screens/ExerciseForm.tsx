@@ -16,6 +16,8 @@ export function ExerciseForm({ id }: { id: string | null }) {
   const [muscleGroup, setMuscleGroup] = useState('');
   const [equipment, setEquipment] = useState('');
   const [kind, setKind] = useState<ExerciseKind>('weight');
+  const [hasDistance, setHasDistance] = useState(true);
+  const [met, setMet] = useState('5');
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(id === null);
 
@@ -25,6 +27,8 @@ export function ExerciseForm({ id }: { id: string | null }) {
       setMuscleGroup(existing.muscleGroup);
       setEquipment(existing.equipment);
       setKind(existing.kind);
+      setHasDistance(existing.hasDistance ?? true);
+      setMet(String(existing.met ?? 5));
       setLoaded(true);
     }
   }, [existing, loaded]);
@@ -40,7 +44,7 @@ export function ExerciseForm({ id }: { id: string | null }) {
   }
 
   const save = async () => {
-    const input = { name, muscleGroup, equipment, kind };
+    const input = { name, muscleGroup, equipment, kind, ...(kind === 'activity' ? { hasDistance, met: Number(met.replace(',', '.')) } : {}) };
     const ok = await attempt(() => (id ? updateExercise(db, id, input) : createExercise(db, input)), setError);
     if (ok) navigate('/exercises');
   };
@@ -91,6 +95,19 @@ export function ExerciseForm({ id }: { id: string | null }) {
           ))}
         </div>
       </fieldset>
+      {kind === 'activity' && (
+        <div className="stack">
+          <label className="switch-label">
+            <input type="checkbox" checked={hasDistance} onChange={(e) => setHasDistance(e.target.checked)} />
+            <span>Has distance (miles or km)</span>
+          </label>
+          <label className="field">
+            <span>MET value (for the calorie estimate)</span>
+            <input inputMode="decimal" value={met} onChange={(e) => setMet(e.target.value)} />
+            <span className="small-print muted">About 3.5 for walking, 7.5 for cycling, 9.8 for running.</span>
+          </label>
+        </div>
+      )}
       <ErrorText message={error} />
       <button className="btn-primary block" onClick={save}>
         Save

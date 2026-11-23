@@ -34,12 +34,21 @@ block, and the Awaiting owner list. Requirement status lives in
 | 11 | W-11 | Body metrics: bodyweight + rolling average, height, optional measurements, body fat %, photos, custom metrics | R-10.1–R-10.7 | [W-11](specs/W-11-body-metrics.md) | W-06 | no | Awaiting owner | Added 2026-11-18. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 12 | W-12 | Stats overview with cards you choose | R-11.1, R-11.2 | [W-12](specs/W-12-stats.md) | W-08, W-11 | no | Awaiting owner | Added 2026-11-18. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 13 | W-13 | Spike: get Apple Health data into the app (Shortcut or Health export) | KF-12 (risk) | not yet | W-02 | yes | Not ready | Later; result only Taylor can observe |
-| 14 | W-15 | Activities: runs, rides, hikes, swims and custom; duration, distance, optional effort/HR/calories, estimated calories | R-13.1–R-13.5 | [W-15](specs/W-15-activities.md) | W-06, W-11 | no | Ready | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
+| 14 | W-15 | Activities: runs, rides, hikes, swims and custom; duration, distance, optional effort/HR/calories, estimated calories | R-13.1–R-13.5 | [W-15](specs/W-15-activities.md) | W-06, W-11 | no | Awaiting owner | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 15 | W-16 | Warm-up routines attached to plans, checked off before a workout | R-14.1, R-14.2 | [W-16](specs/W-16-warmups.md) | W-06 | no | Awaiting owner | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 
 ## Awaiting owner
 
 Newest first.
+
+### W-15: activities
+
+- Delivered in: feature/w15-activities, pull request to `dev`; release v0.7.0
+- Result: activities (run, walk, bike, hike, swim, row, elliptical, and your own) go in plans like any exercise; in a workout each has one row of minutes and distance, with effort, heart rate and calories under More; calories are estimated from MET × bodyweight × time when not typed, marked "(estimate)"; activity history shows distance, pace or speed and records; a Stats card counts activities this week.
+- Evidence: `npm run check` 217 tests (16 activity tests; deliberate breaks fail them); screenshots in `docs/evidence/w15/`; acceptance-reviewer "accept"; `/code-review` 5 findings, all fixed; reviewer notes also fixed (Swap on activity cards, limited to activities; re-saving in km keeps the stored miles).
+- Not verified: on the iPhone.
+- Calls made for you: an activity's target minutes are kept in the plan entry's range fields ([decision 0006](decisions/0006-activities-as-set-logs.md)); two existing tests now expect the 7 built-in activities in the library (still exact).
+- To accept: Release 2 step 10 in `docs/verification-plan.md`.
 
 ### W-12: stats overview
 

@@ -96,7 +96,11 @@ export async function swapChoices(db: WorkoutDB, entry: PlanExercise, current: s
     .map((id) => byId.get(id))
     .filter((e): e is Exercise => !!e && !e.archived && e.id !== current);
   const skip = new Set([current, ...alternates.map((e) => e.id)]);
-  const others = all.filter((e) => !e.archived && !skip.has(e.id)).sort((a, b) => a.name.localeCompare(b.name));
+  // An activity slot swaps to other activities; a lifting slot to lifting exercises.
+  const slotIsActivity = byId.get(entry.exerciseId)?.kind === 'activity';
+  const others = all
+    .filter((e) => !e.archived && !skip.has(e.id) && (e.kind === 'activity') === slotIsActivity)
+    .sort((a, b) => a.name.localeCompare(b.name));
   return { alternates, others };
 }
 
@@ -159,8 +163,8 @@ function mergeSameWeight(parts: SetPart[]): SetPart[] {
 export function checkParts(parts: SetPart[], kind: ExerciseKind): void {
   if (parts.length === 0) throw new ValidationError('A set needs at least one part.');
   for (const p of parts) {
-    if (kind === 'timed') {
-      if (!p.seconds || p.seconds <= 0) throw new ValidationError('Enter the seconds first.');
+    if (kind === 'timed' || kind === 'activity') {
+      if (!p.seconds || p.seconds <= 0) throw new ValidationError(kind === 'activity' ? 'Enter the duration first.' : 'Enter the seconds first.');
     } else {
       if (!p.reps || p.reps < 1 || !Number.isInteger(p.reps)) throw new ValidationError('Enter the reps first.');
       if (kind === 'weight' && (p.weightLb === null || p.weightLb < 0)) throw new ValidationError('Enter the weight first.');

@@ -7,6 +7,18 @@ import { displayNumber, formatWeight, getUnit, type Unit } from '../db/units';
 import { Header } from './common';
 import { LineChart, type Point } from './LineChart';
 import { partsText } from './LogWorkout';
+import { caloriesFor, formatDistance, formatDuration, paceOrSpeed } from '../db/activities';
+import type { SetLog } from '../db/db';
+
+/** Typed calories, or the estimate marked as such. Nothing when there is no bodyweight yet. */
+function ActivityCalories({ log, exerciseId, date }: { log: SetLog; exerciseId: string; date: string }) {
+  const c = useLiveQuery(async () => {
+    const ex = await db.exercises.get(exerciseId);
+    return ex ? caloriesFor(db, log, ex, date) : null;
+  }, [log, exerciseId, date]);
+  if (!c || c.kcal === null) return null;
+  return <span className="muted">{c.estimated ? `≈ ${c.kcal} kcal (estimate)` : `${c.kcal} kcal`}</span>;
+}
 
 
 const SERIES: Record<ExerciseKind, { label: string; weight: boolean; unit: string }[]> = {
@@ -16,6 +28,7 @@ const SERIES: Record<ExerciseKind, { label: string; weight: boolean; unit: strin
   ],
   bodyweight: [{ label: 'Most reps', weight: false, unit: '' }],
   timed: [{ label: 'Longest hold', weight: false, unit: 's' }],
+  activity: [{ label: 'Duration', weight: false, unit: 'min' }],
 };
 
 /** Chart points in the unit shown: weights converted to kg when that is the setting. */
@@ -84,6 +97,12 @@ export function History({ exerciseId, back }: { exerciseId: string; back: string
               </>
             )}
             {kind === 'timed' && <MarkLine label="Longest hold" mark={r.longest} text={(m) => `${m.value} s`} />}
+            {kind === 'activity' && (
+              <>
+                {exercise.hasDistance && <MarkLine label="Longest distance" mark={r.longestDistance} text={(m) => formatDistance(m.value, unit)} />}
+                <MarkLine label="Longest duration" mark={r.longest} text={(m) => formatDuration(m.value)} />
+              </>
+            )}
           </section>
 
           {points.length > 0 && (
@@ -122,11 +141,22 @@ export function History({ exerciseId, back }: { exerciseId: string; back: string
               </div>
               <ol className="history-sets">
                 {sets.map((s) => (
+                  kind === 'activity' ? (
+                    <li key={s.id} className="activity-line">
+                      <span>{formatDuration(s.parts[0]?.seconds ?? 0)}</span>
+                      {s.distanceMi ? <span>{formatDistance(s.distanceMi, unit)}</span> : null}
+                      {s.distanceMi ? <span className="muted">{paceOrSpeed(exercise.name, s.parts[0]?.seconds ?? 0, s.distanceMi, unit)}</span> : null}
+                      {s.difficulty !== null && <span className="muted">effort {s.difficulty}/10</span>}
+                      {s.avgHr ? <span className="muted">{s.avgHr} bpm</span> : null}
+                      <ActivityCalories log={s} exerciseId={exercise.id} date={session.date} />
+                    </li>
+                  ) : (
                   <li key={s.id}>
                     <span className="muted">Set {s.setNumber}</span> {partsText(s.parts, kind, unit)}
                     {s.difficulty !== null && <span className="muted"> · {s.difficulty}/10</span>}
                     {s.toFailure && <span className="muted"> · to failure</span>}
                   </li>
+                  )
                 ))}
               </ol>
               {session.journalNote && <p className="small-print muted">{session.journalNote}</p>}
