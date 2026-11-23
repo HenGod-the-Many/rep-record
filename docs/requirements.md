@@ -171,8 +171,8 @@ makes them; show the real data and a rolling average.*
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-11.1 A Stats screen shows cards; available cards include current bodyweight and its 7-day average, workouts this week and this month, total sets and volume this week, recent PRs, and the latest value of each switched-on metric | should | Test, Demonstration | W-12 | built | stats.test.ts (known answers for each card, week setting, PRs); evidence w12/01 |
-| R-11.2 You can choose which cards appear and their order; the choice is kept | should | Test | W-12 | built | stats.test.ts (show, hide, order, metric cards return); browser: kept after reload (w12/02) |
+| R-11.1 A Stats screen shows cards; available cards include current bodyweight and its 7-day average, workouts this week and this month, total sets and volume this week, recent PRs, and the latest value of each switched-on metric | should | Test, Demonstration | W-12 | verified | stats.test.ts (known answers for each card, week setting, PRs); evidence w12/01; reviewer: met |
+| R-11.2 You can choose which cards appear and their order; the choice is kept | should | Test | W-12 | verified | stats.test.ts (show, hide, order, metric cards return); browser: kept after reload (w12/02); reviewer: met |
 
 ## KF-12 Pull heart rate and other health data from Apple Health
 
