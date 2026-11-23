@@ -26,6 +26,7 @@ import { formatTargets } from '../format';
 import { navigate } from '../router';
 import { WorkoutNote } from './Journal';
 import { WarmupCard } from './Warmups';
+import { ActivityCard } from './ActivityCard';
 import { attempt, ErrorText, Header } from './common';
 
 const EMPTY: SetPart = { weightLb: null, reps: null, seconds: null };
@@ -34,6 +35,7 @@ const EMPTY: SetPart = { weightLb: null, reps: null, seconds: null };
 export function partsText(parts: SetPart[], kind: ExerciseKind, unit: Unit): string {
   return parts
     .map((p) => {
+      if (kind === 'activity') return `${Math.round((p.seconds ?? 0) / 60)} min`;
       if (kind === 'timed') return `${p.seconds ?? '–'} s`;
       if (kind === 'bodyweight') return p.weightLb ? `+${formatWeight(p.weightLb, unit)} × ${p.reps ?? '–'}` : `${p.reps ?? '–'} reps`;
       return `${p.weightLb === null ? '–' : formatWeight(p.weightLb, unit)} × ${p.reps ?? '–'}`;
@@ -100,6 +102,18 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
         const exId = activeExerciseId(session, entry);
         const ex = exercises.get(exId);
         if (!ex) return null;
+        if (ex.kind === 'activity') {
+          return (
+            <ActivityCard
+              key={`${entry.id}:${exId}`}
+              session={session}
+              entry={entry}
+              exercise={ex}
+              log={logs.find((l) => l.planExerciseId === entry.id && l.exerciseId === exId)}
+              unit={unit}
+            />
+          );
+        }
         return (
           <ExerciseCard
             key={`${entry.id}:${exId}`}

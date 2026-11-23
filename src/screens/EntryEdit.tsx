@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { removeAlternate, removeEntry, updateTargets } from '../db/plans';
+import { removeAlternate, removeEntry, setActivityTarget, updateTargets } from '../db/plans';
+import { distanceUnit, fromShownDistance, toShownDistance } from '../db/activities';
+import { getUnit } from '../db/units';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header } from './common';
 
@@ -10,13 +12,14 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
     const entry = await db.planExercises.get(entryId);
     if (!entry) return { entry: null, exercises: new Map() };
     const exercises = new Map((await db.exercises.toArray()).map((e) => [e.id, e]));
-    return { entry, exercises };
+    return { entry, exercises, unit: await getUnit(db) };
   }, [entryId]);
 
   const [sets, setSets] = useState(3);
   const [min, setMin] = useState('');
   const [max, setMax] = useState('');
   const [note, setNote] = useState('');
+  const [dist, setDist] = useState('');
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,6 +29,8 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
       setMin(String(data.entry.repMin));
       setMax(String(data.entry.repMax));
       setNote(data.entry.note);
+      const d = data.entry.targetDistanceMi;
+      setDist(d ? String(Math.round(toShownDistance(d, data.unit ?? 'lb') * 10) / 10) : '');
       setLoadedFor(data.entry.id);
     }
   }, [data, loadedFor]);
@@ -43,6 +48,16 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
   const { entry, exercises } = data;
   const ex = exercises.get(entry.exerciseId);
   const unit = ex?.kind === 'timed' ? 'seconds' : 'reps';
+
+  const isActivity = ex?.kind === 'activity';
+  const saveActivity = async () => {
+    const u = data.unit ?? 'lb';
+    const ok = await attempt(
+      () => setActivityTarget(db, entryId, Number(min), dist.trim() ? fromShownDistance(Number(dist.replace(',', '.')), u) : null),
+      setError,
+    );
+    if (ok) navigate(back);
+  };
 
   const save = async () => {
     const ok = await attempt(
@@ -62,6 +77,25 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
     <div className="screen">
       <Header title={ex?.name ?? 'Exercise in plan'} back={back} />
 
+      {isActivity ? (
+        <div className="stack">
+          <div className="field-pair">
+            <label className="field">
+              <span>Target minutes</span>
+              <input inputMode="numeric" value={min} onChange={(e) => setMin(e.target.value)} />
+            </label>
+            {ex?.hasDistance && (
+              <label className="field">
+                <span>Target {distanceUnit(data.unit ?? 'lb')} (optional)</span>
+                <input inputMode="decimal" value={dist} onChange={(e) => setDist(e.target.value)} />
+              </label>
+            )}
+          </div>
+          <ErrorText message={error} />
+          <button className="btn-primary block" onClick={saveActivity}>Save target</button>
+        </div>
+      ) : (
+      <>
       <div className="field">
         <span>Target sets</span>
         <div className="stepper">
@@ -86,6 +120,8 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
       </label>
       <ErrorText message={error} />
       <button className="btn-primary block" onClick={save}>Save targets</button>
+      </>
+      )}
 
       <h2 className="group-title">Exercise</h2>
       <button
