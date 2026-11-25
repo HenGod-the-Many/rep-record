@@ -52,6 +52,7 @@ written only by Taylor.
 | KF-12 | Pull heart rate and other health data from Apple Health | later | — | planned |
 | KF-13 | Plan and log runs, rides, hikes, swims and any other activity | should | 2 | planned |
 | KF-14 | Build warm-up routines and use them before a workout | should | 2 | planned |
+| KF-15 | Do supersets and circuits in plans, workouts and warm-ups | should | 3 | planned |
 
 ---
 
@@ -76,6 +77,8 @@ written only by Taylor.
 | R-02.2 On first launch the five plans from the brief exist with the brief's exercises, order and targets | must | Test | W-01 | verified | seed.test.ts "five plans match the brief"; reviewer: met |
 | R-02.3 Duplicating a plan makes an independent copy: editing the copy does not change the original | must | Test | W-04 | verified | plans.test.ts duplicating; reviewer: met |
 | R-02.4 A plan entry can list alternate exercises (seeded for the brief's "A or B" entries) | should | Test | W-04 | verified | plans.test.ts alternates; evidence 6; reviewer: met |
+| R-02.5 Plans can be grouped into folders (one level); a plan is in one folder at most, and deleting a folder keeps its plans | should | Test, Demonstration | W-18 | planned | |
+| R-02.6 A folder can be duplicated, making independent copies of every plan in it | should | Test | W-18 | planned | |
 
 ## KF-03 Build a split that repeats on a cycle and schedule it on my calendar
 
@@ -117,8 +120,10 @@ written only by Taylor.
 | R-05.6 Every set can carry a difficulty rating from 1 to 10, entered with one tap; it is shown next to that set in history and in the next session's pre-fill, because it is the main sign of being ready to go up in weight | must | Test, Demonstration | W-06 | built | logging stored and shown in pre-fill (evidence w06/02; reviewer: met); shown in history by W-08 (screenshot w08/01; reviewer: met) |
 | R-05.7 Within one set you can record a weight change partway through (e.g. 5 reps at 135 lb then 3 at 115 lb) in a few taps; history and PRs count each part at its own weight | should | Test | W-06 | built | parts stored, 135→115 at rep 6 tested (reviewer: met); W-08 shows each part and counts each part at its own weight (test fails if later parts are ignored; reviewer: met after test fix) |
 | R-05.8 Logging a set, its difficulty and a weight change each takes no more than a few seconds, so it fits in a rest period | must | Demonstration | W-06 | verified | tap counts 1/1/3/3/4 counted in the browser; reviewer: met |
-| R-05.9 Weight changes and rep changes are recorded with their own buttons, separate from adjusting a set's planned weight and reps; you pick which set changed (and for weight, at which rep), and every other set keeps its listed weight and reps | should | Test, Demonstration | W-06 | verified | logging.test.ts "only the chosen set changes"; evidence w06/04; reviewer: met |
+| R-05.9 Weight changes are recorded with their own button, separate from adjusting a set's planned weight and reps; you pick which set changed and at which rep, and every other set keeps its listed weight and reps. (Changed 2026-11-24: the Rep change button is removed; reps are changed by editing the set.) | should | Test, Demonstration | W-06, W-17 | planned | W-06: logging.test.ts "only the chosen set changes"; evidence w06/04; reviewer: met. Rep change removal: W-17 |
 | R-05.10 A set can be marked as taken to failure, with the number of reps reached (e.g. aimed for 10, failed after 8); the mark shows on the set and in the next session's pre-fill | should | Test | W-06 | verified | logging.test.ts "failed"; evidence w06/01, 02; reviewer: met |
+| R-05.11 During a workout the exercises can be put in the order they were actually done; that order is kept on the workout only, and the plan and later workouts keep the planned order | should | Test, Demonstration | W-17 | planned | |
+| R-05.12 An exercise whose target sets are all logged folds to one line and opens again with a tap | should | Test, Demonstration | W-17 | planned | |
 
 ## KF-06 See each exercise's whole history, PRs and progress
 
@@ -205,7 +210,18 @@ least; distance by default; calories estimated; other details optional.*
 | R-14.1 You can build named warm-up routines: an ordered list of moves, each with reps or a time | should | Test | W-16 | verified | warmups.test.ts (build, edit, reorder, refuse bad moves); evidence w16/01; reviewer: met |
 | R-14.2 A plan can have a warm-up routine attached; starting that workout shows the warm-up first, and each move is checked off with one tap | should | Test, Demonstration | W-16 | verified | warmups.test.ts (attach, copies keep it, checks, copy at start, backup); browser: card first, one tap each, folds, survives reload (w16/02, w16/03); reviewer: met |
 
-Totals: 31 must, 28 should, 2 could, 1 later.
+## KF-15 Do supersets and circuits in plans, workouts and warm-ups
+
+Added 2026-11-24 from Taylor's first real workout; approved with the W-19 spec.
+
+| Requirement | Priority | Method | Item | Status | Evidence |
+|---|---|---|---|---|---|
+| R-15.1 Two or more exercises in a row in a plan can be grouped as a superset or circuit with a number of rounds; each keeps its own targets, and duplicating the plan copies the group | should | Test, Demonstration | W-19 | planned | |
+| R-15.2 A group is logged round by round, one tap per set; every set is saved under its own exercise, so history, PRs and pre-fill are unchanged | should | Test, Demonstration | W-19 | planned | |
+| R-15.3 A warm-up routine can have rounds, and each move is checked off in each round | should | Test | W-19 | planned | |
+| R-15.4 Circuit exercises (kettlebell, calisthenics) come from the library, and timed moves log seconds | should | Test | W-19 | planned | |
+
+Totals: 31 must, 36 should, 2 could, 1 later.
 
 ## Riskiest assumption
 
@@ -219,7 +235,7 @@ plan needs a backup or sync design. Tested by W-02, right after the skeleton.
 - Accounts, sign-in, multiple users, cloud sync or cloud backup (JSON export is the backup)
 - Reading Apple Health directly, until the W-13 spike shows a way (KF-12)
 - Nutrition or calorie tracking (the calorie tip is shown as text only)
-- Rest timer, supersets (warm-up routines moved into scope as KF-14 on 2026-11-18)
+- Rest timer and interval timers (warm-up routines moved into scope as KF-14 on 2026-11-18; supersets and circuits as KF-15 on 2026-11-24)
 - Android-specific testing (it should work, but only iPhone is checked)
 
 ## Assumptions to confirm
