@@ -50,6 +50,7 @@ export async function startOrResume(db: WorkoutDB, input: StartInput): Promise<s
       swaps: {},
       warmupMoves: warmup ? warmup.moves.map((m) => ({ ...m })) : [],
       warmupChecked: [],
+      warmupRounds: warmup?.rounds ?? 1,
     });
     return id;
   });
@@ -120,17 +121,45 @@ export function orderedEntries(session: Session, entries: PlanExercise[]): PlanE
   return [...listed, ...entries.filter((e) => !known.has(e.id))];
 }
 
-/** Move one slot up (-1) or down (+1) in this workout only. The plan keeps its order. */
+/**
+ * The workout's slots as blocks: a single slot, or all the members of a
+ * superset/circuit together at the place of the first one (W-19).
+ */
+export function workoutUnits(ordered: PlanExercise[]): PlanExercise[][] {
+  const units: PlanExercise[][] = [];
+  const byKey = new Map<string, PlanExercise[]>();
+  for (const e of ordered) {
+    if (!e.groupKey) {
+      units.push([e]);
+      continue;
+    }
+    const unit = byKey.get(e.groupKey);
+    if (unit) unit.push(e);
+    else {
+      const u = [e];
+      byKey.set(e.groupKey, u);
+      units.push(u);
+    }
+  }
+  // Members keep the plan's order inside their group.
+  for (const u of byKey.values()) u.sort((a, b) => a.order - b.order);
+  return units;
+}
+
+/**
+ * Move a slot's block up (-1) or down (+1) in this workout only; a group moves
+ * as one block. The plan keeps its order.
+ */
 export async function moveSlot(db: WorkoutDB, sessionId: string, entries: PlanExercise[], slotId: string, direction: -1 | 1): Promise<void> {
   await db.transaction('rw', db.sessions, async () => {
     const s = await db.sessions.get(sessionId);
     if (!s) throw new ValidationError('That workout no longer exists.');
-    const order = orderedEntries(s, entries).map((e) => e.id);
-    const i = order.indexOf(slotId);
+    const units = workoutUnits(orderedEntries(s, entries));
+    const i = units.findIndex((u) => u.some((e) => e.id === slotId));
     const j = i + direction;
-    if (i < 0 || j < 0 || j >= order.length) return;
-    [order[i], order[j]] = [order[j], order[i]];
-    await db.sessions.update(sessionId, { slotOrder: order });
+    if (i < 0 || j < 0 || j >= units.length) return;
+    [units[i], units[j]] = [units[j], units[i]];
+    await db.sessions.update(sessionId, { slotOrder: units.flat().map((e) => e.id) });
   });
 }
 

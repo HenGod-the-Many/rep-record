@@ -55,6 +55,8 @@ export interface Warmup {
   id: string;
   name: string;
   moves: WarmupMove[];
+  /** Times through the moves (W-19). Missing = 1. */
+  rounds?: number;
 }
 
 /** One exercise slot in a plan. For timed exercises repMin/repMax are seconds. */
@@ -72,7 +74,16 @@ export interface PlanExercise {
   targetDistanceMi?: number | null;
   /** Free text shown with the targets, e.g. "per leg". */
   note: string;
+  /**
+   * Superset or circuit (W-19, decision 0007): members share a key, are
+   * consecutive, and each does every round (targetSets = groupRounds).
+   */
+  groupKey?: string | null;
+  groupKind?: GroupKind;
+  groupRounds?: number;
 }
+
+export type GroupKind = 'superset' | 'circuit';
 
 export interface Split {
   id: string;
@@ -134,8 +145,10 @@ export interface Session {
   swaps: Record<string, string>;
   /** The warm-up's moves as they were when the workout started, so later edits don't change it (W-16). */
   warmupMoves?: WarmupMove[];
-  /** Positions in warmupMoves that were checked off. */
+  /** Positions checked off; round r's move i is r * warmupMoves.length + i. */
   warmupChecked?: number[];
+  /** Rounds of the warm-up as it was at the start (W-19). Missing = 1. */
+  warmupRounds?: number;
   /** Plan slot ids in the order they were done (W-17). Missing or empty = the plan's order. The plan is unchanged. */
   slotOrder?: string[];
 }

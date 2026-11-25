@@ -145,8 +145,16 @@ export async function removeEntry(db: WorkoutDB, entryId: string): Promise<void>
     if (!entry) return;
     await db.planExercises.delete(entryId);
     await renumber(db, entry.planId);
+    // A group left with one member is no longer a group (W-19).
+    if (entry.groupKey) {
+      const rest = (await getEntries(db, entry.planId)).filter((e) => e.groupKey === entry.groupKey);
+      if (rest.length < 2) for (const e of rest) await db.planExercises.update(e.id, NO_GROUP);
+    }
   });
 }
+
+/** The fields that clear an entry's superset/circuit. */
+export const NO_GROUP = { groupKey: null, groupKind: undefined, groupRounds: undefined };
 
 /** Move an entry one place up (-1) or down (+1). No-op at either end. */
 export async function moveEntry(db: WorkoutDB, entryId: string, direction: -1 | 1): Promise<void> {
@@ -155,17 +163,32 @@ export async function moveEntry(db: WorkoutDB, entryId: string, direction: -1 | 
     if (!entry) return;
     const entries = await getEntries(db, entry.planId);
     const i = entries.findIndex((e) => e.id === entryId);
-    const j = i + direction;
-    if (j < 0 || j >= entries.length) return;
-    await db.planExercises.update(entries[i].id, { order: entries[j].order });
-    await db.planExercises.update(entries[j].id, { order: entries[i].order });
+    if (entry.groupKey) {
+      // A member moves only within its group.
+      const j = i + direction;
+      if (j < 0 || j >= entries.length || entries[j].groupKey !== entry.groupKey) return;
+      [entries[i], entries[j]] = [entries[j], entries[i]];
+    } else {
+      // An ungrouped entry jumps over a whole neighbouring group.
+      let j = i + direction;
+      if (j < 0 || j >= entries.length) return;
+      const key = entries[j].groupKey;
+      if (key) while (j + direction >= 0 && j + direction < entries.length && entries[j + direction].groupKey === key) j += direction;
+      const [moved] = entries.splice(i, 1);
+      entries.splice(j, 0, moved);
+    }
+    for (let n = 0; n < entries.length; n++) {
+      if (entries[n].order !== n) await db.planExercises.update(entries[n].id, { order: n });
+    }
   });
 }
 
 export async function updateTargets(db: WorkoutDB, entryId: string, targets: Targets): Promise<void> {
   const t = checkTargets(targets);
+  // A member of a superset/circuit does every round, so its sets follow the rounds (W-19).
+  const entry = await db.planExercises.get(entryId);
   await db.planExercises.update(entryId, {
-    targetSets: t.targetSets,
+    targetSets: entry?.groupKey && entry.groupRounds ? entry.groupRounds : t.targetSets,
     repMin: t.repMin,
     repMax: t.repMax,
     note: t.note ?? '',
