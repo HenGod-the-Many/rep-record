@@ -436,10 +436,13 @@ function ExerciseCard(props: {
     return setRow(n, change(partsOf(n)[0]));
   };
 
-  /** Save new numbers for part i of a row: straight to the database if logged, else into the draft. */
-  const setRow = (n: number, part: SetPart, i = 0) => {
+  /**
+   * Save new numbers for a row: straight to the database if logged, else into the draft.
+   * With a part index only that part of a weight-changed set changes; without one the set becomes this one part.
+   */
+  const setRow = (n: number, part: SetPart, i?: number) => {
     const log = byNumber.get(n);
-    if (log) return run(() => updateSetParts(db, log.id, log.parts.length > 1 ? log.parts.map((p, j) => (j === i ? part : p)) : [part]));
+    if (log) return run(() => updateSetParts(db, log.id, i === undefined ? [part] : log.parts.map((p, j) => (j === i ? part : p))));
     drafts.current.set(draftKey(n), part);
     rerender((x) => x + 1);
     return Promise.resolve(true);
