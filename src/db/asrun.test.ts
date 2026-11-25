@@ -3,8 +3,8 @@ import type { PlanExercise, SetLog } from './db';
 import { exportData, readBackup, restoreBackup } from './backup';
 import { getEntries } from './plans';
 import { finishSession, logSet, moveSlot, orderedEntries, slotDone, startOrResume } from './logging';
-import { foldSummary } from './fold';
-import { exerciseId, freshDb, planId } from '../test/helpers';
+import { foldedByDefault, foldSummary } from './fold';
+import { freshDb, planId } from '../test/helpers';
 
 async function pushWorkout() {
   const db = await freshDb();
@@ -119,13 +119,18 @@ describe('folding finished exercises (R-05.12)', () => {
   });
 });
 
-describe('the Rep change button is gone (R-05.9)', () => {
-  it('a set logged earlier with a rep change still reads correctly', async () => {
-    const { db, sessionId, entries } = await pushWorkout();
-    const bench = await exerciseId(db, 'Bench press');
-    // A rep change only ever wrote different reps into the set's parts.
-    const id = await logSet(db, { sessionId, exerciseId: bench, planExerciseId: entries[0].id, setNumber: 1, parts: [{ weightLb: 135, reps: 6, seconds: null }] });
-    const set = (await db.setLogs.get(id))!;
-    expect(foldSummary('Bench press', 'weight', [set], 'lb')).toBe('Bench press · 1 set · best 135 lb × 6');
+describe('when a finished exercise folds by itself (R-05.12)', () => {
+  const none = new Set<string>();
+  it('an unfinished exercise never folds', () => {
+    expect(foldedByDefault('a', false, new Set(['a']), 'b')).toBe(false);
+  });
+  it('finished when the screen opened: folded', () => {
+    expect(foldedByDefault('a', true, new Set(['a']), null)).toBe(true);
+  });
+  it('just finished, last set still being rated: open', () => {
+    expect(foldedByDefault('a', true, none, 'a')).toBe(false);
+  });
+  it('finished, then a set is logged in another exercise: folded, even unrated or logged out of order', () => {
+    expect(foldedByDefault('a', true, none, 'b')).toBe(true);
   });
 });

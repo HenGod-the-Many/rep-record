@@ -20,6 +20,19 @@ function partText(p: SetPart, kind: ExerciseKind, unit: Unit): string {
 }
 
 /**
+ * Whether a slot is folded when you haven't tapped it open or shut (W-17).
+ * A finished exercise folds when the screen opens on it finished, or as soon
+ * as a set is logged in another exercise. Rating its last set also folds it
+ * (the screen does that). It doesn't fold the instant its last set is logged,
+ * so the one-tap difficulty picker for that set stays in view (R-05.6).
+ */
+export function foldedByDefault(slotId: string, done: boolean, doneAtOpen: Set<string>, newestLogSlotId: string | null): boolean {
+  if (!done) return false;
+  if (doneAtOpen.has(slotId)) return true;
+  return newestLogSlotId !== null && newestLogSlotId !== slotId;
+}
+
+/**
  * The one line a finished exercise folds to (W-17):
  * "Bench press · 3 sets · best 185 lb × 8". A set with a mid-set weight
  * change counts its best part.

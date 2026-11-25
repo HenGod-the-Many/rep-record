@@ -49,7 +49,7 @@ export interface SlotControls {
   moveDown?: () => void;
   /** Present when the card can fold (every target set logged): tapping the title folds it. */
   onFold?: () => void;
-  /** Called when the card has just been finished (last set rated, activity saved), to fold it. */
+  /** Called when a set of a finished exercise is rated, to fold it. */
   onComplete?: () => void;
 }
 

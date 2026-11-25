@@ -31,7 +31,7 @@ import { WorkoutNote } from './Journal';
 import { WarmupCard } from './Warmups';
 import { ActivityCard } from './ActivityCard';
 import { attempt, CardTitle, ErrorText, Header, MoveButtons, type SlotControls } from './common';
-import { foldSummary } from '../db/fold';
+import { foldedByDefault, foldSummary } from '../db/fold';
 
 const EMPTY: SetPart = { weightLb: null, reps: null, seconds: null };
 
@@ -101,8 +101,12 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
     .filter((s): s is NonNullable<typeof s> => s !== null);
   // Exercises already done when the screen opens start folded (W-17).
   if (!doneAtOpen.current) doneAtOpen.current = new Set(slots.filter((s) => s.done).map((s) => s.entry.id));
-  const isFolded = (slotId: string) => folded[slotId] ?? doneAtOpen.current!.has(slotId);
-  const move = (slotId: string, d: -1 | 1) => attempt(() => moveSlot(db, session.id, entries, slotId, d), setError);
+  const newest = logs.reduce<SetLog | null>((a, l) => (!a || l.loggedAt > a.loggedAt ? l : a), null);
+  const newestSlot = newest?.planExerciseId ?? null;
+  const isFolded = (slotId: string, done: boolean) => folded[slotId] ?? foldedByDefault(slotId, done, doneAtOpen.current!, newestSlot);
+  // Moves count only the cards on screen, so ▲/▼ never swap with a hidden slot.
+  const visible = slots.map((s) => s.entry);
+  const move = (slotId: string, d: -1 | 1) => attempt(() => moveSlot(db, session.id, visible, slotId, d), setError);
   const setFold = (slotId: string, value: boolean) => setFolded((f) => ({ ...f, [slotId]: value }));
 
   return (
@@ -123,7 +127,7 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
       {entries.length === 0 && <p className="banner">This plan has no exercises.</p>}
       {slots.map(({ entry, exId, ex, own, done }, i) => {
         const id = entry.id;
-        if (done && isFolded(id)) {
+        if (isFolded(id, done)) {
           return (
             <button key={`${id}:${exId}`} className="card folded-card" aria-expanded={false} onClick={() => setFold(id, false)}>
               <span className="done-tick" aria-hidden="true">✓</span>
@@ -448,9 +452,10 @@ function ExerciseCard(props: {
                   onPick={async (d) => {
                     if (!(await run(() => setDifficulty(db, logged.id, d)))) return;
                     setRating(null);
-                    // Rating the set that finished the exercise folds it (W-17). Folding waits
-                    // for the rating so the picker isn't hidden the moment the last set is logged.
-                    if (n === maxLogged && slotDone(entry, logs, kind)) controls?.onComplete?.();
+                    // Rating a set of a finished exercise folds it (W-17). It doesn't fold the moment
+                    // the last set is logged, so this picker stays in view; logging a set in another
+                    // exercise folds it too (foldedByDefault).
+                    if (slotDone(entry, logs, kind)) controls?.onComplete?.();
                   }}
                 />
               )}
@@ -661,14 +666,14 @@ function ChangePanel(props: {
       </>
     );
   } else {
-    const failed = mode.kind === 'failed';
-    const hi = failed ? Math.max(entry.repMax, total) : entry.repMax + 3;
-    const lo = failed ? Math.max(1, hi - 9) : Math.max(1, entry.repMin - 3);
-    const apply = (reps: number) => props.onApply(setTotalReps(parts, reps), failed);
+    // Failed: how many reps were reached before failing.
+    const hi = Math.max(entry.repMax, total);
+    const lo = Math.max(1, hi - 9);
+    const apply = (reps: number) => props.onApply(setTotalReps(parts, reps), true);
     body = (
       <>
         <div className="change-title">
-          Set {mode.setNumber}: {failed ? 'how many reps before failing?' : 'how many reps did you do?'}
+          Set {mode.setNumber}: how many reps before failing?
         </div>
         <div className="chips">
           {Array.from({ length: hi - lo + 1 }, (_, i) => lo + i).map((r) => (

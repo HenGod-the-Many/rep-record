@@ -49,9 +49,8 @@ export function ActivityCard(props: { session: Session; entry: PlanExercise; exe
 
   const step = (value: string, by: number, min: number) => String(round1(Math.max(min, (Number(value.replace(',', '.')) || 0) + by)));
 
-  const save = async () => {
-    const first = !log;
-    const ok = await attempt(
+  const save = () =>
+    attempt(
       () =>
         logActivity(db, {
           sessionId: session.id,
@@ -69,9 +68,6 @@ export function ActivityCard(props: { session: Session; entry: PlanExercise; exe
         }),
       setError,
     );
-    // Logging an activity for the first time finishes it, so it folds (W-17).
-    if (ok && first) controls?.onComplete?.();
-  };
 
   const lastLine = last
     ? `last: ${formatDuration(last.parts[0]?.seconds ?? 0)}${last.distanceMi ? ` · ${formatDistance(last.distanceMi, unit)}` : ''}${last.difficulty ? ` · effort ${last.difficulty}/10` : ''}`
