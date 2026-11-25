@@ -360,7 +360,7 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .folder-head .row-main { font-weight: 700; }
 .folder-icon { color: var(--muted); }
 .folder.open > .list, .folder.open > p, .folder.open > .inline-form, .folder.open > .error { margin-left: 14px; margin-right: 14px; }
-.folder-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 14px 12px; }
-.folder-actions .btn-secondary, .folder-actions .btn-danger { min-height: 44px; padding: 0 12px; }
-.folder-actions .icon-btn { width: 44px; height: 44px; background: var(--surface-2); color: var(--text); }
+.folder-actions { display: flex; gap: 6px; padding: 8px 14px 12px; }
+.folder-actions .btn-secondary, .folder-actions .btn-danger { flex: 1 1 auto; min-height: 44px; padding: 0 6px; font-size: 0.85rem; }
+.folder-actions .icon-btn { flex: 0 0 44px; width: 44px; height: 44px; background: var(--surface-2); color: var(--text); }
 .folder-actions .icon-btn:disabled { opacity: 0.35; }
