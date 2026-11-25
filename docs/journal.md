@@ -24,6 +24,11 @@ Newest first.
   Taylor's; steps 2–4 wait for them.
 - Lesson: the artifact tool only attaches files from folders the session may
   read, not the scratchpad; the shared notes folder worked.
+- Same evening: release 3 was released as v0.8.0 (#36 dev → main, tag
+  v0.8.0), so the "not released" line in the handoff entry below is out of
+  date. Taylor answered the appearance question: light and dark, following
+  the phone (recorded in the UI brief). The app has no light theme yet, so
+  the audit measured dark only; the design system must pass in both.
 
 ## 2026-11-25: release 3 built; UI review next (handoff)
 

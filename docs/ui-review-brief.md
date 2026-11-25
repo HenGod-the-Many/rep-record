@@ -37,8 +37,11 @@ Steps 2–4 wait for Taylor after the audit.
   name for "a sequence of workouts repeated over a set period". The audit
   should propose names and a navigation structure (for example fewer tabs,
   with the library things grouped) as options, not decide them.
-- Not answered yet: dark only, follow the phone's light/dark setting, or both;
-  restyle only or also rework flows (the navigation answer suggests flows too).
+- **Appearance (2026-11-25):** "I'm good with light and dark mode." Support
+  both, following the phone's light/dark setting. Every colour in the design
+  system must pass WCAG AA contrast in both modes.
+- Not answered yet: restyle only or also rework flows (the navigation answer
+  suggests flows too).
 
 ## Limits
 
