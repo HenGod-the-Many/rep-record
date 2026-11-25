@@ -222,7 +222,7 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   position: absolute; inset: 2px 0; border-radius: 12px; border: 2px dashed var(--accent);
   background: rgba(17, 20, 24, 0.82); color: var(--accent); font-weight: 700; font-size: 1.1rem;
 }
-.change-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 4px; }
+.change-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 4px; }
 .change-buttons button { min-height: 44px; padding: 0 4px; font-size: 0.85rem; }
 .change-buttons button.active { border-color: var(--accent); color: var(--accent); }
 .add-set { margin-top: 8px; }
