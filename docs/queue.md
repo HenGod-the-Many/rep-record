@@ -38,7 +38,7 @@ block, and the Awaiting owner list. Requirement status lives in
 | 15 | W-16 | Warm-up routines attached to plans, checked off before a workout | R-14.1, R-14.2 | [W-16](specs/W-16-warmups.md) | W-06 | no | Awaiting owner | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 16 | W-17 | Logging as it really happened: as-run order, fold finished exercises, remove Rep change | R-05.9 (changed), R-05.11, R-05.12 | [W-17](specs/W-17-logging-as-run.md) | W-06 | no | Awaiting owner | Added 2026-11-24 from Taylor's first workout; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
 | 17 | W-18 | Plan folders, duplicate a folder, Warm-ups easier to find | R-02.5, R-02.6 | [W-18](specs/W-18-plan-folders.md) | W-04 | no | Awaiting owner | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
-| 18 | W-19 | Supersets and circuits in plans, workouts and warm-ups | KF-15, R-15.1–R-15.4 | [W-19](specs/W-19-supersets-circuits.md) | W-17 | no | Ready | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; needs a decision record |
+| 18 | W-19 | Supersets and circuits in plans, workouts and warm-ups | KF-15, R-15.1–R-15.4 | [W-19](specs/W-19-supersets-circuits.md) | W-17 | no | In progress | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; needs a decision record; started 2026-11-24 |
 
 ## Awaiting owner
 
