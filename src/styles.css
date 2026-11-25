@@ -364,3 +364,25 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .folder-actions .btn-secondary, .folder-actions .btn-danger { flex: 1 1 auto; min-height: 44px; padding: 0 6px; font-size: 0.85rem; }
 .folder-actions .icon-btn { flex: 0 0 44px; width: 44px; height: 44px; background: var(--surface-2); color: var(--text); }
 .folder-actions .icon-btn:disabled { opacity: 0.35; }
+
+/* Supersets and circuits (W-19) */
+.ex-head[hidden] { display: none; }
+.group-head { margin-bottom: 4px; }
+.round-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 6px; }
+.round-chips button { min-width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 700; }
+.round-chips button.done { color: var(--accent); }
+.round-chips button.active { border-color: var(--accent); background: var(--accent); color: var(--accent-text); }
+.round-title { font-weight: 700; margin: 2px 0 2px; }
+.group-member { border-top: 1px solid var(--border); padding-top: 6px; margin-top: 6px; }
+.member-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.member-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-weight: 600; }
+.member-name .row-sub { font-weight: 400; }
+.member-label { background: var(--surface-2); border-radius: 6px; padding: 1px 6px; font-size: 0.8rem; color: var(--muted); }
+.member-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0; }
+.member-menu button { min-height: 44px; }
+.group-member .set-list { margin: 4px 0; }
+.next-round { margin-top: 8px; }
+.member-name { display: flex; flex-direction: column; gap: 0; font-weight: 600; min-width: 0; }
+.member-name .row-sub { font-weight: 400; font-size: 0.8rem; }
+.group-member .set-line { align-items: center; }
+.more-btn { background: var(--surface-2); color: var(--text); }

@@ -12,6 +12,7 @@ import {
   logSet,
   moveSlot,
   orderedEntries,
+  workoutUnits,
   prefillFor,
   reopenSession,
   slotDone,
@@ -32,6 +33,8 @@ import { WarmupCard } from './Warmups';
 import { ActivityCard } from './ActivityCard';
 import { attempt, CardTitle, ErrorText, Header, MoveButtons, type SlotControls } from './common';
 import { foldedByDefault, foldSummary } from '../db/fold';
+import { groupLabel } from '../db/groups';
+import type { GroupKind } from '../db/db';
 
 const EMPTY: SetPart = { weightLb: null, reps: null, seconds: null };
 
@@ -99,11 +102,18 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
       return { entry, exId, ex, own, done: slotDone(entry, own, ex.kind) };
     })
     .filter((s): s is NonNullable<typeof s> => s !== null);
+  // Blocks on screen: one exercise, or a whole superset/circuit (W-19). A block's key is its first slot's id.
+  const slotById = new Map(slots.map((s) => [s.entry.id, s]));
+  const units = workoutUnits(slots.map((s) => s.entry)).map((members) => {
+    const ms = members.map((e) => slotById.get(e.id)!);
+    return { key: ms[0].entry.id, members: ms, done: ms.every((m) => m.done), group: ms.length > 1 };
+  });
+  const unitOf = new Map(units.flatMap((u) => u.members.map((m) => [m.entry.id, u.key] as const)));
   // Exercises already done when the screen opens start folded (W-17).
-  if (!doneAtOpen.current) doneAtOpen.current = new Set(slots.filter((s) => s.done).map((s) => s.entry.id));
+  if (!doneAtOpen.current) doneAtOpen.current = new Set(units.filter((u) => u.done).map((u) => u.key));
   const newest = logs.reduce<SetLog | null>((a, l) => (!a || l.loggedAt > a.loggedAt ? l : a), null);
-  const newestSlot = newest?.planExerciseId ?? null;
-  const isFolded = (slotId: string, done: boolean) => folded[slotId] ?? foldedByDefault(slotId, done, doneAtOpen.current!, newestSlot);
+  const newestUnit = newest?.planExerciseId ? (unitOf.get(newest.planExerciseId) ?? null) : null;
+  const isFolded = (key: string, done: boolean) => folded[key] ?? foldedByDefault(key, done, doneAtOpen.current!, newestUnit);
   // Moves count only the cards on screen, so ▲/▼ never swap with a hidden slot.
   const visible = slots.map((s) => s.entry);
   const move = (slotId: string, d: -1 | 1) => attempt(() => moveSlot(db, session.id, visible, slotId, d), setError);
@@ -125,8 +135,32 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
       )}
       <WarmupCard session={session} />
       {entries.length === 0 && <p className="banner">This plan has no exercises.</p>}
-      {slots.map(({ entry, exId, ex, own, done }, i) => {
-        const id = entry.id;
+      {units.map((u, i) => {
+        const id = u.key;
+        if (u.group) {
+          const groupControls: SlotControls = {
+            moveUp: i > 0 ? () => move(id, -1) : undefined,
+            moveDown: i < units.length - 1 ? () => move(id, 1) : undefined,
+            onFold: u.done ? () => setFold(id, true) : undefined,
+            onComplete: () => setFold(id, true),
+          };
+          const first = u.members[0].entry;
+          const kind = first.groupKind ?? 'superset';
+          const rounds = first.groupRounds ?? first.targetSets;
+          if (isFolded(id, u.done)) {
+            return (
+              <button key={id} className="card folded-card" aria-expanded={false} onClick={() => setFold(id, false)}>
+                <span className="done-tick" aria-hidden="true">✓</span>
+                <span className="folded-text">{`${groupLabel(kind)} · ${rounds} rounds · ${u.members.map((m) => m.ex.name).join(', ')}`}</span>
+                <span className="fold-mark" aria-hidden="true">▾</span>
+              </button>
+            );
+          }
+          return (
+            <GroupCard key={id} session={session} members={u.members} kind={kind} rounds={rounds} logs={logs} exercises={exercises} unit={unit} controls={groupControls} />
+          );
+        }
+        const { entry, exId, ex, own, done } = u.members[0];
         if (isFolded(id, done)) {
           return (
             <button key={`${id}:${exId}`} className="card folded-card" aria-expanded={false} onClick={() => setFold(id, false)}>
@@ -138,7 +172,7 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
         }
         const controls: SlotControls = {
           moveUp: i > 0 ? () => move(id, -1) : undefined,
-          moveDown: i < slots.length - 1 ? () => move(id, 1) : undefined,
+          moveDown: i < units.length - 1 ? () => move(id, 1) : undefined,
           onFold: done ? () => setFold(id, true) : undefined,
           onComplete: () => setFold(id, true),
         };
@@ -206,6 +240,112 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
 }
 
 // Rep change was removed in W-17: reps are changed by editing the set.
+type Slot = { entry: PlanExercise; exId: string; ex: Exercise; own: SetLog[]; done: boolean };
+
+/**
+ * A superset or circuit in a workout (W-19): one card that goes round by round.
+ * Each round lists every exercise with its pre-filled set, one tap each. Sets
+ * are saved under their own exercise with the round as the set number. A
+ * finished round stays in view so its sets can be rated with one tap; rating
+ * its last set, or "Next round", moves on.
+ */
+function GroupCard(props: {
+  session: Session;
+  members: Slot[];
+  kind: GroupKind;
+  rounds: number;
+  logs: SetLog[];
+  exercises: Map<string, Exercise>;
+  unit: Unit;
+  controls: SlotControls;
+}) {
+  const { session, members, kind, rounds, logs, unit, controls } = props;
+  const [picked, setPicked] = useState<number | null>(null);
+  const [advanced, setAdvanced] = useState<Set<number>>(new Set());
+  const setOf = (m: Slot, r: number) => m.own.find((l) => l.setNumber === r);
+  const complete = (r: number) => members.every((m) => (m.ex.kind === 'activity' ? m.own.length > 0 : !!setOf(m, r)));
+  const rated = (r: number) => members.every((m) => m.ex.kind === 'activity' || (setOf(m, r)?.difficulty ?? null) !== null);
+  let auto = rounds;
+  for (let r = 1; r <= rounds; r++) {
+    if (!(complete(r) && (rated(r) || advanced.has(r)))) {
+      auto = r;
+      break;
+    }
+  }
+  const shown = picked ?? auto;
+  // The member whose set was logged last keeps its rating picker open; the others show their chip.
+  const latest = members.reduce<{ id: string | null; at: number }>(
+    (a, m) => m.own.reduce((b, l) => (l.loggedAt > b.at ? { id: m.entry.id, at: l.loggedAt } : b), a),
+    { id: null, at: -1 },
+  ).id;
+
+  // Called after a rating is saved; the logs in props may not show it yet, so this round counts as rated
+  // once every other member's set in it is rated.
+  const onRated = (r: number, by: string) => {
+    const othersRated = members.every((m) => m.entry.id === by || m.ex.kind === 'activity' || (setOf(m, r)?.difficulty ?? null) !== null);
+    if (!complete(r) || !othersRated) return;
+    if (r === rounds) controls.onComplete?.();
+    else {
+      setAdvanced((a) => new Set(a).add(r));
+      if (picked === r) setPicked(null);
+    }
+  };
+
+  return (
+    <section className="card exercise-card group-card">
+      <div className="group-head">
+        <CardTitle name={`${groupLabel(kind)} · ${rounds} rounds`} controls={controls} />
+        <div className="row-sub">{members.map((m, i) => `A${i + 1} ${m.ex.name}`).join(' · ')}</div>
+      </div>
+      <div className="round-chips" role="group" aria-label="Rounds">
+        {Array.from({ length: rounds }, (_, i) => i + 1).map((r) => (
+          <button
+            key={r}
+            className={`${r === shown ? 'active' : ''}${complete(r) ? ' done' : ''}`}
+            aria-pressed={r === shown}
+            aria-label={`Round ${r}${complete(r) ? ', done' : ''}`}
+            onClick={() => setPicked(r === auto ? null : r)}
+          >
+            {complete(r) ? '✓' : r}
+          </button>
+        ))}
+      </div>
+      <div className="round-title">
+        Round {shown} of {rounds}
+      </div>
+      {members.map((m, i) =>
+        m.ex.kind === 'activity' ? (
+          <ActivityCard key={`${m.entry.id}:${m.exId}`} session={session} entry={m.entry} exercise={m.ex} original={props.exercises.get(m.entry.exerciseId)} log={m.own[0]} unit={unit} />
+        ) : (
+          <ExerciseCard
+            key={`${m.entry.id}:${m.exId}`}
+            session={session}
+            entry={m.entry}
+            exercise={m.ex}
+            original={props.exercises.get(m.entry.exerciseId)}
+            logs={m.own}
+            earlier={logs.filter((l) => l.planExerciseId === m.entry.id && l.exerciseId !== m.exId)}
+            exercises={props.exercises}
+            unit={unit}
+            onlySet={shown}
+            label={`A${i + 1}`}
+            onRated={(n) => onRated(n, m.entry.id)}
+            ratingOpen={latest === null || latest === m.entry.id}
+          />
+        ),
+      )}
+      {complete(shown) && shown < rounds && shown === auto && (
+        <button className="btn-primary block next-round" onClick={() => setAdvanced((a) => new Set(a).add(shown))}>
+          Next round →
+        </button>
+      )}
+      <div className="card-foot">
+        <MoveButtons name={groupLabel(kind)} controls={controls} />
+      </div>
+    </section>
+  );
+}
+
 type Mode =
   | { kind: 'weight' | 'failed'; step: 'set' }
   | { kind: 'weight'; step: 'rep'; setNumber: number }
@@ -224,8 +364,18 @@ function ExerciseCard(props: {
   exercises: Map<string, Exercise>;
   unit: Unit;
   controls?: SlotControls;
+  /** Inside a superset/circuit (W-19): show only this set (the round), with a compact header. */
+  onlySet?: number;
+  /** Shown before the name inside a group, e.g. "A1". */
+  label?: string;
+  /** Called after a set's difficulty is picked (a group uses it to move to the next round). */
+  onRated?: (setNumber: number) => void;
+  /** In a group only the latest-logged exercise keeps its rating picker open, so the next set stays in view. */
+  ratingOpen?: boolean;
 }) {
-  const { session, entry, exercise, logs, unit, controls } = props;
+  const { session, entry, exercise, logs, unit, controls, onlySet } = props;
+  const compact = onlySet !== undefined;
+  const [menu, setMenu] = useState(false);
   const kind = exercise.kind;
   const prefill = useLiveQuery(() => prefillFor(db, session.id, exercise.id, 30), [session.id, exercise.id]);
   const kept = cardDraftsFor(`${session.id}:${entry.id}:${exercise.id}`);
@@ -237,7 +387,13 @@ function ExerciseCard(props: {
     setExtraState(n);
   };
   const [mode, setMode] = useState<Mode | null>(null);
-  const [rating, setRating] = useState<number | null>(null);
+  const [rating, setRatingState] = useState<number | null>(null);
+  /** The picker opened by itself after logging (not by a tap); in a group only the latest of those stays open. */
+  const [ratingAuto, setRatingAuto] = useState(false);
+  const setRating = (n: number | null, auto = false) => {
+    setRatingState(n);
+    setRatingAuto(auto);
+  };
   const [swapping, setSwapping] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -290,7 +446,7 @@ function ExerciseCard(props: {
     );
     if (ok) {
       drafts.current.delete(draftKey(n));
-      setRating(n);
+      setRating(n, true);
     }
     return ok;
   };
@@ -319,8 +475,8 @@ function ExerciseCard(props: {
   const repHint = entry.repMin === entry.repMax ? `${entry.repMin}` : `${entry.repMin}–${entry.repMax}`;
 
   return (
-    <section className="card exercise-card">
-      <div className="ex-head">
+    <section className={compact ? 'group-member' : 'card exercise-card'}>
+      <div className="ex-head" hidden={compact || undefined}>
         <div>
           <CardTitle name={exercise.name} controls={controls}>
             {swapped && <span className="tag">swapped for this workout</span>}
@@ -363,7 +519,7 @@ function ExerciseCard(props: {
       )}
 
       <ol className="set-list">
-        {Array.from({ length: rows }, (_, i) => i + 1).map((n) => {
+        {(compact ? [onlySet!] : Array.from({ length: rows }, (_, i) => i + 1)).map((n) => {
           const logged = byNumber.get(n);
           const parts = partsOf(n);
           const part = parts[0];
@@ -371,11 +527,32 @@ function ExerciseCard(props: {
           return (
             <li key={n} className={`set-row${logged ? ' logged' : ''}`}>
               <div className="set-line">
-                <span className="set-num" aria-label={`Set ${n}`}>{n}</span>
-                <span className="set-last">
-                  {lastLine(n)}
-                  {logged?.toFailure && <span className="tag fail-tag">to failure</span>}
-                </span>
+                {compact ? (
+                  <>
+                    {props.label && <span className="member-label">{props.label}</span>}
+                    <span className="set-last member-name">
+                      <span>
+                        {exercise.name}
+                        {swapped && <span className="tag">swapped</span>}
+                      </span>
+                      <span className="row-sub">
+                        {lastLine(n) || formatTargets(entry, kind, unit)}
+                        {logged?.toFailure && <span className="tag fail-tag">to failure</span>}
+                      </span>
+                    </span>
+                    <button className="icon-btn more-btn" aria-expanded={menu} aria-label={`More for ${exercise.name}`} onClick={() => setMenu(!menu)}>
+                      ⋯
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="set-num" aria-label={`Set ${n}`}>{n}</span>
+                    <span className="set-last">
+                      {lastLine(n)}
+                      {logged?.toFailure && <span className="tag fail-tag">to failure</span>}
+                    </span>
+                  </>
+                )}
                 {logged && (
                   <button className="icon-btn" aria-label={`Delete set ${n}`} onClick={() => run(() => deleteSet(db, logged.id))}>
                     🗑
@@ -446,12 +623,13 @@ function ExerciseCard(props: {
               {logged && (
                 <Difficulty
                   value={logged.difficulty}
-                  open={rating === n}
+                  open={rating === n && (!ratingAuto || props.ratingOpen !== false)}
                   setNumber={n}
                   onOpen={() => setRating(n)}
                   onPick={async (d) => {
                     if (!(await run(() => setDifficulty(db, logged.id, d)))) return;
                     setRating(null);
+                    props.onRated?.(n);
                     // Rating a set of a finished exercise folds it (W-17). It doesn't fold the moment
                     // the last set is logged, so this picker stays in view; logging a set in another
                     // exercise folds it too (foldedByDefault).
@@ -481,6 +659,32 @@ function ExerciseCard(props: {
         })}
       </ol>
 
+      {compact && menu && (
+        <div className="member-menu">
+          <button className="btn-secondary" onClick={() => navigate(`/exercises/${exercise.id}/history?back=${encodeURIComponent(`/log/${session.id}`)}`)}>History</button>
+          <button className="btn-secondary" aria-expanded={swapping} onClick={() => setSwapping(!swapping)}>Swap</button>
+          {kind !== 'timed' && (
+            <>
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  const parts = partsOf(onlySet!);
+                  if (totalReps(parts) < 1) return setError('Enter the reps for that set first.');
+                  if (kind === 'weight' && parts[0].weightLb === null) return setError('Enter the weight for that set first.');
+                  setError(null);
+                  setMenu(false);
+                  setMode({ kind: 'weight', step: 'rep', setNumber: onlySet! });
+                }}
+              >
+                Weight change
+              </button>
+              <button className="btn-secondary" onClick={() => { setError(null); setMenu(false); setMode({ kind: 'failed', step: 'value', setNumber: onlySet! }); }}>
+                Failed
+              </button>
+            </>
+          )}
+        </div>
+      )}
       {mode && mode.step !== 'set' && (
         <ChangePanel
           key={`${mode.kind}:${mode.step}:${mode.setNumber}`}
@@ -500,7 +704,7 @@ function ExerciseCard(props: {
         </div>
       )}
 
-      <div className="change-buttons">
+      {!compact && <div className="change-buttons">
         {kind !== 'timed' && (
           <>
             <button className={`btn-secondary${mode?.kind === 'weight' ? ' active' : ''}`} onClick={() => { setMode({ kind: 'weight', step: 'set' }); setError(null); }}>
@@ -511,13 +715,13 @@ function ExerciseCard(props: {
             </button>
           </>
         )}
-      </div>
-      <div className="card-foot">
+      </div>}
+      {!compact && <div className="card-foot">
         <MoveButtons name={exercise.name} controls={controls} />
         <button className="btn-secondary add-set" onClick={() => setExtra(extra + 1)}>
           + Set
         </button>
-      </div>
+      </div>}
       <ErrorText message={error} />
     </section>
   );
