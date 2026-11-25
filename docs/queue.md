@@ -36,13 +36,22 @@ block, and the Awaiting owner list. Requirement status lives in
 | 13 | W-13 | Spike: get Apple Health data into the app (Shortcut or Health export) | KF-12 (risk) | not yet | W-02 | yes | Not ready | Later; result only Taylor can observe |
 | 14 | W-15 | Activities: runs, rides, hikes, swims and custom; duration, distance, optional effort/HR/calories, estimated calories | R-13.1–R-13.5 | [W-15](specs/W-15-activities.md) | W-06, W-11 | no | Awaiting owner | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 15 | W-16 | Warm-up routines attached to plans, checked off before a workout | R-14.1, R-14.2 | [W-16](specs/W-16-warmups.md) | W-06 | no | Awaiting owner | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
-| 16 | W-17 | Logging as it really happened: as-run order, fold finished exercises, remove Rep change | R-05.9 (changed), R-05.11, R-05.12 | [W-17](specs/W-17-logging-as-run.md) | W-06 | no | Ready | Added 2026-11-24 from Taylor's first workout; release 3; spec approved by Taylor 2026-11-24 with defaults |
+| 16 | W-17 | Logging as it really happened: as-run order, fold finished exercises, remove Rep change | R-05.9 (changed), R-05.11, R-05.12 | [W-17](specs/W-17-logging-as-run.md) | W-06 | no | Awaiting owner | Added 2026-11-24 from Taylor's first workout; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
 | 17 | W-18 | Plan folders, duplicate a folder, Warm-ups easier to find | R-02.5, R-02.6 | [W-18](specs/W-18-plan-folders.md) | W-04 | no | Ready | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults |
 | 18 | W-19 | Supersets and circuits in plans, workouts and warm-ups | KF-15, R-15.1–R-15.4 | [W-19](specs/W-19-supersets-circuits.md) | W-17 | no | Ready | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; needs a decision record |
 
 ## Awaiting owner
 
 Newest first.
+
+### W-17: logging as it really happened
+
+- Delivered in: feature/w17-logging-as-run, pull request to `dev`
+- Result: each exercise card in a workout has ▲ ▼ to put it in the order you really did it (that workout only; the plan and later workouts keep the plan's order; the Today card lists it in that order). A finished exercise folds to one line ("Bench press · 4 sets · best 135 lb × 8"); tap it to open, tap its title to fold. Rep change is gone; Weight change and Failed fill the row.
+- Evidence: `npm run check` 231 tests (14 new; deliberate breaks fail them); screenshots in `docs/evidence/w17/`; acceptance-reviewer "accept after fixes", fixed, re-check "accept"; `/code-review` 5 findings, all fixed.
+- Not verified: on the iPhone.
+- Call made for you: a finished exercise folds when you rate one of its sets or log a set in another exercise, not the instant its last set is logged, so the one-tap rating stays in view. The last exercise of a workout stays open unless you rate it. Say if you want the instant fold.
+- To accept: the acceptance script in `docs/specs/W-17-logging-as-run.md`.
 
 ### W-15: activities
 

@@ -2,6 +2,23 @@
 
 Newest first.
 
+## 2026-11-24: release 3 specs approved; W-17 built
+
+- Taylor's first real workout went well. Requests became three specs (W-17
+  logging as-run, W-18 plan folders, W-19 supersets and circuits); Taylor
+  approved them with every default answer (#31).
+- W-17 built: as-run order (`Session.slotOrder`, no database version bump as
+  it isn't indexed), folding, Rep change removed. Reviewer round 1 "accept
+  after fixes": folding waited for a rating. Fixed by folding also when a set
+  is logged in another exercise; folding at the instant the last set is logged
+  would hide the one-tap rating (R-05.6), recorded as "As built" in the spec
+  for Taylor to overrule. Re-check: accept.
+- Lesson: `git checkout -- <file>` to undo a deliberate test break also threw
+  away uncommitted work in that file (restored from a copy). Commit before
+  breaking things on purpose, then undo with `git restore`.
+- Reviewer note left alone: deleting a set in the next exercise can reopen
+  the folded card above (harmless).
+
 ## 2026-11-22: release 2 finished (W-12, W-15) and released as v0.7.0
 
 - Taylor: "Finish release 2 and push it."

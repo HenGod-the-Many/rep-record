@@ -6,7 +6,7 @@ import { db } from '../db/db';
 import { formatDate, timeLabel } from '../db/dates';
 import { getEntries } from '../db/plans';
 import { createDateWorkout, makeDateCopy } from '../db/reschedule';
-import { findSession, reopenSession, startOrResume } from '../db/logging';
+import { findSession, orderedEntries, reopenSession, startOrResume } from '../db/logging';
 import {
   addWorkoutToDate,
   clearDate,
@@ -137,7 +137,8 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
             />
           </div>
           <ul className="mini-list">
-            {w.entries.map((e) => {
+            {/* A started workout lists its exercises in the order they were done (W-17). */}
+            {(w.session ? orderedEntries(w.session, w.entries) : w.entries).map((e) => {
               const ex = exercises.get(e.exerciseId);
               return (
                 <li key={e.id}>

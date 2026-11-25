@@ -76,3 +76,5 @@ is 7 taps. Answer 1 below is the alternative.
    jump while you're looking at them.
 2. Fold automatically when the target sets are done, or only when you tap?
    Default: **automatically**.
+
+**As built (2026-11-24, after review):** a finished exercise folds when a set of it is rated or when a set is logged in another exercise, whichever comes first, and when the workout is opened with it already finished. It does not fold the instant its last set is logged, because that would hide the one-tap difficulty picker for that set (R-05.6). Taylor can ask for the instant fold instead.

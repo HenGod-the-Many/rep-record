@@ -5,7 +5,7 @@ import { caloriesFor, distanceUnit, formatDistance, formatDuration, fromShownDis
 import type { Unit } from '../db/units';
 import { formatTargets } from '../format';
 import { navigate } from '../router';
-import { attempt, ErrorText } from './common';
+import { attempt, CardTitle, ErrorText, MoveButtons, type SlotControls } from './common';
 import { SwapPanel } from './LogWorkout';
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
@@ -16,8 +16,8 @@ const round1 = (v: number) => Math.round(v * 10) / 10;
  * and under "More": effort 1–10, average heart rate and calories. Pre-filled from
  * the last time this activity was logged, in any plan.
  */
-export function ActivityCard(props: { session: Session; entry: PlanExercise; exercise: Exercise; original: Exercise | undefined; log: SetLog | undefined; unit: Unit }) {
-  const { session, entry, exercise, log, unit } = props;
+export function ActivityCard(props: { session: Session; entry: PlanExercise; exercise: Exercise; original: Exercise | undefined; log: SetLog | undefined; unit: Unit; controls?: SlotControls }) {
+  const { session, entry, exercise, log, unit, controls } = props;
   const last = useLiveQuery(async () => (await lastActivity(db, session.id, exercise.id)) ?? null, [session.id, exercise.id]);
   const calories = useLiveQuery(async () => (log ? caloriesFor(db, log, exercise, session.date) : null), [log, exercise, session.date]);
 
@@ -77,7 +77,7 @@ export function ActivityCard(props: { session: Session; entry: PlanExercise; exe
     <section className="card exercise-card activity-card">
       <div className="ex-head">
         <div>
-          <div className="card-title">{exercise.name}</div>
+          <CardTitle name={exercise.name} controls={controls} />
           <div className="row-sub">{formatTargets(entry, 'activity', unit)}</div>
         </div>
         <button className="btn-secondary small-btn" onClick={() => setSwapping(!swapping)} aria-expanded={swapping}>Swap</button>
@@ -149,6 +149,11 @@ export function ActivityCard(props: { session: Session; entry: PlanExercise; exe
             </label>
           </div>
           <p className="small-print muted">Leave calories empty to see an estimate from your bodyweight. Tap ✓ to save changes.</p>
+        </div>
+      )}
+      {controls && (
+        <div className="card-foot">
+          <MoveButtons name={exercise.name} controls={controls} />
         </div>
       )}
       <ErrorText message={error} />
