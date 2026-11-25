@@ -18,6 +18,9 @@ Newest first.
   breaking things on purpose, then undo with `git restore`.
 - Reviewer note left alone: deleting a set in the next exercise can reopen
   the folded card above (harmless).
+- W-18 built: `folders` table (database version 7), Folder choice on a plan,
+  duplicate folder, Warm-ups row on Plans. Reviewer: accept, no must-fix.
+  Code-review's 3 small findings were fixed after the review (tests added).
 
 ## 2026-11-22: release 2 finished (W-12, W-15) and released as v0.7.0
 

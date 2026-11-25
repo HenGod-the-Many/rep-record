@@ -77,8 +77,8 @@ written only by Taylor.
 | R-02.2 On first launch the five plans from the brief exist with the brief's exercises, order and targets | must | Test | W-01 | verified | seed.test.ts "five plans match the brief"; reviewer: met |
 | R-02.3 Duplicating a plan makes an independent copy: editing the copy does not change the original | must | Test | W-04 | verified | plans.test.ts duplicating; reviewer: met |
 | R-02.4 A plan entry can list alternate exercises (seeded for the brief's "A or B" entries) | should | Test | W-04 | verified | plans.test.ts alternates; evidence 6; reviewer: met |
-| R-02.5 Plans can be grouped into folders (one level); a plan is in one folder at most, and deleting a folder keeps its plans | should | Test, Demonstration | W-18 | planned | |
-| R-02.6 A folder can be duplicated, making independent copies of every plan in it | should | Test | W-18 | planned | |
+| R-02.5 Plans can be grouped into folders (one level); a plan is in one folder at most, and deleting a folder keeps its plans | should | Test, Demonstration | W-18 | verified | folders.test.ts (create, rename, reorder, move, delete keeps plans, upgrade, backup); evidence w18/01, 02; reviewer: met |
+| R-02.6 A folder can be duplicated, making independent copies of every plan in it | should | Test | W-18 | verified | folders.test.ts duplicating a folder (targets, alternates, warm-up, independence); evidence w18/03; reviewer: met |
 
 ## KF-03 Build a split that repeats on a cycle and schedule it on my calendar
 

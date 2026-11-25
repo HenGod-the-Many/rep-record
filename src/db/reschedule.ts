@@ -286,7 +286,9 @@ export async function saveCopyAsNewPlan(db: WorkoutDB, copyId: string, name: str
   if (!n) throw new ValidationError('Give the new plan a name.');
   const copy = await db.plans.get(copyId);
   if (!copy?.hidden) throw new ValidationError('This workout is not a one-date copy.');
-  await db.plans.update(copyId, { name: n, hidden: false, sourcePlanId: null });
+  // The new plan goes in the same folder as the plan it was edited from (W-18).
+  const source = copy.sourcePlanId ? await db.plans.get(copy.sourcePlanId) : undefined;
+  await db.plans.update(copyId, { name: n, hidden: false, sourcePlanId: null, folderId: source?.folderId ?? null });
 }
 
 /**
