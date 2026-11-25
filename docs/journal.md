@@ -21,6 +21,16 @@ Newest first.
 - W-18 built: `folders` table (database version 7), Folder choice on a plan,
   duplicate folder, Warm-ups row on Plans. Reviewer: accept, no must-fix.
   Code-review's 3 small findings were fixed after the review (tests added).
+- W-19 built: groups on plan entries (decision 0007, no database change),
+  round-by-round group card, plan editor, warm-up rounds. The riskiest
+  assumption was tested first: a 3-exercise round fits at 390 x 844 after
+  merging each exercise's name into its set line; only the latest rating
+  picker stays open so the next set stays in view. Bug found in the browser
+  and fixed: a tapped rating chip in a group didn't open. Reviewer: accept,
+  noting "Next round" sat below the fold; moved next to the round title.
+  Code-review's 5 findings fixed after the review.
+- Lesson: long heredocs in Bash broke again (quote parsing); scripts written
+  to the scratchpad with the Write tool worked every time.
 
 ## 2026-11-22: release 2 finished (W-12, W-15) and released as v0.7.0
 

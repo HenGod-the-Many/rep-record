@@ -163,7 +163,9 @@ function PlanEntries(props: { planId: string; entries: PlanExercise[]; exercises
   const canMove = (i: number, d: -1 | 1) => {
     const j = i + d;
     if (j < 0 || j >= entries.length) return false;
-    return !entries[i].groupKey || entries[j].groupKey === entries[i].groupKey;
+    const key = entries[i].groupKey;
+    const grouped = !!key && entries.some((e, k) => k !== i && e.groupKey === key);
+    return !grouped || entries[j].groupKey === key;
   };
 
   const row = (entry: PlanExercise, label?: string) => {

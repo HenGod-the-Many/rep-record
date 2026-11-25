@@ -105,6 +105,14 @@ describe('groups in plans (R-15.1)', () => {
     expect(ids(await getEntries(db, id)).slice(0, 4)).toEqual([a.id, c.id, b.id, d.id]);
   });
 
+  it('an entry left with a stale group key and no group-mates still moves (code-review fix)', async () => {
+    const { db, id, entries } = await push();
+    await db.planExercises.update(entries[1].id, { groupKey: 'stale', groupKind: 'superset', groupRounds: 3 });
+    await moveEntry(db, entries[1].id, -1);
+    expect(ids(await getEntries(db, id)).slice(0, 2)).toEqual([entries[1].id, entries[0].id]);
+    expect(planBlocks(await getEntries(db, id))[0].type).toBe('single');
+  });
+
   it('duplicating the plan copies its group, and the copy is independent', async () => {
     const { db, id, entries } = await push();
     const key = await makeGroup(db, id, [entries[0].id, entries[1].id], 'superset', 3);

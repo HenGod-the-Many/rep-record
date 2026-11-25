@@ -398,3 +398,5 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .entry.selected .row { border-color: var(--accent); }
 .pick-box { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--accent); margin-right: 6px; font-size: 0.8rem; color: var(--accent-text); }
 .pick-box.on { background: var(--accent); }
+.round-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 44px; }
+.round-title .next-round { min-height: 44px; padding: 0 14px; margin: 0; }

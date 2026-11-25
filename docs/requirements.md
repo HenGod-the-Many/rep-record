@@ -216,10 +216,10 @@ Added 2026-11-24 from Taylor's first real workout; approved with the W-19 spec.
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-15.1 Two or more exercises in a row in a plan can be grouped as a superset or circuit with a number of rounds; each keeps its own targets, and duplicating the plan copies the group | should | Test, Demonstration | W-19 | planned | |
-| R-15.2 A group is logged round by round, one tap per set; every set is saved under its own exercise, so history, PRs and pre-fill are unchanged | should | Test, Demonstration | W-19 | planned | |
-| R-15.3 A warm-up routine can have rounds, and each move is checked off in each round | should | Test | W-19 | planned | |
-| R-15.4 Circuit exercises (kettlebell, calisthenics) come from the library, and timed moves log seconds | should | Test | W-19 | planned | |
+| R-15.1 Two or more exercises in a row in a plan can be grouped as a superset or circuit with a number of rounds; each keeps its own targets, and duplicating the plan copies the group | should | Test, Demonstration | W-19 | verified | groups.test.ts (make, refuse, change, ungroup, take out, reorder, duplicate); evidence w19/06, 07; reviewer: met |
+| R-15.2 A group is logged round by round, one tap per set; every set is saved under its own exercise, so history, PRs and pre-fill are unchanged | should | Test, Demonstration | W-19 | verified | groups.test.ts logging rounds and pre-fill; evidence w19/01-05, 11; reviewer: met (Weight change, Failed and Swap inside a group read in code, not shown) |
+| R-15.3 A warm-up routine can have rounds, and each move is checked off in each round | should | Test | W-19 | verified | groups.test.ts warm-up rounds; evidence w19/08, 09; reviewer: met |
+| R-15.4 Circuit exercises (kettlebell, calisthenics) come from the library, and timed moves log seconds | should | Test | W-19 | verified | groups.test.ts kettlebell + plank circuit; evidence w19/10; reviewer: met |
 
 Totals: 31 must, 36 should, 2 could, 1 later.
 

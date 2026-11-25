@@ -163,7 +163,9 @@ export async function moveEntry(db: WorkoutDB, entryId: string, direction: -1 | 
     if (!entry) return;
     const entries = await getEntries(db, entry.planId);
     const i = entries.findIndex((e) => e.id === entryId);
-    if (entry.groupKey) {
+    // Grouped only if another entry shares the key (a lone stale key moves freely).
+    const grouped = !!entry.groupKey && entries.some((e) => e.id !== entryId && e.groupKey === entry.groupKey);
+    if (grouped) {
       // A member moves only within its group.
       const j = i + direction;
       if (j < 0 || j >= entries.length || entries[j].groupKey !== entry.groupKey) return;

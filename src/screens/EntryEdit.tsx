@@ -96,6 +96,11 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
         </div>
       ) : (
       <>
+      {data?.entry.groupKey ? (
+        <p className="small-print muted">
+          Sets follow the {data.entry.groupKind === 'circuit' ? 'circuit' : 'superset'}'s rounds ({data.entry.groupRounds}). Change rounds from the plan's Edit.
+        </p>
+      ) : (
       <div className="field">
         <span>Target sets</span>
         <div className="stepper">
@@ -104,6 +109,7 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
           <button aria-label="More sets" onClick={() => setSets((s) => Math.min(20, s + 1))}>+</button>
         </div>
       </div>
+      )}
       <div className="field-pair">
         <label className="field">
           <span>Min {unit}</span>

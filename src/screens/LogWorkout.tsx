@@ -265,9 +265,12 @@ function GroupCard(props: {
   const setOf = (m: Slot, r: number) => m.own.find((l) => l.setNumber === r);
   const complete = (r: number) => members.every((m) => (m.ex.kind === 'activity' ? m.own.length > 0 : !!setOf(m, r)));
   const rated = (r: number) => members.every((m) => m.ex.kind === 'activity' || (setOf(m, r)?.difficulty ?? null) !== null);
+  // A round counts as passed once a later round has a set logged, so coming back to the
+  // screen (which forgets "Next round") never jumps back to an earlier round.
+  const laterLogged = (r: number) => members.some((m) => m.own.some((l) => l.setNumber > r));
   let auto = rounds;
   for (let r = 1; r <= rounds; r++) {
-    if (!(complete(r) && (rated(r) || advanced.has(r)))) {
+    if (!(complete(r) && (rated(r) || advanced.has(r) || laterLogged(r)))) {
       auto = r;
       break;
     }
@@ -311,7 +314,14 @@ function GroupCard(props: {
         ))}
       </div>
       <div className="round-title">
-        Round {shown} of {rounds}
+        <span>
+          Round {shown} of {rounds}
+        </span>
+        {complete(shown) && shown < rounds && shown === auto && (
+          <button className="btn-primary next-round" onClick={() => setAdvanced((a) => new Set(a).add(shown))}>
+            Next round →
+          </button>
+        )}
       </div>
       {members.map((m, i) =>
         m.ex.kind === 'activity' ? (
@@ -333,11 +343,6 @@ function GroupCard(props: {
             ratingOpen={latest === null || latest === m.entry.id}
           />
         ),
-      )}
-      {complete(shown) && shown < rounds && shown === auto && (
-        <button className="btn-primary block next-round" onClick={() => setAdvanced((a) => new Set(a).add(shown))}>
-          Next round →
-        </button>
       )}
       <div className="card-foot">
         <MoveButtons name={groupLabel(kind)} controls={controls} />
@@ -519,7 +524,11 @@ function ExerciseCard(props: {
       )}
 
       <ol className="set-list">
-        {(compact ? [onlySet!] : Array.from({ length: rows }, (_, i) => i + 1)).map((n) => {
+        {(compact
+          ? // The round's set, plus any set logged beyond the rounds (e.g. before grouping) so it isn't hidden.
+            [onlySet!, ...logs.map((l) => l.setNumber).filter((x) => x > entry.targetSets && x !== onlySet).sort((a, b) => a - b)]
+          : Array.from({ length: rows }, (_, i) => i + 1)
+        ).map((n) => {
           const logged = byNumber.get(n);
           const parts = partsOf(n);
           const part = parts[0];

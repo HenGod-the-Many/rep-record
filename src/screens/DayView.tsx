@@ -142,7 +142,10 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
               const ex = exercises.get(e.exerciseId);
               return (
                 <li key={e.id}>
-                  <span>{ex?.name ?? 'Unknown exercise'}</span>
+                  <span>
+                    {ex?.name ?? 'Unknown exercise'}
+                    {e.groupKey && <span className="tag">{e.groupKind === 'circuit' ? 'circuit' : 'superset'}</span>}
+                  </span>
                   <span className="muted">{ex ? formatTargets(e, ex.kind, data.unit) : ''}</span>
                 </li>
               );
