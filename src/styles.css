@@ -352,3 +352,15 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .folded-card { width: 100%; min-height: 48px; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 8px; padding: 8px 14px; color: var(--text); font: inherit; text-align: left; }
 .folded-card .done-tick { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--accent-text); display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; }
 .folded-card .folded-text { overflow-wrap: anywhere; }
+
+/* Plan folders (W-18) */
+.warmups-row { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 14px; }
+.folder { padding: 0; overflow: hidden; }
+.folder-head { width: 100%; min-height: 52px; display: grid; grid-template-columns: 20px 1fr auto; align-items: center; gap: 8px; padding: 8px 14px; background: none; border: 0; color: var(--text); font: inherit; text-align: left; }
+.folder-head .row-main { font-weight: 700; }
+.folder-icon { color: var(--muted); }
+.folder.open > .list, .folder.open > p, .folder.open > .inline-form, .folder.open > .error { margin-left: 14px; margin-right: 14px; }
+.folder-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 14px 12px; }
+.folder-actions .btn-secondary, .folder-actions .btn-danger { min-height: 44px; padding: 0 12px; }
+.folder-actions .icon-btn { width: 44px; height: 44px; background: var(--surface-2); color: var(--text); }
+.folder-actions .icon-btn:disabled { opacity: 0.35; }

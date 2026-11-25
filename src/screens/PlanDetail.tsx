@@ -9,6 +9,26 @@ import { attempt, ErrorText, Header } from './common';
 import { getUnit } from '../db/units';
 import { PlanWarmupChoice } from './Warmups';
 import { formatTargets } from '../format';
+import { listFolders, setPlanFolder } from '../db/folders';
+
+/** Which folder the plan is in (W-18). */
+function PlanFolderChoice({ planId, value }: { planId: string; value: string | null | undefined }) {
+  const folders = useLiveQuery(() => listFolders(db), []);
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <label className="field">
+      <span>Folder</span>
+      <select className="select" value={value ?? ''} onChange={(e) => attempt(() => setPlanFolder(db, planId, e.target.value || null), setError)}>
+        <option value="">Not in a folder</option>
+        {(folders ?? []).map((f) => (
+          <option key={f.id} value={f.id}>{f.name}</option>
+        ))}
+      </select>
+      {folders && folders.length === 0 && <span className="small-print muted">Make folders at the bottom of the Plans tab.</span>}
+      <ErrorText message={error} />
+    </label>
+  );
+}
 
 export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string }) {
   const data = useLiveQuery(async () => {
@@ -93,6 +113,7 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
         </div>
       )}
       <PlanWarmupChoice planId={plan.id} value={plan.warmupId} />
+      {!plan.hidden && <PlanFolderChoice planId={plan.id} value={plan.folderId} />}
       {renaming === null ? (
         plan.hidden ? (
           <button className="btn-secondary block" onClick={() => setRenaming(plan.name)}>Rename</button>

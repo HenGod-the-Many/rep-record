@@ -32,6 +32,15 @@ export interface Plan {
   sourcePlanId?: string | null;
   /** The warm-up routine shown before this plan's workout (W-16), if any. */
   warmupId?: string | null;
+  /** The folder this plan is in (W-18); missing or null = not in a folder. */
+  folderId?: string | null;
+}
+
+/** A folder of plans (W-18). One level: folders don't hold folders. */
+export interface Folder {
+  id: string;
+  name: string;
+  order: number;
 }
 
 /** One move of a warm-up: reps or a time, never both. Plain text, not a library exercise. */
@@ -226,6 +235,7 @@ export class WorkoutDB extends Dexie {
   metricEntries!: EntityTable<MetricEntry, 'id'>;
   photos!: EntityTable<Photo, 'id'>;
   warmups!: EntityTable<Warmup, 'id'>;
+  folders!: EntityTable<Folder, 'id'>;
 
   /**
    * `upTo` declares only the versions up to that number. It exists so a backup
@@ -333,6 +343,9 @@ export class WorkoutDB extends Dexie {
           if (!names.has(a.name.toLowerCase())) await t.add({ ...a, archived: false });
         }
       });
+    if (upTo < 7) return;
+    // v7: plan folders (W-18). Plan.folderId is optional, so existing plans start outside any folder.
+    this.version(7).stores({ folders: 'id, order' });
   }
 }
 
