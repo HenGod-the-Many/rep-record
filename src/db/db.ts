@@ -32,6 +32,15 @@ export interface Plan {
   sourcePlanId?: string | null;
   /** The warm-up routine shown before this plan's workout (W-16), if any. */
   warmupId?: string | null;
+  /** The folder this plan is in (W-18); missing or null = not in a folder. */
+  folderId?: string | null;
+}
+
+/** A folder of plans (W-18). One level: folders don't hold folders. */
+export interface Folder {
+  id: string;
+  name: string;
+  order: number;
 }
 
 /** One move of a warm-up: reps or a time, never both. Plain text, not a library exercise. */
@@ -46,6 +55,8 @@ export interface Warmup {
   id: string;
   name: string;
   moves: WarmupMove[];
+  /** Times through the moves (W-19). Missing = 1. */
+  rounds?: number;
 }
 
 /** One exercise slot in a plan. For timed exercises repMin/repMax are seconds. */
@@ -63,7 +74,16 @@ export interface PlanExercise {
   targetDistanceMi?: number | null;
   /** Free text shown with the targets, e.g. "per leg". */
   note: string;
+  /**
+   * Superset or circuit (W-19, decision 0007): members share a key, are
+   * consecutive, and each does every round (targetSets = groupRounds).
+   */
+  groupKey?: string | null;
+  groupKind?: GroupKind;
+  groupRounds?: number;
 }
+
+export type GroupKind = 'superset' | 'circuit';
 
 export interface Split {
   id: string;
@@ -125,8 +145,12 @@ export interface Session {
   swaps: Record<string, string>;
   /** The warm-up's moves as they were when the workout started, so later edits don't change it (W-16). */
   warmupMoves?: WarmupMove[];
-  /** Positions in warmupMoves that were checked off. */
+  /** Positions checked off; round r's move i is r * warmupMoves.length + i. */
   warmupChecked?: number[];
+  /** Rounds of the warm-up as it was at the start (W-19). Missing = 1. */
+  warmupRounds?: number;
+  /** Plan slot ids in the order they were done (W-17). Missing or empty = the plan's order. The plan is unchanged. */
+  slotOrder?: string[];
 }
 
 /** One stretch of a set at one weight. A set whose weight changed mid-set has several. */
@@ -224,6 +248,7 @@ export class WorkoutDB extends Dexie {
   metricEntries!: EntityTable<MetricEntry, 'id'>;
   photos!: EntityTable<Photo, 'id'>;
   warmups!: EntityTable<Warmup, 'id'>;
+  folders!: EntityTable<Folder, 'id'>;
 
   /**
    * `upTo` declares only the versions up to that number. It exists so a backup
@@ -331,6 +356,9 @@ export class WorkoutDB extends Dexie {
           if (!names.has(a.name.toLowerCase())) await t.add({ ...a, archived: false });
         }
       });
+    if (upTo < 7) return;
+    // v7: plan folders (W-18). Plan.folderId is optional, so existing plans start outside any folder.
+    this.version(7).stores({ folders: 'id, order' });
   }
 }
 

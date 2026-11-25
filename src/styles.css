@@ -222,7 +222,7 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   position: absolute; inset: 2px 0; border-radius: 12px; border: 2px dashed var(--accent);
   background: rgba(17, 20, 24, 0.82); color: var(--accent); font-weight: 700; font-size: 1.1rem;
 }
-.change-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 4px; }
+.change-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 4px; }
 .change-buttons button { min-height: 44px; padding: 0 4px; font-size: 0.85rem; }
 .change-buttons button.active { border-color: var(--accent); color: var(--accent); }
 .add-set { margin-top: 8px; }
@@ -340,3 +340,63 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .activity-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .activity-head p { margin: 0; flex: 1; }
 .more-toggle { min-width: 44px; }
+
+/* Logging as it really happened (W-17) */
+.card-foot { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.card-foot .add-set { flex: 1; min-height: 44px; }
+.move-btns { display: flex; gap: 6px; }
+.move-btns .icon-btn { width: 44px; height: 44px; background: var(--surface-2); color: var(--text); font-size: 0.95rem; }
+.move-btns .icon-btn:disabled { opacity: 0.35; }
+.fold-head { background: none; border: 0; padding: 0; color: inherit; font: inherit; font-weight: 700; text-align: left; min-height: 44px; cursor: pointer; }
+.fold-mark { color: var(--muted); font-size: 0.9rem; }
+.folded-card { width: 100%; min-height: 48px; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 8px; padding: 8px 14px; color: var(--text); font: inherit; text-align: left; }
+.folded-card .done-tick { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--accent-text); display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; }
+.folded-card .folded-text { overflow-wrap: anywhere; }
+
+/* Plan folders (W-18) */
+.warmups-row { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 14px; }
+.folder { padding: 0; overflow: hidden; }
+.folder-head { width: 100%; min-height: 52px; display: grid; grid-template-columns: 20px 1fr auto; align-items: center; gap: 8px; padding: 8px 14px; background: none; border: 0; color: var(--text); font: inherit; text-align: left; }
+.folder-head .row-main { font-weight: 700; }
+.folder-icon { color: var(--muted); }
+.folder.open > .list, .folder.open > p, .folder.open > .inline-form, .folder.open > .error { margin-left: 14px; margin-right: 14px; }
+.folder-actions { display: flex; gap: 6px; padding: 8px 14px 12px; }
+.folder-actions .btn-secondary, .folder-actions .btn-danger { flex: 1 1 auto; min-height: 44px; padding: 0 6px; font-size: 0.85rem; }
+.folder-actions .icon-btn { flex: 0 0 44px; width: 44px; height: 44px; background: var(--surface-2); color: var(--text); }
+.folder-actions .icon-btn:disabled { opacity: 0.35; }
+
+/* Supersets and circuits (W-19) */
+.ex-head[hidden] { display: none; }
+.group-head { margin-bottom: 4px; }
+.round-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 6px; }
+.round-chips button { min-width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 700; }
+.round-chips button.done { color: var(--accent); }
+.round-chips button.active { border-color: var(--accent); background: var(--accent); color: var(--accent-text); }
+.round-title { font-weight: 700; margin: 2px 0 2px; }
+.group-member { border-top: 1px solid var(--border); padding-top: 6px; margin-top: 6px; }
+.member-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.member-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; font-weight: 600; }
+.member-name .row-sub { font-weight: 400; }
+.member-label { background: var(--surface-2); border-radius: 6px; padding: 1px 6px; font-size: 0.8rem; color: var(--muted); }
+.member-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0; }
+.member-menu button { min-height: 44px; }
+.group-member .set-list { margin: 4px 0; }
+.next-round { margin-top: 8px; }
+.member-name { display: flex; flex-direction: column; gap: 0; font-weight: 600; min-width: 0; }
+.member-name .row-sub { font-weight: 400; font-size: 0.8rem; }
+.group-member .set-line { align-items: center; }
+.more-btn { background: var(--surface-2); color: var(--text); }
+.group-block { border: 1px solid var(--accent); border-radius: 14px; padding: 8px; margin: 0 0 8px; list-style: none; }
+.group-block-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 4px 6px; }
+.group-block > .list { margin: 0; }
+.group-editor { display: grid; gap: 8px; margin: 0 0 8px; }
+.group-maker { display: grid; gap: 8px; }
+.rounds-stepper { display: flex; align-items: center; gap: 10px; }
+.rounds-stepper button { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 1.2rem; }
+.rounds-stepper button:disabled { opacity: 0.35; }
+.rounds-value { min-width: 2ch; text-align: center; font-weight: 700; font-size: 1.1rem; }
+.entry.selected .row { border-color: var(--accent); }
+.pick-box { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--accent); margin-right: 6px; font-size: 0.8rem; color: var(--accent-text); }
+.pick-box.on { background: var(--accent); }
+.round-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 44px; }
+.round-title .next-round { min-height: 44px; padding: 0 14px; margin: 0; }

@@ -2,6 +2,49 @@
 
 Newest first.
 
+## 2026-11-25: release 3 built; UI review next (handoff)
+
+- Release 3 is on dev, not released: W-17 (#32), W-18 (#33), W-19 (#34),
+  all Awaiting owner. `npm run check`: 257 tests pass. Latest tag is still
+  v0.7.0, so the live site doesn't have release 3 yet.
+- Taylor wants to try release 3 on the phone; that needs release v0.8.0
+  (dev to main), which waits for Taylor's OK. Asked twice, not answered yet.
+- Taylor finds the UI bland and clunky, especially navigation. Agreed a
+  four-step plan; step 1 (read-only audit) approved. Brief and Taylor's
+  answers (home screen with stats, metrics and the day's plan; rename
+  "split") in [ui-review-brief.md](ui-review-brief.md).
+- Context was ~420k tokens; Taylor asked for this handoff.
+
+## 2026-11-24: release 3 specs approved; W-17 built
+
+- Taylor's first real workout went well. Requests became three specs (W-17
+  logging as-run, W-18 plan folders, W-19 supersets and circuits); Taylor
+  approved them with every default answer (#31).
+- W-17 built: as-run order (`Session.slotOrder`, no database version bump as
+  it isn't indexed), folding, Rep change removed. Reviewer round 1 "accept
+  after fixes": folding waited for a rating. Fixed by folding also when a set
+  is logged in another exercise; folding at the instant the last set is logged
+  would hide the one-tap rating (R-05.6), recorded as "As built" in the spec
+  for Taylor to overrule. Re-check: accept.
+- Lesson: `git checkout -- <file>` to undo a deliberate test break also threw
+  away uncommitted work in that file (restored from a copy). Commit before
+  breaking things on purpose, then undo with `git restore`.
+- Reviewer note left alone: deleting a set in the next exercise can reopen
+  the folded card above (harmless).
+- W-18 built: `folders` table (database version 7), Folder choice on a plan,
+  duplicate folder, Warm-ups row on Plans. Reviewer: accept, no must-fix.
+  Code-review's 3 small findings were fixed after the review (tests added).
+- W-19 built: groups on plan entries (decision 0007, no database change),
+  round-by-round group card, plan editor, warm-up rounds. The riskiest
+  assumption was tested first: a 3-exercise round fits at 390 x 844 after
+  merging each exercise's name into its set line; only the latest rating
+  picker stays open so the next set stays in view. Bug found in the browser
+  and fixed: a tapped rating chip in a group didn't open. Reviewer: accept,
+  noting "Next round" sat below the fold; moved next to the round title.
+  Code-review's 5 findings fixed after the review.
+- Lesson: long heredocs in Bash broke again (quote parsing); scripts written
+  to the scratchpad with the Write tool worked every time.
+
 ## 2026-11-22: release 2 finished (W-12, W-15) and released as v0.7.0
 
 - Taylor: "Finish release 2 and push it."

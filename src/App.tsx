@@ -47,7 +47,7 @@ function Screen() {
   if (section === 'body' && id === 'photos') return <PhotosPage />;
   if (section === 'body' && id) return <MetricPage metricId={id} />;
   if (section === 'body') return <BodyList />;
-  if (section === 'log' && id) return <LogWorkout sessionId={id} />;
+  if (section === 'log' && id) return <LogWorkout key={id} sessionId={id} />;
   return <DayView key={today} date={today} isToday />;
 }
 

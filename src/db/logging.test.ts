@@ -161,7 +161,7 @@ describe('logging sets', () => {
   });
 });
 
-describe('weight change, rep change and failed', () => {
+describe('weight change and failed (setTotalReps also backs Failed)', () => {
   it('weight change at rep 6 of 8, 135 -> 115: 5 × 135 then 3 × 115', () => {
     expect(changeWeightAt([W(135, 8)], 6, 115)).toEqual([W(135, 5), W(115, 3)]);
   });

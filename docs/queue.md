@@ -36,10 +36,40 @@ block, and the Awaiting owner list. Requirement status lives in
 | 13 | W-13 | Spike: get Apple Health data into the app (Shortcut or Health export) | KF-12 (risk) | not yet | W-02 | yes | Not ready | Later; result only Taylor can observe |
 | 14 | W-15 | Activities: runs, rides, hikes, swims and custom; duration, distance, optional effort/HR/calories, estimated calories | R-13.1–R-13.5 | [W-15](specs/W-15-activities.md) | W-06, W-11 | no | Awaiting owner | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 15 | W-16 | Warm-up routines attached to plans, checked off before a workout | R-14.1, R-14.2 | [W-16](specs/W-16-warmups.md) | W-06 | no | Awaiting owner | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
+| 16 | W-17 | Logging as it really happened: as-run order, fold finished exercises, remove Rep change | R-05.9 (changed), R-05.11, R-05.12 | [W-17](specs/W-17-logging-as-run.md) | W-06 | no | Awaiting owner | Added 2026-11-24 from Taylor's first workout; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
+| 17 | W-18 | Plan folders, duplicate a folder, Warm-ups easier to find | R-02.5, R-02.6 | [W-18](specs/W-18-plan-folders.md) | W-04 | no | Awaiting owner | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
+| 18 | W-19 | Supersets and circuits in plans, workouts and warm-ups | KF-15, R-15.1–R-15.4 | [W-19](specs/W-19-supersets-circuits.md) | W-17 | no | Awaiting owner | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; decision 0007; built 2026-11-24 |
 
 ## Awaiting owner
 
 Newest first.
+
+### W-19: supersets and circuits
+
+- Delivered in: feature/w19-supersets-circuits, pull request to `dev`
+- Result: in a plan, "Superset / circuit…" groups exercises in a row with a number of rounds (Edit changes kind or rounds, takes one out, or ungroups). In a workout the group is one card that goes round by round, one tap per set, pre-filled; each exercise's ⋯ has History, Swap, Weight change and Failed. Rating a round's last set or "Next round →" moves on. Warm-ups can have rounds. Sets are saved under their own exercise, so history and PRs work as before.
+- Evidence: `npm run check` 257 tests (14 new; deliberate breaks fail them); 11 phone-size screenshots in `docs/evidence/w19/`; acceptance-reviewer "accept"; `/code-review` 5 findings, all fixed after the review.
+- Not verified: on the iPhone; Weight change, Failed and Swap inside a group by tap (read in code).
+- Calls made for you: the group lives on the plan's exercises, not a new table ([decision 0007](decisions/0007-groups-on-plan-entries.md)). Only the latest exercise's rating picker stays open in a group, so the next set stays on screen; rating an earlier one takes a tap on its chip first. A whole group is moved in a plan by moving the exercises around it.
+- To accept: the acceptance script in `docs/specs/W-19-supersets-circuits.md`. Check especially a 3-exercise superset on the phone: three taps, then "Next round →" without scrolling.
+
+### W-18: plan folders
+
+- Delivered in: feature/w18-plan-folders, pull request to `dev`
+- Result: the Plans tab has a Warm-ups row at the top, then your folders (tap to open; Rename, Duplicate, Delete, ▲ ▼), then plans not in a folder. A plan's screen has a "Folder" choice. Duplicating a folder makes "<name> (copy)" with independent copies of its plans. Deleting a folder keeps its plans.
+- Evidence: `npm run check` 243 tests (13 new; deliberate breaks fail them); screenshots in `docs/evidence/w18/`; acceptance-reviewer "accept"; `/code-review` 3 findings, all fixed (after the review: a plan pointing at a missing folder still shows; open folders stay open after viewing a plan; "save as a new plan" keeps the folder).
+- Not verified: the delete-folder confirm dialog by tap (tests only); on the iPhone.
+- Calls made for you: copies are named "(copy)" like a duplicated plan; folder names must be unique.
+- To accept: the acceptance script in `docs/specs/W-18-plan-folders.md`.
+
+### W-17: logging as it really happened
+
+- Delivered in: feature/w17-logging-as-run, pull request to `dev`
+- Result: each exercise card in a workout has ▲ ▼ to put it in the order you really did it (that workout only; the plan and later workouts keep the plan's order; the Today card lists it in that order). A finished exercise folds to one line ("Bench press · 4 sets · best 135 lb × 8"); tap it to open, tap its title to fold. Rep change is gone; Weight change and Failed fill the row.
+- Evidence: `npm run check` 231 tests (14 new; deliberate breaks fail them); screenshots in `docs/evidence/w17/`; acceptance-reviewer "accept after fixes", fixed, re-check "accept"; `/code-review` 5 findings, all fixed.
+- Not verified: on the iPhone.
+- Call made for you: a finished exercise folds when you rate one of its sets or log a set in another exercise, not the instant its last set is logged, so the one-tap rating stays in view. The last exercise of a workout stays open unless you rate it. Say if you want the instant fold.
+- To accept: the acceptance script in `docs/specs/W-17-logging-as-run.md`.
 
 ### W-15: activities
 

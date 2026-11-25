@@ -238,6 +238,16 @@ describe("editing one date's workout", () => {
     expect(plan?.id).toBe(copy);
     expect((await resolveDate(db, MON)).workouts[0].planId).toBe(copy);
   });
+
+  it('"save as a new plan" puts it in the same folder as the plan it came from (W-18)', async () => {
+    const db = await setup();
+    const source = (await resolveDate(db, MON)).workouts[0].planId;
+    await db.folders.add({ id: 'f1', name: 'Block A', order: 0 });
+    await db.plans.update(source, { folderId: 'f1' });
+    const copy = await makeDateCopy(db, MON, 0);
+    await saveCopyAsNewPlan(db, copy, 'Monday special');
+    expect((await db.plans.get(copy))?.folderId).toBe('f1');
+  });
 });
 
 describe('code-review fixes', () => {

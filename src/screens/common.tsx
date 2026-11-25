@@ -41,3 +41,56 @@ export function ErrorText({ message }: { message: string | null }) {
     </p>
   ) : null;
 }
+
+/** What the logging screen hands each exercise card (W-17): move it in this workout, fold it. */
+export interface SlotControls {
+  /** Undefined when it can't move that way (first or last). */
+  moveUp?: () => void;
+  moveDown?: () => void;
+  /** Present when the card can fold (every target set logged): tapping the title folds it. */
+  onFold?: () => void;
+  /** Called when a set of a finished exercise is rated, to fold it. */
+  onComplete?: () => void;
+}
+
+/** ▲ ▼ for putting an exercise where it was really done. This workout only. */
+export function MoveButtons({ name, controls }: { name: string; controls?: SlotControls }) {
+  if (!controls) return null;
+  return (
+    <span className="move-btns">
+      <button className="icon-btn" aria-label={`Move ${name} up`} disabled={!controls.moveUp} onClick={controls.moveUp}>▲</button>
+      <button className="icon-btn" aria-label={`Move ${name} down`} disabled={!controls.moveDown} onClick={controls.moveDown}>▼</button>
+    </span>
+  );
+}
+
+/** The card's title; once the exercise is done, tapping it folds the card. */
+export function CardTitle({ name, controls, children }: { name: string; controls?: SlotControls; children?: ReactNode }) {
+  if (controls?.onFold) {
+    return (
+      <button className="card-title fold-head" aria-expanded={true} aria-label={`${name}: fold`} onClick={controls.onFold}>
+        {name}
+        {children}
+        <span className="fold-mark" aria-hidden="true">▴</span>
+      </button>
+    );
+  }
+  return (
+    <div className="card-title">
+      {name}
+      {children}
+    </div>
+  );
+}
+
+/** − n + for rounds (W-19). */
+export function RoundsStepper({ value, onChange, max = 20 }: { value: number; onChange: (n: number) => void; max?: number }) {
+  return (
+    <div className="rounds-stepper">
+      <span>Rounds</span>
+      <button aria-label="Fewer rounds" disabled={value <= 1} onClick={() => onChange(value - 1)}>−</button>
+      <span className="rounds-value" aria-live="polite">{value}</span>
+      <button aria-label="More rounds" disabled={value >= max} onClick={() => onChange(value + 1)}>+</button>
+    </div>
+  );
+}
