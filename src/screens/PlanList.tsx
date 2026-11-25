@@ -8,6 +8,9 @@ import { attempt, ErrorText, Header } from './common';
 
 type Counted = Plan & { count: number };
 
+/** Folders left open, kept while the app runs so coming back from a plan keeps them open. */
+const openFolders: Record<string, boolean> = {};
+
 export function PlanList() {
   const data = useLiveQuery(async () => {
     const [folders, entries, warmups] = await Promise.all([listFolders(db), db.planExercises.toArray(), db.warmups.count()]);
@@ -19,7 +22,13 @@ export function PlanList() {
   }, []);
   const [name, setName] = useState('');
   const [folderName, setFolderName] = useState('');
-  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [open, setOpenState] = useState<Record<string, boolean>>(() => ({ ...openFolders }));
+  const setOpen = (change: (o: Record<string, boolean>) => Record<string, boolean>) =>
+    setOpenState((o) => {
+      const next = change(o);
+      Object.assign(openFolders, next);
+      return next;
+    });
   const [error, setError] = useState<string | null>(null);
 
   const add = async () => {

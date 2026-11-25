@@ -20,11 +20,15 @@ export async function listFolders(db: WorkoutDB): Promise<Folder[]> {
   return db.folders.orderBy('order').toArray();
 }
 
-/** The user's plans in a folder (null = not in any folder), by name. One-date copies are never listed. */
+/**
+ * The user's plans in a folder (null = not in any folder), by name. One-date
+ * copies are never listed. A plan naming a folder that doesn't exist counts
+ * as not in a folder, so it can never drop out of sight.
+ */
 export async function plansInFolder(db: WorkoutDB, folderId: string | null): Promise<Plan[]> {
-  return (await db.plans.filter((p) => !p.hidden && (p.folderId ?? null) === folderId).toArray()).sort((a, b) =>
-    a.name.localeCompare(b.name),
-  );
+  const folders = new Set((await db.folders.toArray()).map((f) => f.id));
+  const where = (p: Plan) => (p.folderId && folders.has(p.folderId) ? p.folderId : null);
+  return (await db.plans.filter((p) => !p.hidden && where(p) === folderId).toArray()).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export async function createFolder(db: WorkoutDB, name: string): Promise<string> {

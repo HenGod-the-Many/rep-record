@@ -146,3 +146,12 @@ describe('saved data and backups', () => {
     expect((await plansInFolder(empty, a)).map((p) => p.name)).toEqual(['Push']);
   });
 });
+
+describe('review fixes', () => {
+  it('a plan naming a folder that no longer exists is listed as not in a folder', async () => {
+    const db = await freshDb();
+    const push = await planId(db, 'Push');
+    await db.plans.update(push, { folderId: 'gone' });
+    expect((await plansInFolder(db, null)).map((p) => p.id)).toContain(push);
+  });
+});

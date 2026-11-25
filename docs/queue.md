@@ -37,12 +37,21 @@ block, and the Awaiting owner list. Requirement status lives in
 | 14 | W-15 | Activities: runs, rides, hikes, swims and custom; duration, distance, optional effort/HR/calories, estimated calories | R-13.1–R-13.5 | [W-15](specs/W-15-activities.md) | W-06, W-11 | no | Awaiting owner | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 15 | W-16 | Warm-up routines attached to plans, checked off before a workout | R-14.1, R-14.2 | [W-16](specs/W-16-warmups.md) | W-06 | no | Awaiting owner | Added 2026-11-18; release 2. Spec approved 2026-11-20 by Claude on Taylor's say-so; answers in the spec |
 | 16 | W-17 | Logging as it really happened: as-run order, fold finished exercises, remove Rep change | R-05.9 (changed), R-05.11, R-05.12 | [W-17](specs/W-17-logging-as-run.md) | W-06 | no | Awaiting owner | Added 2026-11-24 from Taylor's first workout; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
-| 17 | W-18 | Plan folders, duplicate a folder, Warm-ups easier to find | R-02.5, R-02.6 | [W-18](specs/W-18-plan-folders.md) | W-04 | no | In progress | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; started 2026-11-24 |
+| 17 | W-18 | Plan folders, duplicate a folder, Warm-ups easier to find | R-02.5, R-02.6 | [W-18](specs/W-18-plan-folders.md) | W-04 | no | Awaiting owner | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
 | 18 | W-19 | Supersets and circuits in plans, workouts and warm-ups | KF-15, R-15.1–R-15.4 | [W-19](specs/W-19-supersets-circuits.md) | W-17 | no | Ready | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; needs a decision record |
 
 ## Awaiting owner
 
 Newest first.
+
+### W-18: plan folders
+
+- Delivered in: feature/w18-plan-folders, pull request to `dev`
+- Result: the Plans tab has a Warm-ups row at the top, then your folders (tap to open; Rename, Duplicate, Delete, ▲ ▼), then plans not in a folder. A plan's screen has a "Folder" choice. Duplicating a folder makes "<name> (copy)" with independent copies of its plans. Deleting a folder keeps its plans.
+- Evidence: `npm run check` 243 tests (13 new; deliberate breaks fail them); screenshots in `docs/evidence/w18/`; acceptance-reviewer "accept"; `/code-review` 3 findings, all fixed (after the review: a plan pointing at a missing folder still shows; open folders stay open after viewing a plan; "save as a new plan" keeps the folder).
+- Not verified: the delete-folder confirm dialog by tap (tests only); on the iPhone.
+- Calls made for you: copies are named "(copy)" like a duplicated plan; folder names must be unique.
+- To accept: the acceptance script in `docs/specs/W-18-plan-folders.md`.
 
 ### W-17: logging as it really happened
 
