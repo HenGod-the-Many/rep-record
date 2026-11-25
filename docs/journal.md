@@ -2,6 +2,29 @@
 
 Newest first.
 
+## 2026-11-25: UI audit (step 1 of the UI review)
+
+- Read-only audit of dev (6793e5f) at 390 × 844, published as an artifact:
+  [Rep Record UI audit](https://claude.ai/artifact/2PvXoTtXL2MpDM7hiS1tM3)
+  (private to Taylor). No app code changed. Seeded data through the app's own
+  functions in the dev server's browser storage only.
+- Finding: logging is fast (1 tap a set, +1 to rate); navigation is the
+  problem. Six text-only tabs, half for setup; no home screen; bodyweight is 4
+  taps, changing a plan's reps 6 taps plus a scroll, backup 2 taps, a scroll
+  and the share sheet. The look is one grey card style (cards 1.13 : 1 against
+  the page, edges 1.4–1.6 : 1).
+- Measured: text contrast passes (16.3 : 1 body, 7.4 : 1 grey); every button
+  is at least 44 × 44 pt. Fails: placeholders 3.06–3.55 : 1 (the set inputs'
+  target text among them), other-month calendar days 3.46 : 1, field and card
+  edges below 3 : 1, current tab not announced to VoiceOver, no focus ring on
+  buttons, no Dynamic Type, dark only.
+- Offered Taylor three navigation options (A four tabs with a Library, B three
+  tabs and a Start button, C five tabs), a home-screen wireframe, and names
+  for "split" (Program, Rotation, Cycle, Routine, Block). Decisions are
+  Taylor's; steps 2–4 wait for them.
+- Lesson: the artifact tool only attaches files from folders the session may
+  read, not the scratchpad; the shared notes folder worked.
+
 ## 2026-11-25: release 3 built; UI review next (handoff)
 
 - Release 3 is on dev, not released: W-17 (#32), W-18 (#33), W-19 (#34),
