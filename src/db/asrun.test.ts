@@ -53,11 +53,11 @@ describe('as-run order (R-05.11)', () => {
 
   it('a slot added to the plan after a move goes at the end; a removed slot drops out', async () => {
     const { db, sessionId, entries } = await pushWorkout();
-    await moveSlot(db, sessionId, entries, entries[1].id, -1);
+    await moveSlot(db, sessionId, entries, entries[2].id, -1); // order: 0, 2, 1, 3...
     const s = (await db.sessions.get(sessionId))!;
     const added = { ...entries[0], id: 'new-slot', order: 99 };
     const changed = [...entries.slice(1), added]; // first slot removed, one added
-    expect(ids(orderedEntries(s, changed))).toEqual([entries[1].id, ...ids(entries.slice(2)), 'new-slot']);
+    expect(ids(orderedEntries(s, changed))).toEqual([entries[2].id, entries[1].id, ...ids(entries.slice(3)), 'new-slot']);
   });
 
   it('the order survives a backup and restore', async () => {
