@@ -101,6 +101,13 @@ export async function setPlanWarmup(db: WorkoutDB, planId: string, warmupId: str
   });
 }
 
+/** How many times through the moves (W-19): a whole number from 1 to 10. */
+export async function setWarmupRounds(db: WorkoutDB, id: string, rounds: number): Promise<void> {
+  if (!Number.isInteger(rounds) || rounds < 1 || rounds > 10) throw new ValidationError('Rounds must be a whole number from 1 to 10.');
+  if (!(await db.warmups.get(id))) throw new ValidationError('That warm-up no longer exists.');
+  await db.warmups.update(id, { rounds });
+}
+
 /** One tap on a move in a workout: checks it, or unchecks it if it was checked. Saved at once. */
 export async function toggleWarmupMove(db: WorkoutDB, sessionId: string, index: number): Promise<void> {
   await db.transaction('rw', db.sessions, async () => {

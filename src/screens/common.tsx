@@ -82,3 +82,15 @@ export function CardTitle({ name, controls, children }: { name: string; controls
     </div>
   );
 }
+
+/** − n + for rounds (W-19). */
+export function RoundsStepper({ value, onChange, max = 20 }: { value: number; onChange: (n: number) => void; max?: number }) {
+  return (
+    <div className="rounds-stepper">
+      <span>Rounds</span>
+      <button aria-label="Fewer rounds" disabled={value <= 1} onClick={() => onChange(value - 1)}>−</button>
+      <span className="rounds-value" aria-live="polite">{value}</span>
+      <button aria-label="More rounds" disabled={value >= max} onClick={() => onChange(value + 1)}>+</button>
+    </div>
+  );
+}

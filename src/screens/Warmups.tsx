@@ -12,11 +12,12 @@ import {
   renameWarmup,
   reorderMove,
   setPlanWarmup,
+  setWarmupRounds,
   toggleWarmupMove,
   updateMove,
 } from '../db/warmups';
 import { navigate } from '../router';
-import { attempt, ErrorText, Header } from './common';
+import { attempt, ErrorText, Header, RoundsStepper } from './common';
 
 /** Plans tab → Warm-ups: the list of routines (W-16). */
 export function WarmupList() {
@@ -132,6 +133,7 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
     <div className="screen">
       <Header title={w.name} back="/warmups" />
       {used.length > 0 && <p className="small-print muted">Used by {used.join(', ')}.</p>}
+      <RoundsStepper value={w.rounds ?? 1} max={10} onChange={(n) => attempt(() => setWarmupRounds(db, w.id, n), setError)} />
       <ol className="move-list">
         {w.moves.map((m, i) =>
           editing === i ? (
@@ -206,11 +208,14 @@ export function PlanWarmupChoice({ planId, value }: { planId: string; value: str
 /** In the logging screen: the warm-up first, each move one tap to check off; folds when all are done. */
 export function WarmupCard({ session }: { session: Session }) {
   const moves = session.warmupMoves ?? [];
+  const rounds = session.warmupRounds ?? 1;
   const checked = new Set(session.warmupChecked ?? []);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   if (moves.length === 0) return null;
-  const done = moves.every((_, i) => checked.has(i));
+  // Round r's move i is position r * moves.length + i (W-19).
+  const total = moves.length * rounds;
+  const done = Array.from({ length: total }, (_, i) => i).every((i) => checked.has(i));
   if (done && !open) {
     return (
       <section className="card warmup-done">
@@ -223,24 +228,33 @@ export function WarmupCard({ session }: { session: Session }) {
     <section className="card warmup-card" aria-label="Warm-up">
       <div className="card-title">
         Warm-up
-        <span className="row-sub">{checked.size} of {moves.length}</span>
+        <span className="row-sub">{[...checked].filter((i) => i < total).length} of {total}</span>
         {done && <button className="link" onClick={() => setOpen(false)}>Hide</button>}
       </div>
-      <ul className="warmup-moves">
-        {moves.map((m, i) => (
-          <li key={i}>
-            <button
-              className={`warmup-move${checked.has(i) ? ' checked' : ''}`}
-              aria-pressed={checked.has(i)}
-              onClick={() => attempt(() => toggleWarmupMove(db, session.id, i), setError)}
-            >
-              <span className="tick" aria-hidden>{checked.has(i) ? '✓' : ''}</span>
-              <span className="warmup-name">{m.name}</span>
-              <span className="muted">{moveAmount(m)}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      {Array.from({ length: rounds }, (_, r) => (
+        <div key={r}>
+          {rounds > 1 && <div className="group-title">Round {r + 1} of {rounds}</div>}
+          <ul className="warmup-moves">
+            {moves.map((m, i) => {
+              const at = r * moves.length + i;
+              return (
+                <li key={at}>
+                  <button
+                    className={`warmup-move${checked.has(at) ? ' checked' : ''}`}
+                    aria-pressed={checked.has(at)}
+                    aria-label={rounds > 1 ? `${m.name}, round ${r + 1}` : undefined}
+                    onClick={() => attempt(() => toggleWarmupMove(db, session.id, at), setError)}
+                  >
+                    <span className="tick" aria-hidden>{checked.has(at) ? '✓' : ''}</span>
+                    <span className="warmup-name">{m.name}</span>
+                    <span className="muted">{moveAmount(m)}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
       <ErrorText message={error} />
     </section>
   );
