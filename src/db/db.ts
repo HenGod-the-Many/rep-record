@@ -127,6 +127,8 @@ export interface Session {
   warmupMoves?: WarmupMove[];
   /** Positions in warmupMoves that were checked off. */
   warmupChecked?: number[];
+  /** Plan slot ids in the order they were done (W-17). Missing or empty = the plan's order. The plan is unchanged. */
+  slotOrder?: string[];
 }
 
 /** One stretch of a set at one weight. A set whose weight changed mid-set has several. */

@@ -104,6 +104,42 @@ export async function swapChoices(db: WorkoutDB, entry: PlanExercise, current: s
   return { alternates, others };
 }
 
+/* ---------- as-run order (W-17) ---------- */
+
+/**
+ * The plan's slots in the order they were done in this workout: slots in the
+ * session's saved order first, then any the order doesn't know (added to the
+ * plan since) in plan order. Slots no longer in the plan drop out.
+ */
+export function orderedEntries(session: Session, entries: PlanExercise[]): PlanExercise[] {
+  const order = session.slotOrder ?? [];
+  if (order.length === 0) return entries;
+  const byId = new Map(entries.map((e) => [e.id, e]));
+  const listed = order.map((id) => byId.get(id)).filter((e): e is PlanExercise => !!e);
+  const known = new Set(order);
+  return [...listed, ...entries.filter((e) => !known.has(e.id))];
+}
+
+/** Move one slot up (-1) or down (+1) in this workout only. The plan keeps its order. */
+export async function moveSlot(db: WorkoutDB, sessionId: string, entries: PlanExercise[], slotId: string, direction: -1 | 1): Promise<void> {
+  await db.transaction('rw', db.sessions, async () => {
+    const s = await db.sessions.get(sessionId);
+    if (!s) throw new ValidationError('That workout no longer exists.');
+    const order = orderedEntries(s, entries).map((e) => e.id);
+    const i = order.indexOf(slotId);
+    const j = i + direction;
+    if (i < 0 || j < 0 || j >= order.length) return;
+    [order[i], order[j]] = [order[j], order[i]];
+    await db.sessions.update(sessionId, { slotOrder: order });
+  });
+}
+
+/** Every target set of the slot is logged (an activity: it is logged once). */
+export function slotDone(entry: PlanExercise, logs: SetLog[], kind: ExerciseKind): boolean {
+  if (kind === 'activity') return logs.length > 0;
+  return new Set(logs.map((l) => l.setNumber)).size >= Math.max(1, entry.targetSets);
+}
+
 /* ---------- set parts (pure) ---------- */
 
 export const totalReps = (parts: SetPart[]) => parts.reduce((n, p) => n + (p.reps ?? 0), 0);

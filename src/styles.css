@@ -340,3 +340,15 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .activity-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .activity-head p { margin: 0; flex: 1; }
 .more-toggle { min-width: 44px; }
+
+/* Logging as it really happened (W-17) */
+.card-foot { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.card-foot .add-set { flex: 1; min-height: 44px; }
+.move-btns { display: flex; gap: 6px; }
+.move-btns .icon-btn { width: 44px; height: 44px; background: var(--surface-2); color: var(--text); font-size: 0.95rem; }
+.move-btns .icon-btn:disabled { opacity: 0.35; }
+.fold-head { background: none; border: 0; padding: 0; color: inherit; font: inherit; font-weight: 700; text-align: left; min-height: 44px; cursor: pointer; }
+.fold-mark { color: var(--muted); font-size: 0.9rem; }
+.folded-card { width: 100%; min-height: 48px; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 8px; padding: 8px 14px; color: var(--text); font: inherit; text-align: left; }
+.folded-card .done-tick { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--accent-text); display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; }
+.folded-card .folded-text { overflow-wrap: anywhere; }
