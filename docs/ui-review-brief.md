@@ -40,8 +40,22 @@ Steps 2–4 wait for Taylor after the audit.
 - **Appearance (2026-11-25):** "I'm good with light and dark mode." Support
   both, following the phone's light/dark setting. Every colour in the design
   system must pass WCAG AA contrast in both modes.
-- Not answered yet: restyle only or also rework flows (the navigation answer
-  suggests flows too).
+- **Answers to the audit (2026-11-25):**
+  - Navigation: **option A**, four tabs: Home, Calendar, Library, Progress.
+    Library holds Programs, Workouts, Exercises and Warm-ups behind one switch.
+    Settings behind a gear on Home.
+  - Name: **"Program"** replaces "split". (Whether "plan" becomes "Workout",
+    as in the audit's option A, is proposed but not yet confirmed.)
+  - Scope: **restyle and rework the flows.**
+  - Home screen, in three groups:
+    1. **Start workout**: today's workout with Start.
+    2. **This week**: PRs, workouts, minutes exercised.
+    3. **Extended metrics**: bodyweight, week streak (weeks in a row with at
+       least one workout), plus metrics Claude proposes. Proposed 2026-11-25:
+       weekly volume (total weight lifted vs last week) and plan adherence
+       (planned workouts done this week). Taylor to pick.
+- Future features Taylor pocketed the same day are in the queue (W-21 to W-24),
+  not part of this redesign.
 
 ## Limits
 
