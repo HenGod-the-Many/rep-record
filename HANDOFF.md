@@ -1,17 +1,19 @@
 # Handoff note
-Written: 2026-11-18 by the handoff skill
+Written: 2026-11-25 by the handoff skill
 
 ## Waiting for review
-- W-01, W-03, W-04 (skeleton, exercise library, plan builder): acceptance steps in docs/queue.md, after release v0.1.0
-- W-05, W-14 (schedules, Today, rescheduling): Release 1 steps 1, 2, 9 to 13 in docs/verification-plan.md, after release v0.1.0
+- Release 3 on dev, not yet released: W-17 as-run logging, W-18 plan folders, W-19 supersets and circuits (acceptance scripts in each spec, entries in docs/queue.md)
+- Release 2 and earlier items still Awaiting owner: acceptance steps in docs/queue.md and docs/verification-plan.md
 
 ## Open questions
-- Release v0.1.0 (dev to main) and turn on GitHub Pages so the app gets a link to install on the iPhone?
-- W-06 (set logging) has no spec yet; it needs writing and Taylor's approval before building
+- Release dev as v0.8.0 so release 3 can be tried on the phone? (Taylor's OK needed)
+- UI: dark only, follow the phone's light/dark setting, or both?
+- UI: restyle only, or also rework navigation and flows?
+- A better name than "split" for a repeating sequence of workouts
 
 ## Prompts for another session
-- In C:\Taylors_Repos\Work Out Journal, use the spec skill to write the W-06 spec (logging screen) from docs/queue.md and docs/requirements.md (R-04.3, R-05.1 to R-05.8), then ask Taylor to approve it
-- In C:\Taylors_Repos\Work Out Journal, add a GitHub Pages deploy workflow on a feature branch, then propose release v0.1.0 to Taylor (W-02, first half)
+- In C:\Taylors_Repos\Work Out Journal, do step 1 of docs/ui-review-brief.md: a read-only UI audit at iPhone size with the design-critique and accessibility-review skills, published as one artifact page; change no code
+- In C:\Taylors_Repos\Work Out Journal, release dev as v0.8.0 following .claude/rules/git-workflow.md (only once Taylor has said yes)
 
 ## Completion
-62 requirements: 23 verified, 39 planned, 0 accepted
+70 requirements: 64 verified, 2 built, 4 planned, 0 accepted

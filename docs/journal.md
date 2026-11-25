@@ -2,6 +2,19 @@
 
 Newest first.
 
+## 2026-11-25: release 3 built; UI review next (handoff)
+
+- Release 3 is on dev, not released: W-17 (#32), W-18 (#33), W-19 (#34),
+  all Awaiting owner. `npm run check`: 257 tests pass. Latest tag is still
+  v0.7.0, so the live site doesn't have release 3 yet.
+- Taylor wants to try release 3 on the phone; that needs release v0.8.0
+  (dev to main), which waits for Taylor's OK. Asked twice, not answered yet.
+- Taylor finds the UI bland and clunky, especially navigation. Agreed a
+  four-step plan; step 1 (read-only audit) approved. Brief and Taylor's
+  answers (home screen with stats, metrics and the day's plan; rename
+  "split") in [ui-review-brief.md](ui-review-brief.md).
+- Context was ~420k tokens; Taylor asked for this handoff.
+
 ## 2026-11-24: release 3 specs approved; W-17 built
 
 - Taylor's first real workout went well. Requests became three specs (W-17
