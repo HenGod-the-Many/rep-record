@@ -314,14 +314,16 @@ export async function updateSetParts(db: WorkoutDB, setId: string, parts: SetPar
 }
 
 /**
- * Change a logged single-part set from its current saved value (used by the ±
+ * Change one part of a logged set from its current saved value (used by the ±
  * buttons, so quick repeated taps each count even before the screen refreshes).
+ * The other parts of a weight-changed set stay as they are.
  */
-export async function adjustSet(db: WorkoutDB, setId: string, change: (part: SetPart) => SetPart): Promise<void> {
+export async function adjustSet(db: WorkoutDB, setId: string, change: (part: SetPart) => SetPart, partIndex = 0): Promise<void> {
   await db.transaction('rw', [db.setLogs, db.exercises], async () => {
     const log = await db.setLogs.get(setId);
     if (!log) throw new ValidationError('That set no longer exists.');
-    const parts = [change(log.parts[0])];
+    if (!log.parts[partIndex]) throw new ValidationError('That part of the set no longer exists.');
+    const parts = log.parts.map((p, i) => (i === partIndex ? change(p) : p));
     const ex = await db.exercises.get(log.exerciseId);
     checkParts(parts, ex?.kind ?? 'weight');
     await db.setLogs.update(setId, { parts });

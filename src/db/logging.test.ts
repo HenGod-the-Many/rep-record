@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { WorkoutDB } from './db';
+import type { SetPart, WorkoutDB } from './db';
 import { addAlternate, getEntries } from './plans';
 import { makeDateCopy, updatePlanEverywhere } from './reschedule';
 import { addWorkoutToDate } from './schedule';
@@ -209,6 +209,35 @@ describe('weight change and failed (setTotalReps also backs Failed)', () => {
       parts: setTotalReps([W(135, 10)], 8), toFailure: true,
     });
     expect(await db.setLogs.get(id)).toMatchObject({ parts: [W(135, 8)], toFailure: true });
+  });
+});
+
+describe('editing each part of a weight-changed set (hotfix 0.8.1)', () => {
+  it('120 × 6 then a drop to 100: the reps after the drop can be raised to 5', async () => {
+    const db = await freshDb();
+    const { sessionId, entries } = await pushSession(db);
+    const bench = entries[0];
+    // Aimed for 7, weight dropped at rep 7: the app makes 6 × 120 then 1 × 100.
+    const id = await logSet(db, {
+      sessionId, exerciseId: bench.exerciseId, planExerciseId: bench.id, setNumber: 1,
+      parts: changeWeightAt([W(120, 7)], 7, 100),
+    });
+    const plus1 = (p: SetPart) => ({ ...p, reps: (p.reps ?? 0) + 1 });
+    for (let i = 0; i < 4; i++) await adjustSet(db, id, plus1, 1);
+    expect((await db.setLogs.get(id))?.parts).toEqual([W(120, 6), W(100, 5)]);
+  });
+
+  it('stepping one part leaves the other parts alone', async () => {
+    const db = await freshDb();
+    const { sessionId, entries } = await pushSession(db);
+    const bench = entries[0];
+    const id = await logSet(db, {
+      sessionId, exerciseId: bench.exerciseId, planExerciseId: bench.id, setNumber: 1,
+      parts: [W(135, 5), W(115, 3)],
+    });
+    await adjustSet(db, id, (p) => ({ ...p, weightLb: (p.weightLb ?? 0) - 5 }), 1);
+    await adjustSet(db, id, (p) => ({ ...p, reps: (p.reps ?? 0) - 1 }), 0);
+    expect((await db.setLogs.get(id))?.parts).toEqual([W(135, 4), W(110, 3)]);
   });
 });
 
