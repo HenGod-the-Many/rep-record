@@ -921,7 +921,7 @@ function ChangePanel(props: {
     body = (
       <>
         <div className="change-title">
-          Set {mode.setNumber}: how many reps before failing?
+          Set {mode.setNumber}: how many reps before failing?{parts.length > 1 && ' (in total, all weights)'}
         </div>
         <div className="chips">
           {Array.from({ length: hi - lo + 1 }, (_, i) => lo + i).map((r) => (
