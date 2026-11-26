@@ -77,7 +77,10 @@ Newest first.
   - **Missed days:** a past day with a started but unfinished workout shows as missed.
   - **Trends:** the streak, volume and adherence tiles open Progress's Trends section.
   - **Theme choice:** kept on the phone, not in backups.
-  - **Save as you change** (answer 2): built where you edit something that already exists (an exercise's targets in a workout). Screens that create something keep their button (new exercise, new entry, new name). Editing an exercise's name and kind keeps Save, because a name must be unique.
+  - **Save as you change** (answer 2): built only on an exercise's targets in a workout. It saves shortly after each change and when you leave the screen, so there is no Save tap.
+  - **Still has a Save button:** the exercise edit form; rename boxes for a workout, folder, program, warm-up and metric; a program's cycle length; superset/circuit settings; editing a body-metric entry.
+  - **Screens that create something keep their button** (new exercise, new entry, new name).
+  - **Taylor to decide:** extend save-as-you-change to the screens above, or keep it as is.
 - To accept: the acceptance script in `docs/specs/W-20-ui-redesign.md`.
 
 ### W-19: supersets and circuits

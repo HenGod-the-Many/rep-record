@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { removeAlternate, removeEntry, setActivityTarget, updateTargets } from '../db/plans';
@@ -25,6 +25,24 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
   const [error, setError] = useState<string | null>(null);
   /** Shown after each save: edit screens save as you change (W-20 answer 2), no Save button. */
   const [saved, setSaved] = useState(false);
+  // A change is saved shortly after it is typed, and any change still waiting is saved when the
+  // screen closes, so tapping Back with the cursor still in a box never loses it.
+  const pending = useRef<(() => unknown) | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flush = () => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+    const run = pending.current;
+    pending.current = null;
+    run?.();
+  };
+  const later = (run: () => unknown) => {
+    setSaved(false);
+    pending.current = run;
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(flush, 700);
+  };
+  useEffect(() => () => flush(), []);
 
   useEffect(() => {
     if (data?.entry && loadedFor !== data.entry.id) {
@@ -100,12 +118,12 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
           <div className="field-pair">
             <label className="field">
               <span>Target minutes</span>
-              <input inputMode="numeric" value={min} onChange={(e) => { setMin(e.target.value); setSaved(false); }} onBlur={(e) => saveActivity({ min: e.currentTarget.value })} />
+              <input inputMode="numeric" value={min} onChange={(e) => { const v = e.target.value; setMin(v); later(() => saveActivity({ min: v })); }} onBlur={flush} />
             </label>
             {ex?.hasDistance && (
               <label className="field">
                 <span>Target {distanceUnit(data.unit ?? 'lb')} (optional)</span>
-                <input inputMode="decimal" value={dist} onChange={(e) => { setDist(e.target.value); setSaved(false); }} onBlur={(e) => saveActivity({ dist: e.currentTarget.value })} />
+                <input inputMode="decimal" value={dist} onChange={(e) => { const v = e.target.value; setDist(v); later(() => saveActivity({ dist: v })); }} onBlur={flush} />
               </label>
             )}
           </div>
@@ -131,16 +149,16 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
       <div className="field-pair">
         <label className="field">
           <span>Min {unit}</span>
-          <input inputMode="numeric" value={min} onChange={(e) => { setMin(e.target.value); setSaved(false); }} onBlur={(e) => save({ repMin: e.currentTarget.value })} />
+          <input inputMode="numeric" value={min} onChange={(e) => { const v = e.target.value; setMin(v); later(() => save({ repMin: v })); }} onBlur={flush} />
         </label>
         <label className="field">
           <span>Max {unit}</span>
-          <input inputMode="numeric" value={max} onChange={(e) => { setMax(e.target.value); setSaved(false); }} onBlur={(e) => save({ repMax: e.currentTarget.value })} />
+          <input inputMode="numeric" value={max} onChange={(e) => { const v = e.target.value; setMax(v); later(() => save({ repMax: v })); }} onBlur={flush} />
         </label>
       </div>
       <label className="field">
         <span>Note (optional)</span>
-        <input value={note} onChange={(e) => { setNote(e.target.value); setSaved(false); }} onBlur={(e) => save({ note: e.currentTarget.value })} placeholder="e.g. per leg" />
+        <input value={note} onChange={(e) => { const v = e.target.value; setNote(v); later(() => save({ note: v })); }} onBlur={flush} placeholder="e.g. per leg" />
       </label>
       <ErrorText message={error} />
       <p className="ui-caption" aria-live="polite">{saved ? 'Saved.' : 'Changes save as you make them.'}</p>
