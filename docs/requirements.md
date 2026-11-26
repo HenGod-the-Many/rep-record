@@ -53,6 +53,7 @@ written only by Taylor.
 | KF-13 | Plan and log runs, rides, hikes, swims and any other activity | should | 2 | planned |
 | KF-14 | Build warm-up routines and use them before a workout | should | 2 | planned |
 | KF-15 | Do supersets and circuits in plans, workouts and warm-ups | should | 3 | planned |
+| KF-16 | Get around the app easily, with a sleek look and a home screen that shows my day and my numbers | should | 4 | planned |
 
 ---
 
@@ -221,7 +222,21 @@ Added 2026-11-24 from Taylor's first real workout; approved with the W-19 spec.
 | R-15.3 A warm-up routine can have rounds, and each move is checked off in each round | should | Test | W-19 | verified | groups.test.ts warm-up rounds; evidence w19/08, 09; reviewer: met |
 | R-15.4 Circuit exercises (kettlebell, calisthenics) come from the library, and timed moves log seconds | should | Test | W-19 | verified | groups.test.ts kettlebell + plank circuit; evidence w19/10; reviewer: met |
 
-Totals: 31 must, 36 should, 2 could, 1 later.
+## KF-16 Get around the app easily, with a sleek look and a home screen that shows my day and my numbers
+
+Added 2026-11-25 from Taylor's UI review answers (navigation option A, "Program" and "Workout", Plate look, light and dark). Proposed with the W-20 spec; waits for its approval.
+
+| Requirement | Priority | Method | Item | Status | Evidence |
+|---|---|---|---|---|---|
+| R-16.1 Every screen uses the Plate design system (docs/design/design-system.md) | should | Demonstration | W-20 | planned | |
+| R-16.2 The app follows the phone's light/dark setting, with Auto, Light and Dark in Settings; every colour pair passes WCAG AA in both modes | should | Test, Demonstration | W-20 | planned | |
+| R-16.3 Four tabs (Home, Calendar, Library, Progress) with icons and labels; the current tab is announced; old links still work | should | Test, Demonstration | W-20 | planned | |
+| R-16.4 Home shows today's workout with Start, this week's new PRs, workouts and minutes, and trends: bodyweight (tap to add), week streak, weekly volume and plan adherence | should | Test, Demonstration | W-20 | planned | |
+| R-16.5 Library holds Programs, Workouts, Exercises and Warm-ups behind one switch; screens say Program and Workout, stored data is unchanged | should | Test, Demonstration | W-20 | planned | |
+| R-16.6 Progress holds PRs, stats, body metrics and charts; an exercise opens on its history | should | Demonstration | W-20 | planned | |
+| R-16.7 Adding bodyweight takes 2 taps plus typing; rare and risky actions sit in a "…" menu; the calendar shows done, planned and missed days differently | should | Demonstration | W-20 | planned | |
+
+Totals: 31 must, 43 should, 2 could, 1 later.
 
 ## Riskiest assumption
 

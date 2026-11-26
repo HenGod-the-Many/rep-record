@@ -23,7 +23,7 @@ goal is something "sleek and modern and intuitive to use".
    type scale, spacing, components) and a decision record.
 4. **Build in slices** through a spec, screen by screen, with the usual review.
 
-Steps 2–4 wait for Taylor after the audit. Step 2 approved by Taylor 2026-11-25.
+Steps 2–4 wait for Taylor after the audit. Step 2 approved by Taylor 2026-11-25; Taylor picked **Plate** ("Plate for sure"). Step 3 done: [design system](design/design-system.md), [decision 0008](decisions/0008-plate-design-system.md). Step 4 is W-20; its spec waits for approval.
 
 ## Taylor's answers so far
 
