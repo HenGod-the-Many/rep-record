@@ -511,3 +511,8 @@ input:not([type='checkbox']), .select { border-width: 1.5px; }
 }
 .tabbar button.active { color: var(--accent-text); font-weight: 700; }
 .content { padding-bottom: calc(56px + env(safe-area-inset-bottom) + 24px); }
+
+/* ---- Home (W-20 slice 3) ---- */
+.home-others { margin: -10px 0 12px; }
+.home-edit { display: flex; justify-content: flex-start; margin: 0 0 22px; }
+.home-weight { margin-top: -10px; }
