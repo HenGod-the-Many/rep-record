@@ -16,6 +16,7 @@ Newest first.
   - An accessibility scan of 19 screens came back clean. The scan was first shown to catch a planted 20 px button and 8 px text.
   - At the largest iPhone text size, the stepper unit labels overlapped the numbers. Fixed by letting the steppers grow.
   - Settings' selected options now use ink, not orange (one orange fill per screen).
+- **Whole-W-20 review:** it asked for the tap counts (now in docs/evidence/w20/final/tap-counts.md), full both-mode screenshots (added) and the scan script (docs/design/a11y-scan.js). It also showed that approved answer 2, save as you change, had not been built. An exercise's targets in a workout now save as you change, with no "Save targets" tap. Create screens keep their button.
 - **Not verified:** anything on the iPhone itself (Dynamic Type, VoiceOver, airplane mode). That is the acceptance script.
 - **Not released:** v0.9.0 waits for Taylor's OK.
 

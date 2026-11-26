@@ -62,20 +62,22 @@ Newest first.
   - **Menus:** rare and risky actions sit in "…" menus.
   - **Logging:** restyled only; it works exactly as before.
 - Evidence:
-  - `npm run check`: 289 tests. The 31 new ones failed against stubs or deliberate breaks first.
+  - `npm run check`: 290 tests. The 32 new ones failed against stubs or deliberate breaks first.
   - Contrast script: 0 failing pairs (22 per mode).
-  - An accessibility scan of 19 screens: no target under 44 pt, no unlabelled icon button, no text under 11 px, no sideways scroll at the default or the largest text size.
-  - Screenshots of every main screen in both modes: `docs/evidence/w20/final/`.
+  - An accessibility scan of 19 screens (`docs/design/a11y-scan.js`): no target under 44 pt, no unlabelled icon button, no text under 11 px, no sideways scroll at the default or the largest text size.
+  - Screenshots of every screen in both modes: `docs/evidence/w20/final/`.
+  - Tap counts before and after: `docs/evidence/w20/final/tap-counts.md`. Bodyweight 4 → 2, changing reps 6 → 5 with no Save tap, exercise history 3 → 2. Move day 6 → 7, because it now sits in the "…" menu.
   - acceptance-reviewer "accept" on every slice, with its fixes applied.
 - Not verified:
   - On the iPhone: Dynamic Type, VoiceOver, airplane mode, the bodyweight keyboard opening by itself.
   - The minutes and adherence definitions in real use.
 - Calls made for you:
   - **Minutes exercised:** each workout counts once, as the longer of start-to-finish and its activity time, so activities aren't counted twice (written into the spec).
-  - **Plan adherence:** counts every finished workout.
+  - **Adherence** (tile renamed so no screen says "plan"): counts every finished workout.
   - **Missed days:** a past day with a started but unfinished workout shows as missed.
   - **Trends:** the streak, volume and adherence tiles open Progress's Trends section.
   - **Theme choice:** kept on the phone, not in backups.
+  - **Save as you change** (answer 2): built where you edit something that already exists (an exercise's targets in a workout). Screens that create something keep their button (new exercise, new entry, new name). Editing an exercise's name and kind keeps Save, because a name must be unique.
 - To accept: the acceptance script in `docs/specs/W-20-ui-redesign.md`.
 
 ### W-19: supersets and circuits
