@@ -6,6 +6,7 @@ import { distanceUnit, fromShownDistance, toShownDistance } from '../db/activiti
 import { getUnit } from '../db/units';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header } from './common';
+import { MoreMenu } from '../ui/components';
 
 export function EntryEdit({ planId, entryId }: { planId: string; entryId: string }) {
   const data = useLiveQuery(async () => {
@@ -75,7 +76,14 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
 
   return (
     <div className="screen">
-      <Header title={ex?.name ?? 'Exercise in workout'} back={back} />
+      <Header
+        title={ex?.name ?? 'Exercise in workout'}
+        back={back}
+        action={<MoreMenu label={`More for ${ex?.name ?? 'this exercise'}`} items={[
+          { label: `Replace ${ex?.name ?? 'exercise'} permanently…`, onSelect: () => navigate(`/pick?mode=replace&plan=${planId}&entry=${entryId}`) },
+          { label: 'Remove from workout', danger: true, onSelect: remove },
+        ]} />}
+      />
 
       {isActivity ? (
         <div className="stack">
@@ -129,14 +137,6 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
       </>
       )}
 
-      <h2 className="group-title">Exercise</h2>
-      <button
-        className="btn-secondary block"
-        onClick={() => navigate(`/pick?mode=replace&plan=${planId}&entry=${entryId}`)}
-      >
-        Replace {ex?.name ?? 'exercise'} permanently
-      </button>
-
       <h2 className="group-title">Alternates</h2>
       <p className="muted small-print">Offered as a quick swap during a workout.</p>
       <ul className="list">
@@ -157,7 +157,6 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
         + Add alternate
       </button>
 
-      <button className="btn-danger block spaced" onClick={remove}>Remove from workout</button>
     </div>
   );
 }

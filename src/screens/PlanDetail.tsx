@@ -9,6 +9,8 @@ import { dateOfCopy, saveCopyAsNewPlan, updatePlanEverywhere } from '../db/resch
 import { formatDate } from '../db/dates';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header, RoundsStepper } from './common';
+import { Icon } from '../ui/icons';
+import { MoreMenu } from '../ui/components';
 import { getUnit } from '../db/units';
 import { PlanWarmupChoice } from './Warmups';
 import { formatTargets } from '../format';
@@ -87,7 +89,22 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
 
   return (
     <div className="screen">
-      <Header title={plan.name} back={back} />
+      <Header
+        title={plan.name}
+        back={back}
+        action={
+          <MoreMenu
+            label={`More for ${plan.name}`}
+            items={[
+              { label: 'Rename', onSelect: () => setRenaming(plan.name) },
+              ...(plan.hidden ? [] : [
+                { label: 'Duplicate', onSelect: duplicate },
+                { label: 'Delete workout', danger: true, onSelect: remove },
+              ]),
+            ]}
+          />
+        }
+      />
       {plan.hidden && (
         <div className="card">
           <p className="small-print">
@@ -117,17 +134,7 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
       )}
       <PlanWarmupChoice planId={plan.id} value={plan.warmupId} />
       {!plan.hidden && <PlanFolderChoice planId={plan.id} value={plan.folderId} />}
-      {renaming === null ? (
-        plan.hidden ? (
-          <button className="btn-secondary block" onClick={() => setRenaming(plan.name)}>Rename</button>
-        ) : (
-          <div className="button-row">
-            <button className="btn-secondary" onClick={() => setRenaming(plan.name)}>Rename</button>
-            <button className="btn-secondary" onClick={duplicate}>Duplicate</button>
-            <button className="btn-danger" onClick={remove}>Delete</button>
-          </div>
-        )
-      ) : (
+      {renaming === null ? null : (
         <div className="inline-form">
           <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="Workout name" autoFocus />
           <button className="btn-primary" onClick={saveName}>Save</button>
@@ -201,8 +208,8 @@ function PlanEntries(props: { planId: string; entries: PlanExercise[]; exercises
         </button>
         {picking === null && (
           <div className="move">
-            <button aria-label={`Move ${ex?.name} up`} disabled={!canMove(i, -1)} onClick={() => moveEntry(db, entry.id, -1)}>▲</button>
-            <button aria-label={`Move ${ex?.name} down`} disabled={!canMove(i, 1)} onClick={() => moveEntry(db, entry.id, 1)}>▼</button>
+            <button aria-label={`Move ${ex?.name} up`} disabled={!canMove(i, -1)} onClick={() => moveEntry(db, entry.id, -1)}><Icon name="arrow-up" size={20} /></button>
+            <button aria-label={`Move ${ex?.name} down`} disabled={!canMove(i, 1)} onClick={() => moveEntry(db, entry.id, 1)}><Icon name="arrow-down" size={20} /></button>
           </div>
         )}
       </li>

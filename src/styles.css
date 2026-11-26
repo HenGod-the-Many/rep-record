@@ -550,3 +550,14 @@ input:not([type='checkbox']), .select { border-width: 1.5px; }
 .day-add { margin: 0 0 16px; }
 /* On a done (ink-filled) day the orange marks are too faint; use the page colour there. */
 .cal-cell.is-done .cal-dot, .cal-cell.is-done .cal-note { background: var(--bg); }
+
+/* ---- Library screens (W-20 slice 6) ---- */
+.folder-actions { justify-content: flex-end; padding: 0 8px 8px; }
+.alt-row .ui-more { flex: none; }
+.row { border-radius: 14px; border-color: var(--hairline); }
+.row-main { font-weight: 500; }
+.move button, .move-row .icon-btn { display: inline-grid; place-items: center; color: var(--ink); }
+/* The folder card must not clip its "..." menu. */
+.folder { overflow: visible; }
+.folder-head { border-radius: 18px; }
+.icon-btn { display: inline-grid; place-items: center; }
