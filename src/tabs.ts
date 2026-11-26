@@ -27,12 +27,20 @@ const SECTIONS: Record<TabKey, string[]> = {
   progress: ['body'],
 };
 
-/** Which tab a route belongs to. An exercise's history opened from Progress stays under Progress. */
-export function tabFor(parts: string[], query: URLSearchParams): TabKey {
-  const [section = '', , sub] = parts;
-  if (section === 'exercises' && sub === 'history' && query.get('back')?.startsWith('/body')) return 'progress';
+function sectionTab(section: string): TabKey {
   for (const t of TABS) if (SECTIONS[t.key].includes(section)) return t.key;
   return 'home';
+}
+
+/**
+ * Which tab a route belongs to. A screen opened with a back link stays under
+ * the tab it was opened from: an exercise's history opened from Progress, or
+ * from the workout being logged, doesn't jump to Library.
+ */
+export function tabFor(parts: string[], query: URLSearchParams): TabKey {
+  const back = query.get('back');
+  if (back?.startsWith('/')) return sectionTab(back.split(/[/?]/).filter(Boolean)[0] ?? '');
+  return sectionTab(parts[0] ?? '');
 }
 
 /** Where tapping a tab goes. Library reopens the part last used. */

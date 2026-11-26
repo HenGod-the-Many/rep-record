@@ -14,12 +14,12 @@ const openFolders: Record<string, boolean> = {};
 
 export function PlanList() {
   const data = useLiveQuery(async () => {
-    const [folders, entries, warmups] = await Promise.all([listFolders(db), db.planExercises.toArray(), db.warmups.count()]);
+    const [folders, entries] = await Promise.all([listFolders(db), db.planExercises.toArray()]);
     const counts = new Map<string, number>();
     for (const e of entries) counts.set(e.planId, (counts.get(e.planId) ?? 0) + 1);
     const withCount = (ps: Plan[]): Counted[] => ps.map((p) => ({ ...p, count: counts.get(p.id) ?? 0 }));
     const inFolders = await Promise.all(folders.map(async (f) => ({ folder: f, plans: withCount(await plansInFolder(db, f.id)) })));
-    return { inFolders, loose: withCount(await plansInFolder(db, null)), warmups };
+    return { inFolders, loose: withCount(await plansInFolder(db, null)) };
   }, []);
   const [name, setName] = useState('');
   const [folderName, setFolderName] = useState('');

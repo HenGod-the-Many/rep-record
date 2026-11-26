@@ -33,11 +33,13 @@ describe('four tabs (W-20, R-16.3)', () => {
     expect(route('/body/photos')).toBe('progress');
   });
 
-  it('an exercise history opened from Progress stays under Progress; from elsewhere, under Library', () => {
+  it('a screen opened with a back link stays under the tab it came from', () => {
     expect(route('/exercises/x1/history?back=%2Fbody')).toBe('progress');
     expect(route('/exercises/x1/history?back=%2Fbody%2Fstats')).toBe('progress');
     expect(route('/exercises/x1/history')).toBe('library');
-    expect(route('/exercises/x1/history?back=%2Flog%2Fs1')).toBe('library');
+    expect(route('/exercises/x1/history?back=%2Flog%2Fs1')).toBe('home');
+    expect(route('/plans/p1?back=%2Fday%2F2026-11-25%3Fback%3D%252Fcalendar')).toBe('calendar');
+    expect(route('/day/2026-11-25?back=%2Ftoday')).toBe('home');
   });
 
   it('unknown routes fall back to Home', () => {
