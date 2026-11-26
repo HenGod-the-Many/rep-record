@@ -548,3 +548,5 @@ input:not([type='checkbox']), .select { border-width: 1.5px; }
 .card-head { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .card-head .workout-actions { flex: none; }
 .day-add { margin: 0 0 16px; }
+/* On a done (ink-filled) day the orange marks are too faint; use the page colour there. */
+.cal-cell.is-done .cal-dot, .cal-cell.is-done .cal-note { background: var(--bg); }
