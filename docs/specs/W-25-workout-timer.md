@@ -1,6 +1,6 @@
 # W-25: Workout timer, exercise timing, and saving as you change
 
-Status: draft, waiting for Taylor's approval (answers at the end have defaults).
+Status: approved by Taylor 2026-11-25 ("I approve w-25") with all eight default answers, except answer 8: W-20 was released on its own as v0.9.0 the same day, so W-25 ships in a later release.
 Cleared to run unattended: yes, once approved
 Satisfies: KF-17 (new), R-17.1–R-17.6 (new)
 
@@ -91,8 +91,8 @@ the workouts already in the app.
 3. **Showing it:** averages on exercise history, "about N min" on workouts
    (Home, Library), minutes exercised switched to the timer.
 4. **Save as you change** on the screens in the table.
-5. **Finish:** both-mode screenshots, review, then release together with W-20
-   as v0.9.0 on Taylor's OK.
+5. **Finish:** both-mode screenshots, review, then release (the next minor
+   version after v0.9.0) on Taylor's OK.
 
 ## Stop and ask if
 
@@ -114,7 +114,7 @@ the workouts already in the app.
 7. Rename a workout: no Save button; leave the box and it is saved. Shorten a
    program's cycle: it still asks and has Save.
 
-## Answers (defaults in bold; Taylor to approve or change)
+## Answers (approved by Taylor 2026-11-25: every default in bold, answer 8 overtaken)
 
 1. Seconds per rep for the first set of an exercise (and timed sets use their
    own seconds): **3 seconds per rep**, as Taylor said.
@@ -131,4 +131,5 @@ the workouts already in the app.
    tick times and start time; they just have no pauses.
 7. Saving: **as in the table above**.
 8. Release: **W-20 and W-25 together as v0.9.0**, so the minutes rule changes
-   only once on the phone.
+   only once on the phone. Overtaken: Taylor released W-20 alone as v0.9.0
+   (2026-11-25); W-25 goes in the next release.

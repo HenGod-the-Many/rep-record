@@ -239,7 +239,7 @@ Added 2026-11-25 from Taylor's UI review answers (navigation option A, "Program"
 
 ## KF-17 Know how long workouts and exercises take, with a timer while I train
 
-Added 2026-11-25 from Taylor's answer on minutes exercised. Proposed with the W-25 spec; waits for its approval.
+Added 2026-11-25 from Taylor's answer on minutes exercised. Spec W-25 approved by Taylor 2026-11-25.
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
