@@ -16,6 +16,7 @@ import { WarmupEdit, WarmupList } from './screens/Warmups';
 import { BodyList, MetricPage, PhotosPage } from './screens/Body';
 import { useToday } from './useToday';
 import { applyUpdate, useUpdateReady } from './pwa';
+import { Gallery } from './ui/Gallery';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -47,6 +48,7 @@ function Screen() {
   if (section === 'body' && id === 'photos') return <PhotosPage />;
   if (section === 'body' && id) return <MetricPage metricId={id} />;
   if (section === 'body') return <BodyList />;
+  if (import.meta.env.DEV && section === 'ui') return <Gallery />;
   if (section === 'log' && id) return <LogWorkout key={id} sessionId={id} />;
   return <DayView key={today} date={today} isToday />;
 }

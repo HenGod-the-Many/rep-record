@@ -1,6 +1,6 @@
 # W-20: UI redesign (Plate, four tabs, home screen)
 
-Status: draft, waiting for Taylor's approval (answers at the end have defaults).
+Status: approved by Taylor 2026-11-25 ("Yes to all. Approved."): all six default answers.
 Cleared to run unattended: yes, once approved
 Satisfies: KF-16 (new), R-16.1–R-16.7 (new)
 
@@ -116,7 +116,7 @@ Each slice is its own pull request to dev, reviewed, so dev stays usable.
 7. Turn on airplane mode, close and reopen: everything still loads, fonts
    included.
 
-## Answers (defaults in bold; Taylor to approve or change)
+## Answers (approved by Taylor 2026-11-25: every default in bold)
 
 1. Theme choice in Settings (Auto, Light, Dark), or follow the phone only?
    Default: **Auto, Light, Dark**.

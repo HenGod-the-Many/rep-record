@@ -15,11 +15,11 @@ def ratio(a, b):
     return (la + 0.05) / (lb + 0.05)
 
 PALETTES = {
-    'light': dict(bg='#F4F4F1', surface='#FFFFFF', ink='#111214', soft='#555A62', line='#7D828A',
+    'light': dict(bg='#F4F4F1', surface='#FFFFFF', surface2='#ECEDE9', chart2='#555A62', ink='#111214', soft='#555A62', line='#7D828A',
                   hairline='#D6D8DC', hero='#111214', heroInk='#F4F4F1', heroSoft='#B9BDC4',
                   accent='#C2410C', onAccent='#FFFFFF', accentText='#B23C0B', track='#8E939B',
                   danger='#B42318', good='#1D7A3E'),
-    'dark': dict(bg='#0E0F11', surface='#18191D', ink='#F2F2F0', soft='#A4A9B1', line='#6B7079',
+    'dark': dict(bg='#0E0F11', surface='#18191D', surface2='#24262B', chart2='#A4A9B1', ink='#F2F2F0', soft='#A4A9B1', line='#6B7079',
                  hairline='#2D3036', hero='#1E2025', heroInk='#F2F2F0', heroSoft='#A9AEB6',
                  accent='#FF7A3D', onAccent='#111214', accentText='#FF8A55', track='#686D76',
                  danger='#FF7B72', good='#5FD08F'),
@@ -44,6 +44,11 @@ CHECKS = [
     ('line', 'surface', 3.0, 'field edges on card'),
     ('track', 'surface', 3.0, 'empty segment of a progress bar'),
     ('accent', 'surface', 3.0, 'filled segment of a progress bar'),
+    ('ink', 'surface2', 4.5, 'text on a raised control (steppers, chips)'),
+    ('soft', 'surface2', 4.5, 'secondary text on a raised panel'),
+    ('accentText', 'surface2', 4.5, 'accent text on a raised panel'),
+    ('chart2', 'surface', 3.0, 'second line on a chart'),
+    ('accent', 'bg', 3.0, 'accent edge or fill on the page'),
 ]
 
 failures = 0
