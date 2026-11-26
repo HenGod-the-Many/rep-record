@@ -224,17 +224,17 @@ Added 2026-11-24 from Taylor's first real workout; approved with the W-19 spec.
 
 ## KF-16 Get around the app easily, with a sleek look and a home screen that shows my day and my numbers
 
-Added 2026-11-25 from Taylor's UI review answers (navigation option A, "Program" and "Workout", Plate look, light and dark). Spec W-20 approved by Taylor 2026-11-25.
+Added 2026-11-25 from Taylor's UI review answers (navigation option A, "Program" and "Workout", Plate look, light and dark). Spec W-20 approved by Taylor 2026-11-25; built in eight slices the same day (PRs #44–#50 plus slice 8).
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-16.1 Every screen uses the Plate design system (docs/design/design-system.md) | should | Demonstration | W-20 | planned | |
-| R-16.2 The app follows the phone's light/dark setting, with Auto, Light and Dark in Settings; every colour pair passes WCAG AA in both modes | should | Test, Demonstration | W-20 | planned | |
-| R-16.3 Four tabs (Home, Calendar, Library, Progress) with icons and labels; the current tab is announced; old links still work | should | Test, Demonstration | W-20 | planned | |
-| R-16.4 Home shows today's workout with Start, this week's new PRs, workouts and minutes, and trends: bodyweight (tap to add), week streak, weekly volume and plan adherence | should | Test, Demonstration | W-20 | planned | |
-| R-16.5 Library holds Programs, Workouts, Exercises and Warm-ups behind one switch; screens say Program and Workout, stored data is unchanged | should | Test, Demonstration | W-20 | planned | |
-| R-16.6 Progress holds PRs, stats, body metrics and charts; an exercise opens on its history | should | Demonstration | W-20 | planned | |
-| R-16.7 Adding bodyweight takes 2 taps plus typing; rare and risky actions sit in a "…" menu; the calendar shows done, planned and missed days differently | should | Demonstration | W-20 | planned | |
+| R-16.1 Every screen uses the Plate design system (docs/design/design-system.md) | should | Demonstration | W-20 | built | W-20 PRs #44–#50 and slice 8; evidence in docs/evidence/w20/ |
+| R-16.2 The app follows the phone's light/dark setting, with Auto, Light and Dark in Settings; every colour pair passes WCAG AA in both modes | should | Test, Demonstration | W-20 | built | W-20 PRs #44–#50 and slice 8; evidence in docs/evidence/w20/ |
+| R-16.3 Four tabs (Home, Calendar, Library, Progress) with icons and labels; the current tab is announced; old links still work | should | Test, Demonstration | W-20 | built | W-20 PRs #44–#50 and slice 8; evidence in docs/evidence/w20/ |
+| R-16.4 Home shows today's workout with Start, this week's new PRs, workouts and minutes, and trends: bodyweight (tap to add), week streak, weekly volume and plan adherence | should | Test, Demonstration | W-20 | built | W-20 PRs #44–#50 and slice 8; evidence in docs/evidence/w20/ |
+| R-16.5 Library holds Programs, Workouts, Exercises and Warm-ups behind one switch; screens say Program and Workout, stored data is unchanged | should | Test, Demonstration | W-20 | built | W-20 PRs #44–#50 and slice 8; evidence in docs/evidence/w20/ |
+| R-16.6 Progress holds PRs, stats, body metrics and charts; an exercise opens on its history | should | Demonstration | W-20 | built | W-20 PRs #44–#50 and slice 8; evidence in docs/evidence/w20/ |
+| R-16.7 Adding bodyweight takes 2 taps plus typing; rare and risky actions sit in a "…" menu; the calendar shows done, planned and missed days differently | should | Demonstration | W-20 | built | W-20 PRs #44–#50 and slice 8; evidence in docs/evidence/w20/ |
 
 Totals: 31 must, 43 should, 2 could, 1 later.
 

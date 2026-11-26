@@ -2,6 +2,23 @@
 
 Newest first.
 
+## 2026-11-25 (night): W-20 built in eight slices
+
+- **Approval:** Taylor approved the W-20 spec ("Yes to all. Approved."). It was built the same night, one pull request per slice, each reviewed by the acceptance-reviewer before merging. #44 foundation, #45 tabs and Library, #46 Home, #47 Progress, #48 Calendar, #49 Library menus, #50 logging look, then slice 8.
+- **What the reviewers caught (all fixed before merging):**
+  - Four screens still said "plan".
+  - The folder "…" menu was clipped by its card.
+  - "Edit" from an exercise's history dropped you into Library.
+  - Small marks on done calendar days were too faint in dark mode.
+  - My own pass caught a logging-screen change that would have rebuilt a card, and closed the difficulty picker, when it stopped being "Now". It was replaced with a stable wrapper before the review.
+- **Minutes definition:** clarified while building, and written into the spec. Activities are logged inside workouts, so each workout counts once (the longer of start-to-finish and its activity time). Taylor to confirm.
+- **Slice 8:**
+  - An accessibility scan of 19 screens came back clean. The scan was first shown to catch a planted 20 px button and 8 px text.
+  - At the largest iPhone text size, the stepper unit labels overlapped the numbers. Fixed by letting the steppers grow.
+  - Settings' selected options now use ink, not orange (one orange fill per screen).
+- **Not verified:** anything on the iPhone itself (Dynamic Type, VoiceOver, airplane mode). That is the acceptance script.
+- **Not released:** v0.9.0 waits for Taylor's OK.
+
 ## 2026-11-25 (late): Plate picked, design system, W-20 spec
 
 - Taylor picked **Plate** ("Plate for sure"). Wrote the design system

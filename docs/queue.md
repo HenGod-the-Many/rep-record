@@ -39,7 +39,7 @@ block, and the Awaiting owner list. Requirement status lives in
 | 16 | W-17 | Logging as it really happened: as-run order, fold finished exercises, remove Rep change | R-05.9 (changed), R-05.11, R-05.12 | [W-17](specs/W-17-logging-as-run.md) | W-06 | no | Awaiting owner | Added 2026-11-24 from Taylor's first workout; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
 | 17 | W-18 | Plan folders, duplicate a folder, Warm-ups easier to find | R-02.5, R-02.6 | [W-18](specs/W-18-plan-folders.md) | W-04 | no | Awaiting owner | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
 | 18 | W-19 | Supersets and circuits in plans, workouts and warm-ups | KF-15, R-15.1–R-15.4 | [W-19](specs/W-19-supersets-circuits.md) | W-17 | no | Awaiting owner | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; decision 0007; built 2026-11-24 |
-| 19 | W-20 | UI redesign: Home / Calendar / Library / Progress, "Program" for split, restyle and rework flows, light and dark | KF-16, R-16.1–R-16.7 | [W-20](specs/W-20-ui-redesign.md) | none | no | In progress | Added 2026-11-25. Spec approved by Taylor 2026-11-25 with all six defaults; built one slice per PR (slice 1 started 2026-11-25) |
+| 19 | W-20 | UI redesign: Home / Calendar / Library / Progress, "Program" for split, restyle and rework flows, light and dark | KF-16, R-16.1–R-16.7 | [W-20](specs/W-20-ui-redesign.md) | none | no | Awaiting owner | Added 2026-11-25. Spec approved by Taylor 2026-11-25 with all six defaults; built in eight slices (PRs #44–#50 and slice 8), each reviewed; not released yet (v0.9.0 waits for Taylor's OK) |
 | 20 | W-21 | Progression predictions: when to add weight, the next weight, predicted 1-rep max | not yet | not yet | W-08 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. W-08 already estimates a 1-rep max per set; this adds a forecast from the trend |
 | 21 | W-22 | Duration predictions for a program, a workout and single exercises, from logged times | not yet | not yet | W-17 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. Needs per-set times; check what is logged today |
 | 22 | W-23 | Strength vs cardio balance, week over week and overall | not yet | not yet | W-15 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. Activities (W-15) are already stored apart from lifts |
@@ -48,6 +48,35 @@ block, and the Awaiting owner list. Requirement status lives in
 ## Awaiting owner
 
 Newest first.
+
+### W-20: UI redesign (Plate)
+
+- Delivered in: eight pull requests to `dev`: #44 foundation, #45 navigation, #46 Home, #47 Progress, #48 Calendar, #49 Library, #50 logging look, then slice 8 (accessibility pass and screenshots).
+- Result:
+  - **Look:** Plate everywhere (colours, Barlow Condensed and Inter bundled, icons). Light and dark follow the phone, with Auto / Light / Dark in Settings.
+  - **Tabs:** four of them, Home · Calendar · Library · Progress.
+  - **Home:** today's workout with Start, this week's PRs, workouts and minutes, and trends (bodyweight in 2 taps, streak, volume, adherence).
+  - **Library:** one switch for Programs · Workouts · Exercises · Warm-ups. The screens say Program and Workout.
+  - **Progress:** this week in detail, records, exercises (each opens its history) and body.
+  - **Calendar:** done, planned and missed days look different.
+  - **Menus:** rare and risky actions sit in "…" menus.
+  - **Logging:** restyled only; it works exactly as before.
+- Evidence:
+  - `npm run check`: 289 tests. The 31 new ones failed against stubs or deliberate breaks first.
+  - Contrast script: 0 failing pairs (22 per mode).
+  - An accessibility scan of 19 screens: no target under 44 pt, no unlabelled icon button, no text under 11 px, no sideways scroll at the default or the largest text size.
+  - Screenshots of every main screen in both modes: `docs/evidence/w20/final/`.
+  - acceptance-reviewer "accept" on every slice, with its fixes applied.
+- Not verified:
+  - On the iPhone: Dynamic Type, VoiceOver, airplane mode, the bodyweight keyboard opening by itself.
+  - The minutes and adherence definitions in real use.
+- Calls made for you:
+  - **Minutes exercised:** each workout counts once, as the longer of start-to-finish and its activity time, so activities aren't counted twice (written into the spec).
+  - **Plan adherence:** counts every finished workout.
+  - **Missed days:** a past day with a started but unfinished workout shows as missed.
+  - **Trends:** the streak, volume and adherence tiles open Progress's Trends section.
+  - **Theme choice:** kept on the phone, not in backups.
+- To accept: the acceptance script in `docs/specs/W-20-ui-redesign.md`.
 
 ### W-19: supersets and circuits
 

@@ -577,3 +577,8 @@ input:not([type='checkbox']), .select { border-width: 1.5px; }
 .step-value input::placeholder { font-size: max(14px, 0.9rem); }
 .move-btns .icon-btn { display: inline-grid; place-items: center; }
 .round-chips button, .more-btn { display: inline-grid; place-items: center; }
+/* Steppers grow with the iPhone text size so the unit label never overlaps the number (slice 8). */
+.step-btn { height: max(48px, 2.9rem); }
+.step-value input { height: max(48px, 2.9rem); min-height: max(48px, 2.9rem); padding-bottom: 0.85rem; }
+/* Selected segment = ink fill (design system: one accent fill per screen, the main action). */
+.segmented button.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }

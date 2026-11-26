@@ -146,8 +146,8 @@ Each one is built once in `src/ui/` and reused; screens don't restyle them.
 - **Stepper:** − value + with the value in Barlow; 48 tall; value typeable.
 - **"…" menu / sheet:** rare and risky actions (Replace, Remove, Clear day,
   Delete, Move day) live here, not as buttons on the screen.
-- **Reorder:** a drag handle on each row; ▲ ▼ buttons stay available in the
-  "…" menu for accessibility.
+- **Reorder:** ▲ ▼ arrow buttons on each row (drag-to-reorder is out of scope
+  for W-20; a drag handle may come later).
 - **Saving:** everything saves as you change it. Where a change is big
   (deleting, changing every future date), a confirm sheet says what will
   happen. No Save buttons on edit screens.
