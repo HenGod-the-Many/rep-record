@@ -322,7 +322,7 @@ function GroupCard(props: {
             aria-label={`Round ${r}${complete(r) ? ', done' : ''}`}
             onClick={() => setPicked(r === auto ? null : r)}
           >
-            {complete(r) ? '✓' : r}
+            {complete(r) ? <Icon name="check" size={18} strong /> : r}
           </button>
         ))}
       </div>
@@ -566,7 +566,7 @@ function ExerciseCard(props: {
                       </span>
                     </span>
                     <button className="icon-btn more-btn" aria-expanded={menu} aria-label={`More for ${exercise.name}`} onClick={() => setMenu(!menu)}>
-                      ⋯
+                      <Icon name="more" />
                     </button>
                   </>
                 ) : (
