@@ -32,6 +32,7 @@ import { WorkoutNote } from './Journal';
 import { WarmupCard } from './Warmups';
 import { ActivityCard } from './ActivityCard';
 import { attempt, CardTitle, ErrorText, Header, MoveButtons, type SlotControls } from './common';
+import { Icon } from '../ui/icons';
 import { foldedByDefault, foldSummary } from '../db/fold';
 import { groupLabel } from '../db/groups';
 import type { GroupKind } from '../db/db';
@@ -119,23 +120,8 @@ export function LogWorkout({ sessionId, back = '/today' }: { sessionId: string; 
   const move = (slotId: string, d: -1 | 1) => attempt(() => moveSlot(db, session.id, visible, slotId, d), setError);
   const setFold = (slotId: string, value: boolean) => setFolded((f) => ({ ...f, [slotId]: value }));
 
-  return (
-    <div className="screen log-screen">
-      <Header title={session.planName} back={back} />
-      <p className="subtitle">
-        {timeLabel(session.time)} · {formatDate(session.date)}
-      </p>
-      {session.finishedAt !== null && (
-        <div className="banner finished-banner">
-          <span>Finished. Changes still save.</span>
-          <button className="btn-secondary" onClick={() => attempt(() => reopenSession(db, session.id), setError)}>
-            Reopen
-          </button>
-        </div>
-      )}
-      <WarmupCard session={session} />
-      {entries.length === 0 && <p className="banner">This workout has no exercises.</p>}
-      {units.map((u, i) => {
+  // The card for one exercise or group (unchanged from before W-20 slice 7; moved here so "Now" can wrap it).
+  const renderUnit = (u: (typeof units)[number], i: number) => {
         const id = u.key;
         if (u.group) {
           const groupControls: SlotControls = {
@@ -150,7 +136,7 @@ export function LogWorkout({ sessionId, back = '/today' }: { sessionId: string; 
           if (isFolded(id, u.done)) {
             return (
               <button key={id} className="card folded-card" aria-expanded={false} onClick={() => setFold(id, false)}>
-                <span className="done-tick" aria-hidden="true">✓</span>
+                <span className="done-tick" aria-hidden="true"><Icon name="check" size={14} strong /></span>
                 <span className="folded-text">{`${groupLabel(kind)} · ${rounds} rounds · ${u.members.map((m) => m.ex.name).join(', ')}`}</span>
                 <span className="fold-mark" aria-hidden="true">▾</span>
               </button>
@@ -164,7 +150,7 @@ export function LogWorkout({ sessionId, back = '/today' }: { sessionId: string; 
         if (isFolded(id, done)) {
           return (
             <button key={`${id}:${exId}`} className="card folded-card" aria-expanded={false} onClick={() => setFold(id, false)}>
-              <span className="done-tick" aria-hidden="true">✓</span>
+              <span className="done-tick" aria-hidden="true"><Icon name="check" size={14} strong /></span>
               <span className="folded-text">{foldSummary(ex.name, ex.kind, own, unit)}</span>
               <span className="fold-mark" aria-hidden="true">▾</span>
             </button>
@@ -203,6 +189,33 @@ export function LogWorkout({ sessionId, back = '/today' }: { sessionId: string; 
             unit={unit}
             controls={controls}
           />
+        );
+  };
+  // The exercise being worked on now: the first one not yet done.
+  const currentIndex = units.findIndex((u) => !(u.group ? u.done : u.members[0].done));
+
+  return (
+    <div className="screen log-screen">
+      <Header title={session.planName} back={back} />
+      <p className="subtitle">
+        {timeLabel(session.time)} · {formatDate(session.date)}
+      </p>
+      {session.finishedAt !== null && (
+        <div className="banner finished-banner">
+          <span>Finished. Changes still save.</span>
+          <button className="btn-secondary" onClick={() => attempt(() => reopenSession(db, session.id), setError)}>
+            Reopen
+          </button>
+        </div>
+      )}
+      <WarmupCard session={session} />
+      {entries.length === 0 && <p className="banner">This workout has no exercises.</p>}
+      {units.map((u, i) => {
+        // Same wrapper for every card, so a card never remounts when it stops being the current one.
+        return (
+          <div className={i === currentIndex ? 'log-unit log-current' : 'log-unit'} key={`unit:${u.key}`}>
+            {renderUnit(u, i)}
+          </div>
         );
       })}
       {orphans.length > 0 && (
@@ -567,7 +580,7 @@ function ExerciseCard(props: {
                 )}
                 {logged && (
                   <button className="icon-btn" aria-label={`Delete set ${n}`} onClick={() => run(() => deleteSet(db, logged.id))}>
-                    🗑
+                    <Icon name="bin" size={20} />
                   </button>
                 )}
                 <button
@@ -575,7 +588,7 @@ function ExerciseCard(props: {
                   aria-label={logged ? `Set ${n} logged` : `Log set ${n}`}
                   onClick={() => (logged ? setRating(n) : log(n))}
                 >
-                  ✓
+                  <Icon name="check" strong />
                 </button>
               </div>
 
@@ -797,7 +810,7 @@ function Stepper(props: {
   return (
     <div className={`stepper-box${props.wide ? ' wide' : ''}`}>
       <button className="step-btn" aria-label={`${props.label} down`} onClick={() => props.onStep(-1)}>
-        −
+        <Icon name="minus" size={20} strong />
       </button>
       <label className="step-value">
         <input
@@ -822,7 +835,7 @@ function Stepper(props: {
         <span className="step-unit">{props.unitLabel}</span>
       </label>
       <button className="step-btn" aria-label={`${props.label} up`} onClick={() => props.onStep(1)}>
-        +
+        <Icon name="plus" size={20} strong />
       </button>
     </div>
   );

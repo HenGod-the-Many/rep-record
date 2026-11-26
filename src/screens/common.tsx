@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { navigate } from '../router';
 import { ValidationError } from '../db/errors';
+import { Icon } from '../ui/icons';
 
 export function Header(props: { title: string; back?: string; action?: ReactNode }) {
   return (
@@ -58,8 +59,8 @@ export function MoveButtons({ name, controls }: { name: string; controls?: SlotC
   if (!controls) return null;
   return (
     <span className="move-btns">
-      <button className="icon-btn" aria-label={`Move ${name} up`} disabled={!controls.moveUp} onClick={controls.moveUp}>▲</button>
-      <button className="icon-btn" aria-label={`Move ${name} down`} disabled={!controls.moveDown} onClick={controls.moveDown}>▼</button>
+      <button className="icon-btn" aria-label={`Move ${name} up`} disabled={!controls.moveUp} onClick={controls.moveUp}><Icon name="arrow-up" size={20} /></button>
+      <button className="icon-btn" aria-label={`Move ${name} down`} disabled={!controls.moveDown} onClick={controls.moveDown}><Icon name="arrow-down" size={20} /></button>
     </span>
   );
 }
