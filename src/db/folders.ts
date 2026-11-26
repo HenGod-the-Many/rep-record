@@ -74,7 +74,7 @@ export async function deleteFolder(db: WorkoutDB, id: string): Promise<void> {
 /** Put a plan in a folder, or take it out (null). */
 export async function setPlanFolder(db: WorkoutDB, planId: string, folderId: string | null): Promise<void> {
   await db.transaction('rw', [db.folders, db.plans], async () => {
-    if (!(await db.plans.get(planId))) throw new ValidationError('That plan no longer exists.');
+    if (!(await db.plans.get(planId))) throw new ValidationError('That workout no longer exists.');
     if (folderId !== null && !(await db.folders.get(folderId))) throw new ValidationError('That folder no longer exists.');
     await db.plans.update(planId, { folderId });
   });

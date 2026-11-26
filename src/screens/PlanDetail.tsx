@@ -97,7 +97,7 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
           </p>
           {!keeping ? (
             <button className="btn-primary block" onClick={() => { setKeeping(true); setNewName(fromScratch ? plan.name : `${plan.name} (edited)`); }}>
-              {fromScratch ? 'Save as a plan…' : 'Keep these changes…'}
+              {fromScratch ? 'Save as a workout…' : 'Keep these changes…'}
             </button>
           ) : (
             <div className="stack">
