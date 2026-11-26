@@ -429,17 +429,20 @@ function ExerciseCard(props: {
 
   const run = (fn: () => Promise<unknown>) => attempt(fn, setError);
 
-  /** One ± tap: on a logged set it changes the saved value; on an unlogged row, the draft. */
-  const stepRow = (n: number, change: (p: SetPart) => SetPart) => {
+  /** One ± tap on part i of a row: on a logged set it changes the saved value; on an unlogged row, the draft. */
+  const stepRow = (n: number, change: (p: SetPart) => SetPart, i = 0) => {
     const log = byNumber.get(n);
-    if (log) return run(() => adjustSet(db, log.id, change));
+    if (log) return run(() => adjustSet(db, log.id, change, i));
     return setRow(n, change(partsOf(n)[0]));
   };
 
-  /** Save new numbers for a row: straight to the database if logged, else into the draft. */
-  const setRow = (n: number, part: SetPart) => {
+  /**
+   * Save new numbers for a row: straight to the database if logged, else into the draft.
+   * With a part index only that part of a weight-changed set changes; without one the set becomes this one part.
+   */
+  const setRow = (n: number, part: SetPart, i?: number) => {
     const log = byNumber.get(n);
-    if (log) return run(() => updateSetParts(db, log.id, [part]));
+    if (log) return run(() => updateSetParts(db, log.id, i === undefined ? [part] : log.parts.map((p, j) => (j === i ? part : p))));
     drafts.current.set(draftKey(n), part);
     rerender((x) => x + 1);
     return Promise.resolve(true);
@@ -576,7 +579,7 @@ function ExerciseCard(props: {
                 </button>
               </div>
 
-              {parts.length > 1 ? (
+              {parts.length > 1 && (
                 <div className="parts-line">
                   <span>{partsText(parts, kind, unit)}</span>
                   <button
@@ -586,6 +589,41 @@ function ExerciseCard(props: {
                     Back to one weight
                   </button>
                 </div>
+              )}
+              {parts.length > 1 ? (
+                // A weight-changed set: each weight gets its own weight and reps, so a drop set
+                // like 6 × 120 then 5 × 100 can be entered exactly (hotfix 0.8.1).
+                parts.map((pt, i) => {
+                  const of = `set ${n}, weight ${i + 1}`;
+                  return (
+                    <div className="set-steppers part-steppers" key={i}>
+                      <Stepper
+                        label={kind === 'bodyweight' ? `Added weight, ${of}` : `Weight, ${of}`}
+                        unitLabel={kind === 'bodyweight' ? `+${unit}` : unit}
+                        display={pt.weightLb === null ? '' : displayNumber(pt.weightLb, unit)}
+                        placeholder={kind === 'bodyweight' ? '0' : '–'}
+                        wide
+                        onStep={(d) =>
+                          stepRow(n, (p) => {
+                            const w = stepWeight(p.weightLb, d, unit);
+                            return { ...p, weightLb: kind === 'bodyweight' && w === 0 ? null : w };
+                          }, i)
+                        }
+                        onCommit={(t) => {
+                          const w = parseWeight(t, unit, pt.weightLb);
+                          setRow(n, { ...pt, weightLb: kind === 'bodyweight' && w === 0 ? null : w }, i);
+                        }}
+                      />
+                      <Stepper
+                        label={`Reps, ${of}`}
+                        unitLabel="reps"
+                        display={pt.reps === null ? '' : String(pt.reps)}
+                        onStep={(d) => stepRow(n, (p) => ({ ...p, reps: Math.max(1, (p.reps ?? 0) + d) }), i)}
+                        onCommit={(t) => setRow(n, { ...pt, reps: wholeOrNull(t) }, i)}
+                      />
+                    </div>
+                  );
+                })
               ) : (
                 <div className="set-steppers">
                   {kind !== 'timed' && (
@@ -886,7 +924,7 @@ function ChangePanel(props: {
     body = (
       <>
         <div className="change-title">
-          Set {mode.setNumber}: how many reps before failing?
+          Set {mode.setNumber}: how many reps before failing?{parts.length > 1 && ' (in total, all weights)'}
         </div>
         <div className="chips">
           {Array.from({ length: hi - lo + 1 }, (_, i) => lo + i).map((r) => (
