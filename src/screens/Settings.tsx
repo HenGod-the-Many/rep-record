@@ -6,13 +6,31 @@ import { getUnit, setUnit } from '../db/units';
 import { Header } from './common';
 import { BackupSection } from './Backup';
 import { BodyMetricsSection } from './Body';
+import { setThemeChoice, useThemeChoice, type ThemeChoice } from '../theme';
+
+const THEMES: { value: ThemeChoice; label: string }[] = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
 
 export function Settings() {
   const weekStart = useLiveQuery(() => getWeekStart(db), []);
   const unit = useLiveQuery(() => getUnit(db), []);
+  const theme = useThemeChoice();
   return (
     <div className="screen">
       <Header title="Settings" back="/today" />
+      <div className="field" role="group" aria-label="Appearance">
+        <span>Appearance (Auto follows your phone's light or dark setting)</span>
+        <div className="segmented">
+          {THEMES.map((t) => (
+            <button key={t.value} className={theme === t.value ? 'active' : ''} aria-pressed={theme === t.value} onClick={() => setThemeChoice(t.value)}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="field" role="group" aria-label="Weight unit">
         <span>Weight unit (weights are stored in pounds; switching changes only what you see)</span>
         <div className="segmented two">

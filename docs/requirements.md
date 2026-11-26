@@ -224,7 +224,7 @@ Added 2026-11-24 from Taylor's first real workout; approved with the W-19 spec.
 
 ## KF-16 Get around the app easily, with a sleek look and a home screen that shows my day and my numbers
 
-Added 2026-11-25 from Taylor's UI review answers (navigation option A, "Program" and "Workout", Plate look, light and dark). Proposed with the W-20 spec; waits for its approval.
+Added 2026-11-25 from Taylor's UI review answers (navigation option A, "Program" and "Workout", Plate look, light and dark). Spec W-20 approved by Taylor 2026-11-25.
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|

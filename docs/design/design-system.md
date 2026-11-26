@@ -16,7 +16,7 @@ Two palettes; the app follows the phone's light/dark setting
 (`prefers-color-scheme`), with a manual override in Settings (Auto, Light,
 Dark). Every pair below is measured by
 [contrast-check.py](contrast-check.py) (`python -X utf8 docs/design/contrast-check.py`,
-exits non-zero on a failure). Change a colour only together with that script.
+exits non-zero on a failure). Change a colour only together with that script; `src/ui/palette.test.ts` fails if the app's colours and the script's differ.
 
 | Token | Light | Dark | Used for |
 |---|---|---|---|
@@ -26,6 +26,7 @@ exits non-zero on a failure). Change a colour only together with that script.
 | `--soft` | #555A62 | #A4A9B1 | Secondary text, labels, inactive tabs |
 | `--line` | #7D828A | #6B7079 | Edges of fields and outlined buttons (3 : 1) |
 | `--hairline` | #D6D8DC | #2D3036 | Dividers between rows only (decorative, never the only edge of a control) |
+| `--surface-2` | #ECEDE9 | #24262B | Raised controls inside cards: stepper buttons, chips, panels |
 | `--hero` | #111214 | #1E2025 | The one "do this now" card (today's workout, the running exercise) |
 | `--hero-ink` / `--hero-soft` | #F4F4F1 / #B9BDC4 | #F2F2F0 / #A9AEB6 | Text on the hero card |
 | `--accent` | #C2410C | #FF7A3D | The main action's fill, filled progress |
@@ -34,6 +35,7 @@ exits non-zero on a failure). Change a colour only together with that script.
 | `--track` | #8E939B | #686D76 | Empty part of progress bars and segments |
 | `--danger` | #B42318 | #FF7B72 | Delete, Remove, Clear (text only, never a big red fill) |
 | `--good` | #1D7A3E | #5FD08F | Up-trend text ("+8% on last week") |
+| `--chart-2` | #555A62 | #A4A9B1 | Second line on a chart |
 
 Rules:
 
