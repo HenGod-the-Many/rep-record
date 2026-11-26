@@ -79,7 +79,10 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
       <Header
         title={ex?.name ?? 'Exercise in workout'}
         back={back}
-        action={<MoreMenu label={`More for ${ex?.name ?? 'this exercise'}`} items={[{ label: 'Remove from workout', danger: true, onSelect: remove }]} />}
+        action={<MoreMenu label={`More for ${ex?.name ?? 'this exercise'}`} items={[
+          { label: `Replace ${ex?.name ?? 'exercise'} permanently…`, onSelect: () => navigate(`/pick?mode=replace&plan=${planId}&entry=${entryId}`) },
+          { label: 'Remove from workout', danger: true, onSelect: remove },
+        ]} />}
       />
 
       {isActivity ? (
@@ -133,14 +136,6 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
       <button className="btn-primary block" onClick={save}>Save targets</button>
       </>
       )}
-
-      <h2 className="group-title">Exercise</h2>
-      <button
-        className="btn-secondary block"
-        onClick={() => navigate(`/pick?mode=replace&plan=${planId}&entry=${entryId}`)}
-      >
-        Replace {ex?.name ?? 'exercise'} permanently
-      </button>
 
       <h2 className="group-title">Alternates</h2>
       <p className="muted small-print">Offered as a quick swap during a workout.</p>
