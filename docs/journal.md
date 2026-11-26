@@ -2,6 +2,22 @@
 
 Newest first.
 
+## 2026-11-25 (end): v0.9.0 released, W-25 approved, handoff
+
+- **Released v0.9.0, the Plate redesign (W-20)**, at Taylor's request ("push what you have to main now").
+  - Release PR #54 (dev into main, merge commit 027c259); tag v0.9.0 pushed.
+  - The GitHub Pages deploy succeeded. The live bundle contains the new screens ("Adherence", "Changes save as you make them"), and its offline list holds the bundled fonts.
+- **W-25 approved by Taylor** ("I approve w-25"): workout timer, exercise timing, save as you change. All default answers stand, except answer 8 (release with W-20), which no longer applies.
+  - Recorded in the spec and the queue (#53). W-25 is Ready.
+  - Taylor: "we will release the next features after they're done too".
+- **Minutes exercised:** the live app still uses the interim rule (the longer of start-to-finish and activity time) until W-25 replaces it with the timer.
+- **Checks:** `npm run check` on dev: 290 tests pass, build OK.
+- **What tripped me up this session:**
+  - Long inline Python inside a bash command broke twice on quoting. Once it left edits uncommitted on dev; nothing was lost, and I moved them back to the branch. Scripts saved to a file avoid this.
+  - Fetching a non-app file from the Vite dev server made Vite try to compile it, and its error overlay covered every screenshot. A reload cleared it.
+- **The final whole-W-20 review's last must-fix** (an edit lost when tapping Back mid-typing) was fixed and checked in the browser. It was not sent back to the reviewer, so R-16.1–R-16.7 stay "built", not "verified".
+- **Not verified on the iPhone:** the whole W-20 acceptance script.
+
 ## 2026-11-25 (later): W-25 spec drafted, release held
 
 - Taylor held the v0.9.0 release ("Not yet") pending two answers.
