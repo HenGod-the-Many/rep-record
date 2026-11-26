@@ -557,3 +557,7 @@ input:not([type='checkbox']), .select { border-width: 1.5px; }
 .row { border-radius: 14px; border-color: var(--hairline); }
 .row-main { font-weight: 500; }
 .move button, .move-row .icon-btn { display: inline-grid; place-items: center; color: var(--ink); }
+/* The folder card must not clip its "..." menu. */
+.folder { overflow: visible; }
+.folder-head { border-radius: 18px; }
+.icon-btn { display: inline-grid; place-items: center; }

@@ -20,6 +20,7 @@ import { navigate } from '../router';
 import { withUndo } from '../undo';
 import { attempt, ErrorText, Header } from './common';
 import { MoreMenu } from '../ui/components';
+import { Icon } from '../ui/icons';
 import { LibraryTop } from './Library';
 import { PlanSelect, TimeSelect, UndoBar } from './pickers';
 
@@ -203,7 +204,7 @@ It is on your calendar (${ranges.join('; ')}). Those planned days will be remove
                     aria-label={`Remove ${names.get(w.planId)} from day ${d.dayIndex + 1}`}
                     onClick={() => attempt(() => setSplitDayWorkouts(db, d.id, d.workouts.filter((_, j) => j !== i)), setError)}
                   >
-                    ✕
+                    <Icon name="close" size={20} />
                   </button>
                 </span>
               </div>

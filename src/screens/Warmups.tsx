@@ -147,6 +147,13 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
           />
         }
       />
+      {renaming === null ? null : (
+        <div className="inline-form">
+          <input aria-label="Warm-up name" value={renaming} onChange={(e) => setRenaming(e.target.value)} autoFocus />
+          <button className="btn-primary" onClick={async () => { if (await attempt(() => renameWarmup(db, w.id, renaming), setError)) setRenaming(null); }}>Save</button>
+          <button className="btn-secondary" onClick={() => setRenaming(null)}>Cancel</button>
+        </div>
+      )}
       {used.length > 0 && <p className="small-print muted">Used by {used.join(', ')}.</p>}
       <RoundsStepper value={w.rounds ?? 1} max={10} onChange={(n) => attempt(() => setWarmupRounds(db, w.id, n), setError)} />
       <ol className="move-list">
@@ -183,13 +190,6 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
         <MoveForm submitLabel="Add move" onSubmit={(m) => attempt(() => addMove(db, w.id, m), setError)} />
       </section>
       <ErrorText message={error} />
-      {renaming === null ? null : (
-        <div className="inline-form">
-          <input aria-label="Warm-up name" value={renaming} onChange={(e) => setRenaming(e.target.value)} />
-          <button className="btn-primary" onClick={async () => { if (await attempt(() => renameWarmup(db, w.id, renaming), setError)) setRenaming(null); }}>Save</button>
-          <button className="btn-secondary" onClick={() => setRenaming(null)}>Cancel</button>
-        </div>
-      )}
     </div>
   );
 }
