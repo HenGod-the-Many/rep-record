@@ -11,6 +11,10 @@
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <title>Rep Record</title>
+    <script>
+      // Apply a manual Light/Dark choice before the first paint (theme.ts does the rest).
+      try { var t = localStorage.getItem('rr-theme'); if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

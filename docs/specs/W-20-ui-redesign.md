@@ -82,8 +82,9 @@ Each slice is its own pull request to dev, reviewed, so dev stays usable.
 
 1. **Foundation:** tokens for both palettes, theme setting, bundled fonts, rem
    type scale, `src/ui/` components (buttons, cards, tiles, segment bar, list
-   row, stepper, segmented switch, "…" menu, icons). Existing screens pick up
-   the new colours and type straight away.
+   row, segmented switch, "…" menu, icons). Existing screens pick up
+   the new colours and type straight away. (The stepper moved to slice 7,
+   since only logging uses it.)
 2. **Navigation:** four tabs with icons, Library switch, old routes
    redirected, words Program and Workout on screen.
 3. **Home:** the four new numbers (tests first), hero card, stat strip,
@@ -92,7 +93,7 @@ Each slice is its own pull request to dev, reviewed, so dev stays usable.
 5. **Calendar and day screens:** done, planned and missed states; "…" menus.
 6. **Library screens:** Programs, Workouts, Exercises, Warm-ups restyled;
    "…" menus for rare actions.
-7. **Logging screen:** restyle only (Plate steppers, hero card for the
+7. **Logging screen:** restyle only (Plate stepper component, hero card for the
    current exercise, icons for delete and more); no change to behaviour.
 8. **Finish:** both-mode screenshots of every screen, tap counts,
    accessibility pass, release as v0.9.0 on Taylor's OK.
