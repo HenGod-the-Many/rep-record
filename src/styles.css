@@ -523,3 +523,28 @@ input:not([type='checkbox']), .select { border-width: 1.5px; }
 .section-head .ui-section-label { margin: 0; }
 .stat-card { border-radius: 14px; }
 .stat-card .stat-label { font-size: 0.77rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--soft); }
+
+/* ---- Calendar (W-20 slice 5): done, planned, missed look different ---- */
+.month-nav { grid-template-columns: 44px 1fr 44px; }
+.month-nav h2 { font-size: 1.4rem; }
+.cal-cell { position: relative; min-height: 62px; border-radius: 10px; background: transparent; border: 1px solid var(--hairline); color: var(--ink); }
+.cal-cell.is-planned { background: var(--surface); border: 1.5px solid var(--line); }
+.cal-cell.is-done { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.cal-cell.is-done .cal-label { color: var(--bg); }
+.cal-cell.is-missed { background: transparent; border: 1.5px dashed var(--line); }
+.cal-cell.is-missed .cal-label { color: var(--soft); }
+.cal-missed { font-size: 0.65rem; font-weight: 600; }
+.cal-cell.today { box-shadow: inset 0 0 0 2px var(--accent); border-color: var(--accent); }
+.cal-check { margin: -1px 0; }
+.cal-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 0; margin: 12px 0 6px; font-size: 0.8rem; color: var(--soft); }
+.cal-legend li { display: flex; align-items: center; gap: 6px; }
+.cal-swatch { display: inline-block; width: 18px; height: 14px; border-radius: 4px; border: 1px solid var(--hairline); }
+.cal-swatch.is-done { background: var(--ink); border-color: var(--ink); }
+.cal-swatch.is-planned { background: var(--surface); border: 1.5px solid var(--line); }
+.cal-swatch.is-missed { border: 1.5px dashed var(--line); }
+.cal-swatch.today { box-shadow: inset 0 0 0 2px var(--accent); border-color: var(--accent); }
+
+/* ---- Day screen menus (W-20 slice 5) ---- */
+.card-head { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.card-head .workout-actions { flex: none; }
+.day-add { margin: 0 0 16px; }

@@ -23,6 +23,7 @@ import { DayNoteSection } from './Journal';
 import { withUndo } from '../undo';
 import { attempt, ErrorText, Header } from './common';
 import { PlanSelect, TimeSelect, UndoBar } from './pickers';
+import { MoreMenu, SecondaryButton, type MenuItem } from '../ui/components';
 
 /** One date's workouts, with quick changes. Used for Today and for any calendar date. */
 /** One line on Today when the last backup is more than 7 days old (W-07). */
@@ -69,6 +70,11 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
   const canLog = isToday || date === todayLocal();
   const title = isToday ? 'Today' : formatDate(date);
   const here = isToday ? '/today' : `/day/${date}`;
+  const dayMenu = (workoutCount: number, overridden: boolean): MenuItem[] => [
+    { label: 'Move day…', disabled: workoutCount === 0, onSelect: () => navigate(`/move/${date}?back=${encodeURIComponent(here)}`) },
+    ...(overridden ? [{ label: 'Reset to the program', onSelect: () => change(`Reset ${formatDate(date)} to the program`, () => resetDate(db, date)) }] : []),
+    { label: 'Clear day', danger: true, disabled: workoutCount === 0, onSelect: () => change(`Cleared ${formatDate(date)}`, () => clearDate(db, date)) },
+  ];
   const action = isToday ? (
     <button className="header-link" onClick={() => navigate('/settings')}>
       Settings
@@ -78,6 +84,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
   if (!data) return <div className="screen"><Header title={title} back={back} action={action} /></div>;
   const { day, workouts, exercises } = data;
   const short = formatDate(date);
+  const headerAction = isToday ? action : <MoreMenu label={`More for ${short}`} items={dayMenu(workouts.length, day.overridden)} />;
 
   const change = (label: string, fn: () => Promise<unknown>) => attempt(() => withUndo(label, fn), setError);
 
@@ -106,7 +113,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
 
   return (
     <div className="screen">
-      <Header title={title} back={back} action={action} />
+      <Header title={title} back={back} action={headerAction} />
       {isToday && <p className="subtitle">{short}</p>}
       {isToday && <BackupReminder />}
       <UndoBar />
@@ -114,12 +121,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
       {!day.scheduled && !day.overridden && <p className="banner">Nothing scheduled. Put a program on the calendar from Library → Programs, or add a workout here.</p>}
       {(day.scheduled || day.overridden) && workouts.length === 0 && <p className="banner">Rest day.</p>}
       {day.overridden && (
-        <p className="small-print muted">
-          Changed by hand.{' '}
-          <button className="link" onClick={() => change(`Reset ${short} to the program`, () => resetDate(db, date))}>
-            Reset to the program
-          </button>
-        </p>
+        <p className="small-print muted">Changed by hand. "Reset to the program" is in the … menu.</p>
       )}
 
       {workouts.map((w, i) => (
@@ -132,11 +134,21 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
               </div>
               <div className="row-sub">{timeLabel(w.time)}</div>
             </div>
-            <TimeSelect
-              label={`Time for ${w.plan?.name ?? 'workout'}`}
-              value={w.time}
-              onChange={(t) => change(`Changed the time on ${short}`, () => setWorkoutTime(db, date, i, t))}
-            />
+            <div className="workout-actions">
+              <TimeSelect
+                label={`Time for ${w.plan?.name ?? 'workout'}`}
+                value={w.time}
+                onChange={(t) => change(`Changed the time on ${short}`, () => setWorkoutTime(db, date, i, t))}
+              />
+              <MoreMenu
+                label={`More for ${w.plan?.name ?? 'this workout'}`}
+                items={[
+                  { label: 'Edit for this date', onSelect: () => editForDate(i) },
+                  { label: 'Replace…', onSelect: () => setReplacing(i) },
+                  { label: 'Remove from this day', danger: true, onSelect: () => change(`Removed a workout from ${short}`, () => removeWorkoutFromDate(db, date, i)) },
+                ]}
+              />
+            </div>
           </div>
           <ul className="mini-list">
             {/* A started workout lists its exercises in the order they were done (W-17). */}
@@ -203,15 +215,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
               />
               <button className="btn-secondary" onClick={() => setReplacing(null)}>Cancel</button>
             </div>
-          ) : (
-            <div className="button-row">
-              <button className="btn-secondary" onClick={() => editForDate(i)}>Edit for this date</button>
-              <button className="btn-secondary" onClick={() => setReplacing(i)}>Replace</button>
-              <button className="btn-danger" onClick={() => change(`Removed a workout from ${short}`, () => removeWorkoutFromDate(db, date, i))}>
-                Remove
-              </button>
-            </div>
-          )}
+          ) : null}
         </section>
       ))}
 
@@ -230,14 +234,8 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
           </div>
         </div>
       ) : (
-        <div className="button-row">
-          <button className="btn-secondary" onClick={() => setAdding(true)}>+ Add workout</button>
-          <button className="btn-secondary" disabled={workouts.length === 0} onClick={() => navigate(`/move/${date}?back=${encodeURIComponent(here)}`)}>
-            Move day
-          </button>
-          <button className="btn-danger" disabled={workouts.length === 0} onClick={() => change(`Cleared ${short}`, () => clearDate(db, date))}>
-            Clear day
-          </button>
+        <div className="day-add">
+          <SecondaryButton icon="plus" onClick={() => setAdding(true)}>Add workout</SecondaryButton>
         </div>
       )}
       <ErrorText message={error} />
