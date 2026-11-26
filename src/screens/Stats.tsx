@@ -172,8 +172,8 @@ export function StatsCards() {
   return (
     <section aria-label="Stats cards">
       <div className="section-head">
-        <h2>Overview</h2>
-        <button className="link" onClick={() => setEditing(true)}>Edit cards</button>
+        <h2 className="ui-section-label">Overview</h2>
+        <button className="ui-text-btn" onClick={() => setEditing(true)}>Edit cards</button>
       </div>
       {data.cards.length === 0 && <p className="muted">No cards shown. Tap Edit cards to pick some.</p>}
       <div className="stat-cards">

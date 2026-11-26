@@ -5,26 +5,20 @@ import { formatDate, timeLabel } from '../db/dates';
 import { findSession, startOrResume } from '../db/logging';
 import { getEntries } from '../db/plans';
 import { resolveDate } from '../db/schedule';
-import { finishedWorkouts, weekRange } from '../db/stats';
-import { minutesExercised, planAdherence, weekPrCount, weekStreak, weeklyVolume } from '../db/home';
-import { entriesFor, entryOn, parseShown, saveEntry, toShown } from '../db/body';
-import { getUnit, toDisplay } from '../db/units';
+import { entryOn, parseShown, saveEntry } from '../db/body';
 import { navigate } from '../router';
-import { HeroCard, IconButton, LargeTitle, ListRow, MainAction, MetricTile, SecondaryButton, SegmentBar, StatStrip, TextButton } from '../ui/components';
+import { HeroCard, IconButton, LargeTitle, ListRow, MainAction, SecondaryButton, TextButton } from '../ui/components';
 import { attempt, ErrorText } from './common';
 import { BackupReminder } from './DayView';
 import { DayNoteSection } from './Journal';
 import { UndoBar } from './pickers';
-
-/** Streak tile shows the last 8 weeks as segments. */
-const STREAK_SEGMENTS = 8;
-
-const whole = (n: number) => Math.round(n).toLocaleString('en-US');
+import { bodyweightText, TrendTiles, useWeekNumbers, WeekStrip, type WeekTarget } from './WeekNumbers';
 
 /**
  * Home (W-20, R-16.4): today's workout with Start, this week's numbers, trends,
  * the day note and the backup reminder. Settings sit behind the gear. Changes
  * to today (add, replace, move, clear) are on today's day screen ("Edit today").
+ * Tapping a number or trend opens its detail in Progress.
  */
 export function Home({ today }: { today: string }) {
   const data = useLiveQuery(async () => {
@@ -43,30 +37,20 @@ export function Home({ today }: { today: string }) {
         };
       }),
     );
-    const week = await weekRange(db, today);
-    return {
-      day,
-      workouts,
-      unit: await getUnit(db),
-      prs: await weekPrCount(db, today),
-      done: await finishedWorkouts(db, week.from, week.to),
-      minutes: await minutesExercised(db, today),
-      streak: await weekStreak(db, today),
-      volume: await weeklyVolume(db, today),
-      adherence: await planAdherence(db, today),
-      bodyweight: (await entriesFor(db, 'bodyweight'))[0] ?? null,
-    };
+    return { day, workouts };
   }, [today]);
+  const week = useWeekNumbers(today);
   const [error, setError] = useState<string | null>(null);
   const [addingWeight, setAddingWeight] = useState(false);
   const [weightText, setWeightText] = useState('');
 
   const gear = <IconButton icon="gear" label="Settings" onClick={() => navigate('/settings')} />;
   const title = <LargeTitle context={formatDate(today)} title="Today" action={gear} />;
-  if (!data) return <div className="screen">{title}</div>;
-  const { day, workouts, unit } = data;
+  if (!data || !week) return <div className="screen">{title}</div>;
+  const { day, workouts } = data;
+  const { unit } = week;
   const editToday = () => navigate(`/day/${today}?back=${encodeURIComponent('/today')}`);
-  const toProgress = () => navigate('/body');
+  const toProgress = (t: WeekTarget) => navigate(`/body?focus=${t}`);
 
   const next = workouts.find((w) => !(w.session && w.session.finishedAt !== null));
   const others = workouts.filter((w) => w !== next);
@@ -81,8 +65,8 @@ export function Home({ today }: { today: string }) {
 
   // Opens straight from the tap (no waiting), so iPhone shows the keyboard for the focused box.
   const openWeight = () => {
-    const e = data.bodyweight?.date === today ? data.bodyweight : null;
-    setWeightText(e ? String(Math.round(toShown('weight', e.value, unit) * 10) / 10) : '');
+    const e = week.bodyweight?.date === today ? week.bodyweight : null;
+    setWeightText(e ? bodyweightText(e.value, unit) : '');
     setAddingWeight(true);
   };
   const saveWeight = async () => {
@@ -90,10 +74,6 @@ export function Home({ today }: { today: string }) {
     const ok = await attempt(() => saveEntry(db, 'bodyweight', today, parseShown('weight', weightText, unit, current)), setError);
     if (ok) setAddingWeight(false);
   };
-
-  const bw = data.bodyweight;
-  const vol = data.volume;
-  const adh = data.adherence;
 
   return (
     <div className="screen">
@@ -135,51 +115,10 @@ export function Home({ today }: { today: string }) {
       </div>
       <ErrorText message={error} />
 
-      <StatStrip
-        label="This week"
-        stats={[
-          { value: data.prs, caption: data.prs === 1 ? 'new PR' : 'new PRs', onClick: toProgress },
-          { value: data.done, caption: data.done === 1 ? 'workout' : 'workouts', onClick: toProgress },
-          { value: whole(data.minutes), caption: 'minutes', onClick: toProgress },
-        ]}
-      />
+      <WeekStrip d={week} onPick={toProgress} />
 
       <h2 className="ui-section-label">Trends</h2>
-      <div className="ui-tiles">
-        <MetricTile
-          label="Bodyweight"
-          value={bw ? String(Math.round(toShown('weight', bw.value, unit) * 10) / 10) : '—'}
-          unit={bw ? unit : undefined}
-          caption={bw?.date === today ? 'Today · tap to change' : 'Tap to add today'}
-          onClick={openWeight}
-        />
-        <MetricTile label="Week streak" value={data.streak} unit={data.streak === 1 ? 'week' : 'weeks'} onClick={toProgress}>
-          <SegmentBar total={STREAK_SEGMENTS} filled={data.streak} label={`${Math.min(data.streak, STREAK_SEGMENTS)} of the last ${STREAK_SEGMENTS} weeks`} />
-        </MetricTile>
-        <MetricTile
-          label="Weekly volume"
-          value={whole(toDisplay(vol.volumeLb, unit))}
-          unit={unit}
-          caption={
-            vol.changePct === null ? 'nothing last week to compare' : (
-              <span className={vol.changePct > 0 ? 'ui-good' : undefined}>
-                {vol.changePct > 0 ? '▲ +' : vol.changePct < 0 ? '▼ ' : ''}
-                {vol.changePct}% on last week
-              </span>
-            )
-          }
-          onClick={toProgress}
-        />
-        <MetricTile
-          label="Plan adherence"
-          value={adh ? adh.done : '—'}
-          unit={adh ? `of ${adh.scheduled}` : undefined}
-          caption={adh ? undefined : 'nothing scheduled this week'}
-          onClick={toProgress}
-        >
-          {adh && <SegmentBar total={adh.scheduled} filled={adh.done} label={`${adh.done} of ${adh.scheduled} scheduled workouts done`} />}
-        </MetricTile>
-      </div>
+      <TrendTiles d={week} today={today} onBodyweight={openWeight} onTrend={() => toProgress('trends')} />
 
       {addingWeight && (
         <div className="card home-weight">
