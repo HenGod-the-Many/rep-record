@@ -21,8 +21,8 @@ export default defineConfig({
         start_url: base,
         scope: base,
         display: 'standalone',
-        background_color: '#111418',
-        theme_color: '#111418',
+        background_color: '#0E0F11',
+        theme_color: '#0E0F11',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -30,12 +30,15 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        // woff2: the bundled fonts, so they load with no signal (W-20).
+        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest,woff2}'],
       },
     }),
   ],
   test: {
     environment: 'node',
     setupFiles: ['src/test/setup.ts'],
+    // Lets palette.test.ts read styles.css as text (?raw) to compare it with the contrast script.
+    css: { include: [/styles\.css/] },
   },
 });

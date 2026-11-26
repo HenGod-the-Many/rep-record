@@ -23,7 +23,7 @@ goal is something "sleek and modern and intuitive to use".
    type scale, spacing, components) and a decision record.
 4. **Build in slices** through a spec, screen by screen, with the usual review.
 
-Steps 2–4 wait for Taylor after the audit.
+Steps 2–4 wait for Taylor after the audit. Step 2 approved by Taylor 2026-11-25; Taylor picked **Plate** ("Plate for sure"). Step 3 done: [design system](design/design-system.md), [decision 0008](decisions/0008-plate-design-system.md). Step 4 is W-20; its spec waits for approval.
 
 ## Taylor's answers so far
 
@@ -37,8 +37,25 @@ Steps 2–4 wait for Taylor after the audit.
   name for "a sequence of workouts repeated over a set period". The audit
   should propose names and a navigation structure (for example fewer tabs,
   with the library things grouped) as options, not decide them.
-- Not answered yet: dark only, follow the phone's light/dark setting, or both;
-  restyle only or also rework flows (the navigation answer suggests flows too).
+- **Appearance (2026-11-25):** "I'm good with light and dark mode." Support
+  both, following the phone's light/dark setting. Every colour in the design
+  system must pass WCAG AA contrast in both modes.
+- **Answers to the audit (2026-11-25):**
+  - Navigation: **option A**, four tabs: Home, Calendar, Library, Progress.
+    Library holds Programs, Workouts, Exercises and Warm-ups behind one switch.
+    Settings behind a gear on Home.
+  - Names: **"Program"** replaces "split", and **"Workout"** replaces "plan"
+    (one workout's exercises), confirmed by Taylor 2026-11-25.
+  - Scope: **restyle and rework the flows.**
+  - Home screen, in three groups:
+    1. **Start workout**: today's workout with Start.
+    2. **This week**: PRs, workouts, minutes exercised.
+    3. **Extended metrics**: bodyweight, week streak (weeks in a row with at
+       least one workout), plus metrics Claude proposes. Proposed 2026-11-25:
+       weekly volume (total weight lifted vs last week) and plan adherence
+       (planned workouts done this week). Taylor chose **both** (2026-11-25).
+- Future features Taylor pocketed the same day are in the queue (W-21 to W-24),
+  not part of this redesign.
 
 ## Limits
 

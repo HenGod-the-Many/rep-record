@@ -2,6 +2,98 @@
 
 Newest first.
 
+## 2026-11-25 (later): W-25 spec drafted, release held
+
+- Taylor held the v0.9.0 release ("Not yet") pending two answers.
+- On minutes exercised, Taylor wants a real workout timer: it starts at Start workout, can be paused and resumed, and stops at the last tick. Exercise times come from tick times, at 3 s per rep, so they work for supersets and for exercises added mid-workout. Taylor also wants averages per exercise and per workout.
+- On saving, most edit screens should save as they change, with a button kept where it is better.
+- Drafted docs/specs/W-25-workout-timer.md: KF-17, R-17.1 to R-17.6, five slices, eight default answers, and a table of which screens keep Save.
+- Key fact: every set already stores its tick time and every workout its start time, so past workouts can be timed too.
+- Nothing built; waiting for Taylor's approval. W-20 stays merged on dev, unreleased.
+
+## 2026-11-25 (night): W-20 built in eight slices
+
+- **Approval:** Taylor approved the W-20 spec ("Yes to all. Approved."). It was built the same night, one pull request per slice, each reviewed by the acceptance-reviewer before merging. #44 foundation, #45 tabs and Library, #46 Home, #47 Progress, #48 Calendar, #49 Library menus, #50 logging look, then slice 8.
+- **What the reviewers caught (all fixed before merging):**
+  - Four screens still said "plan".
+  - The folder "…" menu was clipped by its card.
+  - "Edit" from an exercise's history dropped you into Library.
+  - Small marks on done calendar days were too faint in dark mode.
+  - My own pass caught a logging-screen change that would have rebuilt a card, and closed the difficulty picker, when it stopped being "Now". It was replaced with a stable wrapper before the review.
+- **Minutes definition:** clarified while building, and written into the spec. Activities are logged inside workouts, so each workout counts once (the longer of start-to-finish and its activity time). Taylor to confirm.
+- **Slice 8:**
+  - An accessibility scan of 19 screens came back clean. The scan was first shown to catch a planted 20 px button and 8 px text.
+  - At the largest iPhone text size, the stepper unit labels overlapped the numbers. Fixed by letting the steppers grow.
+  - Settings' selected options now use ink, not orange (one orange fill per screen).
+- **Whole-W-20 review:** it asked for the tap counts (now in docs/evidence/w20/final/tap-counts.md), full both-mode screenshots (added) and the scan script (docs/design/a11y-scan.js). It also showed that approved answer 2, save as you change, had not been built. An exercise's targets in a workout now save as you change, with no "Save targets" tap. Create screens keep their button.
+- **Not verified:** anything on the iPhone itself (Dynamic Type, VoiceOver, airplane mode). That is the acceptance script.
+- **Not released:** v0.9.0 waits for Taylor's OK.
+
+## 2026-11-25 (late): Plate picked, design system, W-20 spec
+
+- Taylor picked **Plate** ("Plate for sure"). Wrote the design system
+  (docs/design/design-system.md: colours, type, spacing, icons, navigation,
+  components, checks) and decision 0008 (Plate, bundled fonts, rem type,
+  four tabs; stored data names unchanged).
+- Colours are now measured, not worked out by hand: docs/design/contrast-check.py
+  checks 17 pairs per mode. Its first run failed 3 pairs (light field edges
+  2.95 : 1, empty progress segments 1.62 and 2.10 : 1); after darkening them
+  it reports 0 failing. The step 2 mock-ups still show the old, fainter shades.
+- Drafted the W-20 spec (eight slices, each its own PR) and KF-16 with
+  R-16.1 to R-16.7 (planned). Waiting for Taylor's approval; nothing built.
+
+## 2026-11-25 (evening): hotfix v0.8.1, UI answers, step 2 directions
+
+- **Hotfix v0.8.1 released** (#37 into main, tag v0.8.1, #41 main → dev). Bug
+  from Taylor's workout: after a weight change, the reps after the drop could
+  not be edited (120 × 6 → 100 × 1 instead of → 100 × 5). Each weight in a
+  weight-changed set now has its own weight and reps steppers. Two new tests
+  (failed before, pass after); `npm run check` 259 pass; checked in the app at
+  phone size; deploy succeeded and the live bundle contains the new text.
+  Not tried on the iPhone. Own bug caught before merge: "Back to one weight"
+  briefly kept the second weight; fixed and re-checked.
+- Lesson: the audit session shared this folder, so switching branches here
+  would have moved its work. The hotfix moved to its own worktree
+  (../rr-hotfix, now removed).
+- **Taylor's UI answers** (brief): option A, "Program" for split, "Workout"
+  for plan, restyle and rework flows, home in three groups, both proposed
+  metrics (weekly volume, plan adherence). Future features W-21 to W-24
+  pocketed in the queue (#40).
+- **Step 2 started:** three visual directions for the home screen, each in
+  light and dark, on a design canvas:
+  [Rep Record home screen: three visual directions](https://claude.ai/artifact/Mg4JmpVt4THJMbJqAE5RKw)
+  (private to Taylor). Source kept in docs/design/home-directions/. Sample
+  numbers. Colours chosen to pass 4.5 : 1 in both modes (worked by hand, not
+  measured on the rendered page). Waiting for Taylor to pick one.
+
+## 2026-11-25: UI audit (step 1 of the UI review)
+
+- Read-only audit of dev (6793e5f) at 390 × 844, published as an artifact:
+  [Rep Record UI audit](https://claude.ai/artifact/2PvXoTtXL2MpDM7hiS1tM3)
+  (private to Taylor). No app code changed. Seeded data through the app's own
+  functions in the dev server's browser storage only.
+- Finding: logging is fast (1 tap a set, +1 to rate); navigation is the
+  problem. Six text-only tabs, half for setup; no home screen; bodyweight is 4
+  taps, changing a plan's reps 6 taps plus a scroll, backup 2 taps, a scroll
+  and the share sheet. The look is one grey card style (cards 1.13 : 1 against
+  the page, edges 1.4–1.6 : 1).
+- Measured: text contrast passes (16.3 : 1 body, 7.4 : 1 grey); every button
+  is at least 44 × 44 pt. Fails: placeholders 3.06–3.55 : 1 (the set inputs'
+  target text among them), other-month calendar days 3.46 : 1, field and card
+  edges below 3 : 1, current tab not announced to VoiceOver, no focus ring on
+  buttons, no Dynamic Type, dark only.
+- Offered Taylor three navigation options (A four tabs with a Library, B three
+  tabs and a Start button, C five tabs), a home-screen wireframe, and names
+  for "split" (Program, Rotation, Cycle, Routine, Block). Decisions are
+  Taylor's; steps 2–4 wait for them.
+- Lesson: the artifact tool only attaches files from folders the session may
+  read, not the scratchpad; the shared notes folder worked.
+- Same evening: release 3 was released as v0.8.0 (#36 dev → main, tag
+  v0.8.0), so the "not released" line in the handoff entry below is out of
+  date. Taylor answered the appearance question: light and dark, following
+  the phone (recorded in the UI brief). The app has no light theme yet, so
+  the audit measured dark only; the design system must pass in both.
+
 ## 2026-11-25: release 3 built; UI review next (handoff)
 
 - Release 3 is on dev, not released: W-17 (#32), W-18 (#33), W-19 (#34),

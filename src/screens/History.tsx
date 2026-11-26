@@ -5,6 +5,7 @@ import { addDays, formatDate, timeLabel, todayLocal } from '../db/dates';
 import { chartPoints, exerciseHistory, records, type ChartPoint, type Mark } from '../db/history';
 import { displayNumber, formatWeight, getUnit, type Unit } from '../db/units';
 import { Header } from './common';
+import { navigate } from '../router';
 import { LineChart, type Point } from './LineChart';
 import { partsText } from './LogWorkout';
 import { caloriesFor, formatDistance, formatDuration, paceOrSpeed } from '../db/activities';
@@ -78,7 +79,7 @@ export function History({ exerciseId, back }: { exerciseId: string; back: string
 
   return (
     <div className="screen">
-      <Header title={exercise.name} back={back} />
+      <Header title={exercise.name} back={back} action={<button className="btn-secondary small-btn" onClick={() => navigate(`/exercises/${exerciseId}?back=${encodeURIComponent(`/exercises/${exerciseId}/history?back=${encodeURIComponent(back)}`)}`)}>Edit</button>} />
       {history.length === 0 ? (
         <p className="banner">No sets logged yet.</p>
       ) : (

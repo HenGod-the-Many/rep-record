@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plate: home screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;text-align:left;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; font-family: Inter, system-ui, sans-serif; background: {{c.bg}}; color: {{c.ink}}; overflow: hidden">
+  <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 18px; padding: 56px 20px 16px">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: {{c.soft}}">Wed 25 Nov</span>
+        <h1 style="margin: 0; font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 52px; line-height: 0.95; text-transform: uppercase; letter-spacing: -0.01em">Today</h1>
+      </div>
+      <button aria-label="Settings" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 1.5px solid {{c.line}}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>
+      </button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px; padding: 18px; border-radius: 18px; background: {{c.hero}}; color: {{c.heroInk}}">
+      <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: {{c.heroSoft}}">Day 3 of 5 · Muscle building program</span>
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 40px; line-height: 1; text-transform: uppercase">Legs &amp; Abs</span>
+        <span style="font-size: 14px; color: {{c.heroSoft}}">7 exercises · about 60 min · circuit to finish</span>
+      </div>
+      <button style="height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: 0.04em; text-transform: uppercase; background: {{c.accent}}; color: {{c.onAccent}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>
+        Start workout
+      </button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: {{c.soft}}">This week</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 2px solid {{c.ink}}; border-bottom: 1px solid {{c.line}}">
+        <button style="display: flex; flex-direction: column; gap: 2px; padding: 12px 0 12px">
+          <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 40px; line-height: 1; color: {{c.accentText}}">5</span>
+          <span style="font-size: 13px; color: {{c.soft}}">new PRs</span>
+        </button>
+        <button style="display: flex; flex-direction: column; gap: 2px; padding: 12px 0 12px 14px; border-left: 1px solid {{c.line}}">
+          <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 40px; line-height: 1">3</span>
+          <span style="font-size: 13px; color: {{c.soft}}">workouts</span>
+        </button>
+        <button style="display: flex; flex-direction: column; gap: 2px; padding: 12px 0 12px 14px; border-left: 1px solid {{c.line}}">
+          <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 40px; line-height: 1">184</span>
+          <span style="font-size: 13px; color: {{c.soft}}">minutes</span>
+        </button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: {{c.soft}}">Trends</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+        <button style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 14px; background: {{c.surface}}; border: 1px solid {{c.line}}">
+          <span style="font-size: 13px; color: {{c.soft}}">Bodyweight</span>
+          <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1">186.2 <small style="font-size: 16px">lb</small></span>
+          <span style="font-size: 12px; color: {{c.soft}}">−0.4 this week · tap to add</span>
+        </button>
+        <button style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 14px; background: {{c.surface}}; border: 1px solid {{c.line}}">
+          <span style="font-size: 13px; color: {{c.soft}}">Week streak</span>
+          <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1">6 <small style="font-size: 16px">weeks</small></span>
+          <span style="font-size: 12px; color: {{c.soft}}">in a row with a workout</span>
+        </button>
+        <button style="display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 14px; background: {{c.surface}}; border: 1px solid {{c.line}}">
+          <span style="font-size: 13px; color: {{c.soft}}">Weekly volume</span>
+          <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1">42,350 <small style="font-size: 16px">lb</small></span>
+          <span style="font-size: 12px; color: {{c.soft}}">+8% on last week</span>
+        </button>
+        <button style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: {{c.surface}}; border: 1px solid {{c.line}}">
+          <span style="font-size: 13px; color: {{c.soft}}">Plan adherence</span>
+          <span style="font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 30px; line-height: 1">3 <small style="font-size: 16px">of 5</small></span>
+          <span style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px">
+            <span style="height: 6px; border-radius: 3px; background: {{c.accent}}"></span>
+            <span style="height: 6px; border-radius: 3px; background: {{c.accent}}"></span>
+            <span style="height: 6px; border-radius: 3px; background: {{c.accent}}"></span>
+            <span style="height: 6px; border-radius: 3px; background: {{c.track}}"></span>
+            <span style="height: 6px; border-radius: 3px; background: {{c.track}}"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <nav aria-label="Main" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 8px 8px 28px; border-top: 1px solid {{c.line}}; background: {{c.bg}}">
+    <a href="#" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 48px; justify-content: center; text-decoration: none; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: {{c.accentText}}">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"></path></svg>Home</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 48px; justify-content: center; text-decoration: none; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: {{c.soft}}">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2"></rect><path d="M3 9.5h18M8 2.5v4M16 2.5v4"></path></svg>Calendar</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 48px; justify-content: center; text-decoration: none; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: {{c.soft}}">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h4v16H4zM10 4h4v16h-4zM16.5 4.5l3.8 1 -3.8 14.6-3.8-1z"></path></svg>Library</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 48px; justify-content: center; text-decoration: none; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: {{c.soft}}">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>Progress</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const dark = this.props.dark ?? false;
+const light = { bg: '#F4F4F1', surface: '#FFFFFF', ink: '#111214', soft: '#555A62', line: '#D6D8DC', hero: '#111214', heroInk: '#F4F4F1', heroSoft: '#B9BDC4', accent: '#C2410C', onAccent: '#FFFFFF', accentText: '#B23C0B', track: '#E2E3E6' };
+const night = { bg: '#0E0F11', surface: '#18191D', ink: '#F2F2F0', soft: '#A4A9B1', line: '#2D3036', hero: '#1E2025', heroInk: '#F2F2F0', heroSoft: '#A9AEB6', accent: '#FF7A3D', onAccent: '#111214', accentText: '#FF8A55', track: '#33363C' };
+return { c: dark ? night : light };
+}
+}
+</script>
+</body>
+</html>

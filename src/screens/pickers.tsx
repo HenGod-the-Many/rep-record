@@ -9,7 +9,7 @@ export function PlanSelect(props: { value: string; onChange: (id: string) => voi
   const plans = useLiveQuery(() => listPlans(db), []) ?? [];
   return (
     <select className="select" value={props.value} onChange={(e) => props.onChange(e.target.value)} aria-label={props.label}>
-      <option value="">{props.placeholder ?? 'Pick a plan…'}</option>
+      <option value="">{props.placeholder ?? 'Pick a workout…'}</option>
       {plans.map((p) => (
         <option key={p.id} value={p.id}>
           {p.name}

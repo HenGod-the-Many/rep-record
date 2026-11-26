@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Exercise } from '../db/db';
 import { listExercises } from '../db/exercises';
 import { navigate } from '../router';
-import { Header } from './common';
+import { LibraryTop } from './Library';
 import { KIND_LABEL } from '../format';
 
 export function groupByMuscle(list: Exercise[]): [string, Exercise[]][] {
@@ -27,8 +27,8 @@ export function ExerciseList() {
 
   return (
     <div className="screen">
-      <Header
-        title="Exercises"
+      <LibraryTop
+        part="exercises"
         action={
           <button className="btn-primary small" onClick={() => navigate('/exercises/new')}>
             + New
@@ -54,7 +54,7 @@ export function ExerciseList() {
           <ul className="list">
             {items.map((e) => (
               <li key={e.id}>
-                <button className="row" onClick={() => navigate(`/exercises/${e.id}`)}>
+                <button className="row" onClick={() => navigate(`/exercises/${e.id}/history`)}>
                   <span className="row-main">
                     {e.name}
                     {e.archived && <span className="tag">archived</span>}

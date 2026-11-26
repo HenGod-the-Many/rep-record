@@ -95,7 +95,7 @@ export async function deleteWarmup(db: WorkoutDB, id: string): Promise<void> {
 
 export async function setPlanWarmup(db: WorkoutDB, planId: string, warmupId: string | null): Promise<void> {
   await db.transaction('rw', db.plans, db.warmups, async () => {
-    if (!(await db.plans.get(planId))) throw new ValidationError('That plan no longer exists.');
+    if (!(await db.plans.get(planId))) throw new ValidationError('That workout no longer exists.');
     if (warmupId && !(await db.warmups.get(warmupId))) throw new ValidationError('That warm-up no longer exists.');
     await db.plans.update(planId, { warmupId });
   });

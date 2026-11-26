@@ -18,6 +18,9 @@ import {
 } from '../db/warmups';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header, RoundsStepper } from './common';
+import { Icon } from '../ui/icons';
+import { MoreMenu } from '../ui/components';
+import { LibraryTop } from './Library';
 
 /** Plans tab → Warm-ups: the list of routines (W-16). */
 export function WarmupList() {
@@ -33,8 +36,8 @@ export function WarmupList() {
   };
   return (
     <div className="screen">
-      <Header title="Warm-ups" back="/plans" />
-      <p className="small-print muted">Attach a warm-up to a plan and it comes first when you start that workout.</p>
+      <LibraryTop part="warmups" />
+      <p className="small-print muted">Attach a warm-up to a workout and it comes first when you start that workout.</p>
       <ul className="list">
         {(warmups ?? []).map((w) => (
           <li key={w.id}>
@@ -131,7 +134,26 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
   };
   return (
     <div className="screen">
-      <Header title={w.name} back="/warmups" />
+      <Header
+        title={w.name}
+        back="/warmups"
+        action={
+          <MoreMenu
+            label={`More for ${w.name}`}
+            items={[
+              { label: 'Rename', onSelect: () => setRenaming(w.name) },
+              { label: 'Delete warm-up', danger: true, onSelect: remove },
+            ]}
+          />
+        }
+      />
+      {renaming === null ? null : (
+        <div className="inline-form">
+          <input aria-label="Warm-up name" value={renaming} onChange={(e) => setRenaming(e.target.value)} autoFocus />
+          <button className="btn-primary" onClick={async () => { if (await attempt(() => renameWarmup(db, w.id, renaming), setError)) setRenaming(null); }}>Save</button>
+          <button className="btn-secondary" onClick={() => setRenaming(null)}>Cancel</button>
+        </div>
+      )}
       {used.length > 0 && <p className="small-print muted">Used by {used.join(', ')}.</p>}
       <RoundsStepper value={w.rounds ?? 1} max={10} onChange={(n) => attempt(() => setWarmupRounds(db, w.id, n), setError)} />
       <ol className="move-list">
@@ -155,9 +177,9 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
                 <span>{m.name}</span>
                 <span className="muted">{moveAmount(m)}</span>
               </button>
-              <button className="icon-btn" aria-label={`Move ${m.name} up`} disabled={i === 0 || editing !== null} onClick={() => attempt(() => reorderMove(db, w.id, i, -1), setError)}>↑</button>
-              <button className="icon-btn" aria-label={`Move ${m.name} down`} disabled={i === w.moves.length - 1 || editing !== null} onClick={() => attempt(() => reorderMove(db, w.id, i, 1), setError)}>↓</button>
-              <button className="icon-btn" aria-label={`Remove ${m.name}`} disabled={editing !== null} onClick={() => attempt(() => removeMove(db, w.id, i), setError)}>✕</button>
+              <button className="icon-btn" aria-label={`Move ${m.name} up`} disabled={i === 0 || editing !== null} onClick={() => attempt(() => reorderMove(db, w.id, i, -1), setError)}><Icon name="arrow-up" size={20} /></button>
+              <button className="icon-btn" aria-label={`Move ${m.name} down`} disabled={i === w.moves.length - 1 || editing !== null} onClick={() => attempt(() => reorderMove(db, w.id, i, 1), setError)}><Icon name="arrow-down" size={20} /></button>
+              <button className="icon-btn" aria-label={`Remove ${m.name}`} disabled={editing !== null} onClick={() => attempt(() => removeMove(db, w.id, i), setError)}><Icon name="close" size={20} /></button>
             </li>
           ),
         )}
@@ -168,18 +190,6 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
         <MoveForm submitLabel="Add move" onSubmit={(m) => attempt(() => addMove(db, w.id, m), setError)} />
       </section>
       <ErrorText message={error} />
-      {renaming === null ? (
-        <div className="button-row two">
-          <button className="btn-secondary" onClick={() => setRenaming(w.name)}>Rename</button>
-          <button className="btn-danger" onClick={remove}>Delete</button>
-        </div>
-      ) : (
-        <div className="inline-form">
-          <input aria-label="Warm-up name" value={renaming} onChange={(e) => setRenaming(e.target.value)} />
-          <button className="btn-primary" onClick={async () => { if (await attempt(() => renameWarmup(db, w.id, renaming), setError)) setRenaming(null); }}>Save</button>
-          <button className="btn-secondary" onClick={() => setRenaming(null)}>Cancel</button>
-        </div>
-      )}
     </div>
   );
 }
@@ -198,7 +208,7 @@ export function PlanWarmupChoice({ planId, value }: { planId: string; value: str
         ))}
       </select>
       <span className="small-print muted">
-        Build warm-ups under <button className="link" onClick={() => navigate('/warmups')}>Plans → Warm-ups</button>.
+        Build warm-ups under <button className="link" onClick={() => navigate('/warmups')}>Library → Warm-ups</button>.
       </span>
       <ErrorText message={error} />
     </label>

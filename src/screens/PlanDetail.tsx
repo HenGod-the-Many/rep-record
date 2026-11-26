@@ -9,6 +9,8 @@ import { dateOfCopy, saveCopyAsNewPlan, updatePlanEverywhere } from '../db/resch
 import { formatDate } from '../db/dates';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header, RoundsStepper } from './common';
+import { Icon } from '../ui/icons';
+import { MoreMenu } from '../ui/components';
 import { getUnit } from '../db/units';
 import { PlanWarmupChoice } from './Warmups';
 import { formatTargets } from '../format';
@@ -27,7 +29,7 @@ function PlanFolderChoice({ planId, value }: { planId: string; value: string | n
           <option key={f.id} value={f.id}>{f.name}</option>
         ))}
       </select>
-      {folders && folders.length === 0 && <span className="small-print muted">Make folders at the bottom of the Plans tab.</span>}
+      {folders && folders.length === 0 && <span className="small-print muted">Make folders at the bottom of Library → Workouts.</span>}
       <ErrorText message={error} />
     </label>
   );
@@ -48,12 +50,12 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
   const [newName, setNewName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  if (!data) return <div className="screen"><Header title="Plan" back="/plans" /></div>;
+  if (!data) return <div className="screen"><Header title="Workout" back="/plans" /></div>;
   if (!data.plan) {
     return (
       <div className="screen">
-        <Header title="Plan" back="/plans" />
-        <p className="muted">This plan no longer exists.</p>
+        <Header title="Workout" back="/plans" />
+        <p className="muted">This workout no longer exists.</p>
       </div>
     );
   }
@@ -80,35 +82,50 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
   };
 
   const remove = async () => {
-    if (!window.confirm(`Delete the plan "${plan.name}"? It is removed from your splits (a day left with nothing becomes rest), dates you set to only this plan go back to the split, and logged sets are kept.`)) return;
+    if (!window.confirm(`Delete the workout "${plan.name}"? It is removed from your programs (a day left with nothing becomes rest), dates you set to only this workout go back to the program, and logged sets are kept.`)) return;
     await deletePlan(db, planId);
     navigate('/plans');
   };
 
   return (
     <div className="screen">
-      <Header title={plan.name} back={back} />
+      <Header
+        title={plan.name}
+        back={back}
+        action={
+          <MoreMenu
+            label={`More for ${plan.name}`}
+            items={[
+              { label: 'Rename', onSelect: () => setRenaming(plan.name) },
+              ...(plan.hidden ? [] : [
+                { label: 'Duplicate', onSelect: duplicate },
+                { label: 'Delete workout', danger: true, onSelect: remove },
+              ]),
+            ]}
+          />
+        }
+      />
       {plan.hidden && (
         <div className="card">
           <p className="small-print">
             {fromScratch
-              ? `This workout is for ${copyDate ? formatDate(copyDate) : 'this date'} only. Save it as a plan to reuse it.`
-              : `Changes here apply to ${copyDate ? formatDate(copyDate) : 'this date'} only. The ${sourceName ?? 'original'} plan is not changed.`}
+              ? `This workout is for ${copyDate ? formatDate(copyDate) : 'this date'} only. Save it as a workout to reuse it.`
+              : `Changes here apply to ${copyDate ? formatDate(copyDate) : 'this date'} only. The ${sourceName ?? 'original'} workout is not changed.`}
           </p>
           {!keeping ? (
             <button className="btn-primary block" onClick={() => { setKeeping(true); setNewName(fromScratch ? plan.name : `${plan.name} (edited)`); }}>
-              {fromScratch ? 'Save as a plan…' : 'Keep these changes…'}
+              {fromScratch ? 'Save as a workout…' : 'Keep these changes…'}
             </button>
           ) : (
             <div className="stack">
               {!fromScratch && (
                 <button className="btn-primary" disabled={!sourceName} onClick={keepEverywhere}>
-                  Update {sourceName ?? 'the plan'} everywhere
+                  Update {sourceName ?? 'the workout'} everywhere
                 </button>
               )}
               <div className="inline-form">
-                <input value={newName} onChange={(e) => setNewName(e.target.value)} aria-label="New plan name" />
-                <button className="btn-secondary" onClick={keepAsNew}>Save as new plan</button>
+                <input value={newName} onChange={(e) => setNewName(e.target.value)} aria-label="New workout name" />
+                <button className="btn-secondary" onClick={keepAsNew}>Save as new workout</button>
               </div>
               <button className="btn-secondary" onClick={() => setKeeping(false)}>Cancel</button>
             </div>
@@ -117,19 +134,9 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
       )}
       <PlanWarmupChoice planId={plan.id} value={plan.warmupId} />
       {!plan.hidden && <PlanFolderChoice planId={plan.id} value={plan.folderId} />}
-      {renaming === null ? (
-        plan.hidden ? (
-          <button className="btn-secondary block" onClick={() => setRenaming(plan.name)}>Rename</button>
-        ) : (
-          <div className="button-row">
-            <button className="btn-secondary" onClick={() => setRenaming(plan.name)}>Rename</button>
-            <button className="btn-secondary" onClick={duplicate}>Duplicate</button>
-            <button className="btn-danger" onClick={remove}>Delete</button>
-          </div>
-        )
-      ) : (
+      {renaming === null ? null : (
         <div className="inline-form">
-          <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="Plan name" autoFocus />
+          <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="Workout name" autoFocus />
           <button className="btn-primary" onClick={saveName}>Save</button>
           <button className="btn-secondary" onClick={() => { setRenaming(null); setError(null); }}>Cancel</button>
         </div>
@@ -201,8 +208,8 @@ function PlanEntries(props: { planId: string; entries: PlanExercise[]; exercises
         </button>
         {picking === null && (
           <div className="move">
-            <button aria-label={`Move ${ex?.name} up`} disabled={!canMove(i, -1)} onClick={() => moveEntry(db, entry.id, -1)}>▲</button>
-            <button aria-label={`Move ${ex?.name} down`} disabled={!canMove(i, 1)} onClick={() => moveEntry(db, entry.id, 1)}>▼</button>
+            <button aria-label={`Move ${ex?.name} up`} disabled={!canMove(i, -1)} onClick={() => moveEntry(db, entry.id, -1)}><Icon name="arrow-up" size={20} /></button>
+            <button aria-label={`Move ${ex?.name} down`} disabled={!canMove(i, 1)} onClick={() => moveEntry(db, entry.id, 1)}><Icon name="arrow-down" size={20} /></button>
           </div>
         )}
       </li>

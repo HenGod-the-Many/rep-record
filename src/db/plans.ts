@@ -33,7 +33,7 @@ function checkTargets(t: Targets): Targets {
 
 function cleanName(name: string): string {
   const n = name.trim().replace(/\s+/g, ' ');
-  if (!n) throw new ValidationError('Give the plan a name.');
+  if (!n) throw new ValidationError('Give the workout a name.');
   return n;
 }
 
@@ -89,7 +89,7 @@ export async function deletePlan(db: WorkoutDB, planId: string): Promise<void> {
 export async function duplicatePlan(db: WorkoutDB, planId: string): Promise<string> {
   return db.transaction('rw', [db.plans, db.planExercises], async () => {
     const plan = await db.plans.get(planId);
-    if (!plan) throw new ValidationError('That plan no longer exists.');
+    if (!plan) throw new ValidationError('That workout no longer exists.');
     const copyId = newId();
     const taken = new Set((await db.plans.toArray()).map((p) => p.name));
     const base = `${plan.name.replace(/ \(copy(?: \d+)?\)$/, '')} (copy)`;
@@ -110,7 +110,7 @@ export async function addEntry(
   targets: Targets = DEFAULT_TARGETS,
 ): Promise<string> {
   return db.transaction('rw', [db.plans, db.planExercises, db.exercises], async () => {
-    if (!(await db.plans.get(planId))) throw new ValidationError('That plan no longer exists.');
+    if (!(await db.plans.get(planId))) throw new ValidationError('That workout no longer exists.');
     const ex = await db.exercises.get(exerciseId);
     if (!ex) throw new ValidationError('That exercise no longer exists.');
     const t = checkTargets(ex.kind === 'activity' && targets === DEFAULT_TARGETS ? { targetSets: 1, repMin: 30, repMax: 30 } : targets);
@@ -204,7 +204,7 @@ export async function updateTargets(db: WorkoutDB, entryId: string, targets: Tar
 export async function replaceEntryExercise(db: WorkoutDB, entryId: string, exerciseId: string): Promise<void> {
   await db.transaction('rw', [db.planExercises, db.exercises], async () => {
     const entry = await db.planExercises.get(entryId);
-    if (!entry) throw new ValidationError('That plan entry no longer exists.');
+    if (!entry) throw new ValidationError('That exercise is no longer in the workout.');
     if (!(await db.exercises.get(exerciseId))) throw new ValidationError('That exercise no longer exists.');
     await db.planExercises.update(entryId, {
       exerciseId,
@@ -216,7 +216,7 @@ export async function replaceEntryExercise(db: WorkoutDB, entryId: string, exerc
 export async function addAlternate(db: WorkoutDB, entryId: string, exerciseId: string): Promise<void> {
   await db.transaction('rw', db.planExercises, async () => {
     const entry = await db.planExercises.get(entryId);
-    if (!entry) throw new ValidationError('That plan entry no longer exists.');
+    if (!entry) throw new ValidationError('That exercise is no longer in the workout.');
     if (exerciseId === entry.exerciseId) throw new ValidationError('That is already the main exercise.');
     if (entry.alternateIds.includes(exerciseId)) return;
     await db.planExercises.update(entryId, { alternateIds: [...entry.alternateIds, exerciseId] });

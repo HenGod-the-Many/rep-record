@@ -60,7 +60,7 @@ export async function getSplitDays(db: WorkoutDB, splitId: string): Promise<Spli
 
 export async function createSplit(db: WorkoutDB, name: string, cycleDays: number): Promise<string> {
   const id = newId();
-  const n = cleanName(name, 'split');
+  const n = cleanName(name, 'program');
   const len = checkCycle(cycleDays);
   await db.transaction('rw', [db.splits, db.splitDays], async () => {
     await db.splits.add({ id, name: n, cycleDays: len });
@@ -70,7 +70,7 @@ export async function createSplit(db: WorkoutDB, name: string, cycleDays: number
 }
 
 export async function renameSplit(db: WorkoutDB, splitId: string, name: string): Promise<void> {
-  await db.splits.update(splitId, { name: cleanName(name, 'split') });
+  await db.splits.update(splitId, { name: cleanName(name, 'program') });
 }
 
 /** Lengthen (new days are rest) or shorten (trailing days are removed) the cycle. */
@@ -92,7 +92,7 @@ export async function setSplitDayWorkouts(db: WorkoutDB, splitDayId: string, wor
 export async function duplicateSplit(db: WorkoutDB, splitId: string): Promise<string> {
   return db.transaction('rw', [db.splits, db.splitDays], async () => {
     const split = await db.splits.get(splitId);
-    if (!split) throw new ValidationError('That split no longer exists.');
+    if (!split) throw new ValidationError('That program no longer exists.');
     const id = newId();
     const taken = new Set((await db.splits.toArray()).map((s) => s.name));
     const base = `${split.name.replace(/ \(copy(?: \d+)?\)$/, '')} (copy)`;
@@ -133,7 +133,7 @@ export async function scheduleSplit(db: WorkoutDB, splitId: string, startDate: s
     throw new ValidationError('The length must be at least 1 day and at most 10 years.');
   }
   return db.transaction('rw', [db.splits, db.schedules], async () => {
-    if (!(await db.splits.get(splitId))) throw new ValidationError('That split no longer exists.');
+    if (!(await db.splits.get(splitId))) throw new ValidationError('That program no longer exists.');
     const id = newId();
     const latest = Math.max(0, ...(await db.schedules.toArray()).map((s) => s.createdAt));
     await db.schedules.add({ id, splitId, startDate, lengthDays, createdAt: Math.max(Date.now(), latest + 1), offset: 0 });

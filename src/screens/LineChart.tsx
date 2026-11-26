@@ -20,7 +20,7 @@ export interface Point {
   values: (number | null)[];
 }
 
-const COLORS = ['var(--accent)', '#f0b54a'];
+const COLORS = ['var(--accent)', 'var(--chart-2)'];
 
 /**
  * A small chart drawn as SVG (no chart library), shared by exercise history

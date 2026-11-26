@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useRoute, navigate } from './router';
 import { ExerciseList } from './screens/ExerciseList';
 import { ExerciseForm } from './screens/ExerciseForm';
@@ -6,6 +7,7 @@ import { PlanDetail } from './screens/PlanDetail';
 import { EntryEdit } from './screens/EntryEdit';
 import { ExercisePicker } from './screens/ExercisePicker';
 import { DayView } from './screens/DayView';
+import { Home } from './screens/Home';
 import { MoveDay } from './screens/MoveDay';
 import { Calendar } from './screens/Calendar';
 import { SplitEdit, SplitList } from './screens/Splits';
@@ -16,9 +18,19 @@ import { WarmupEdit, WarmupList } from './screens/Warmups';
 import { BodyList, MetricPage, PhotosPage } from './screens/Body';
 import { useToday } from './useToday';
 import { applyUpdate, useUpdateReady } from './pwa';
+import { Gallery } from './ui/Gallery';
+import { Icon } from './ui/icons';
+import { TABS, tabFor, tabPath } from './tabs';
+import { lastLibraryPath } from './screens/Library';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+
+/** #/library opens the part of the Library used last. */
+function LibraryRedirect() {
+  useEffect(() => navigate(lastLibraryPath(), { replace: true }), []);
+  return null;
+}
 
 function Screen() {
   const { parts, query } = useRoute();
@@ -26,14 +38,15 @@ function Screen() {
   const back = query.get('back') ?? undefined;
   const today = useToday();
 
-  if (section === 'exercises' && id && sub === 'history') return <History exerciseId={id} back={back?.startsWith('/') ? back : `/exercises/${id}`} />;
-  if (section === 'exercises' && id) return <ExerciseForm id={id === 'new' ? null : id} />;
+  if (section === 'exercises' && id && sub === 'history') return <History exerciseId={id} back={back?.startsWith('/') ? back : '/exercises'} />;
+  if (section === 'exercises' && id) return <ExerciseForm id={id === 'new' ? null : id} back={back?.startsWith('/') ? back : '/exercises'} />;
   if (section === 'exercises') return <ExerciseList />;
   if (section === 'plans' && id && sub === 'entry' && subId) return <EntryEdit planId={id} entryId={subId} />;
   if (section === 'plans' && id) return <PlanDetail planId={id} backTo={back?.startsWith('/') ? back : undefined} />;
   if (section === 'plans') return <PlanList />;
   if (section === 'warmups' && id) return <WarmupEdit warmupId={id} />;
   if (section === 'warmups') return <WarmupList />;
+  if (section === 'library') return <LibraryRedirect />;
   if (section === 'pick') return <ExercisePicker query={query} />;
   if (section === 'splits' && id) return <SplitEdit splitId={id} />;
   if (section === 'splits') return <SplitList />;
@@ -46,24 +59,15 @@ function Screen() {
   if (section === 'settings') return <Settings />;
   if (section === 'body' && id === 'photos') return <PhotosPage />;
   if (section === 'body' && id) return <MetricPage metricId={id} />;
-  if (section === 'body') return <BodyList />;
-  if (section === 'log' && id) return <LogWorkout key={id} sessionId={id} />;
-  return <DayView key={today} date={today} isToday />;
+  if (section === 'body') return <BodyList focus={query.get('focus')} />;
+  if (import.meta.env.DEV && section === 'ui') return <Gallery />;
+  if (section === 'log' && id) return <LogWorkout key={id} sessionId={id} back={back?.startsWith('/') ? back : '/today'} />;
+  return <Home key={today} today={today} />;
 }
 
-const TABS: { key: string; label: string; path: string; sections: string[] }[] = [
-  { key: 'today', label: 'Today', path: '/today', sections: ['today', 'settings', 'log', ''] },
-  { key: 'calendar', label: 'Calendar', path: '/calendar', sections: ['calendar', 'day', 'move'] },
-  { key: 'splits', label: 'Splits', path: '/splits', sections: ['splits'] },
-  { key: 'plans', label: 'Plans', path: '/plans', sections: ['plans', 'pick', 'warmups'] },
-  { key: 'exercises', label: 'Exercises', path: '/exercises', sections: ['exercises'] },
-  { key: 'body', label: 'Stats', path: '/body', sections: ['body'] },
-];
-
 export function App() {
-  const { parts } = useRoute();
-  const section = parts[0] ?? '';
-  const active = TABS.find((t) => t.sections.includes(section))?.key ?? 'today';
+  const { parts, query } = useRoute();
+  const active = tabFor(parts, query);
   const updateReady = useUpdateReady();
   return (
     <div className="app">
@@ -78,8 +82,14 @@ export function App() {
       </main>
       <nav className="tabbar" aria-label="Sections">
         {TABS.map((t) => (
-          <button key={t.key} className={active === t.key ? 'active' : ''} onClick={() => navigate(t.path)}>
-            {t.label}
+          <button
+            key={t.key}
+            className={active === t.key ? 'active' : ''}
+            aria-current={active === t.key ? 'page' : undefined}
+            onClick={() => navigate(tabPath(t.key, lastLibraryPath()))}
+          >
+            <Icon name={t.icon} strong={active === t.key} />
+            <span>{t.label}</span>
           </button>
         ))}
       </nav>
