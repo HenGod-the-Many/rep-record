@@ -80,7 +80,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
   const change = (label: string, fn: () => Promise<unknown>) => attempt(() => withUndo(label, fn), setError);
 
   const add = async () => {
-    if (!newPlan) return setError('Pick a plan to add.');
+    if (!newPlan) return setError('Pick a workout to add.');
     if (await change(`Added a workout to ${short}`, () => addWorkoutToDate(db, date, newPlan, newTime))) {
       setAdding(false);
       setNewPlan('');
@@ -109,13 +109,13 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
       {isToday && <BackupReminder />}
       <UndoBar />
 
-      {!day.scheduled && !day.overridden && <p className="banner">Nothing scheduled. Put a split on the calendar from Splits, or add a workout here.</p>}
+      {!day.scheduled && !day.overridden && <p className="banner">Nothing scheduled. Put a program on the calendar from Library → Programs, or add a workout here.</p>}
       {(day.scheduled || day.overridden) && workouts.length === 0 && <p className="banner">Rest day.</p>}
       {day.overridden && (
         <p className="small-print muted">
           Changed by hand.{' '}
-          <button className="link" onClick={() => change(`Reset ${short} to the split`, () => resetDate(db, date))}>
-            Reset to the split
+          <button className="link" onClick={() => change(`Reset ${short} to the program`, () => resetDate(db, date))}>
+            Reset to the program
           </button>
         </p>
       )}
@@ -125,7 +125,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
           <div className="card-head">
             <div>
               <div className="card-title">
-                {w.plan?.name ?? 'Deleted plan'}
+                {w.plan?.name ?? 'Deleted workout'}
                 {w.plan?.hidden && <span className="tag">{w.plan.sourcePlanId ? "edited for this date" : "this date only"}</span>}
               </div>
               <div className="row-sub">{timeLabel(w.time)}</div>
@@ -150,7 +150,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
                 </li>
               );
             })}
-            {w.entries.length === 0 && <li className="muted">No exercises in this plan yet.</li>}
+            {w.entries.length === 0 && <li className="muted">No exercises in this workout yet.</li>}
           </ul>
           {w.session && w.session.finishedAt !== null ? (
             <div className="done-line">
@@ -219,10 +219,10 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
           <div className="stack">
             <TimeSelect label="Time" value={newTime} onChange={setNewTime} />
             <button className="btn-primary" onClick={buildNew}>Build a new workout</button>
-            <p className="small-print muted">Starts empty; you add the exercises. Or use one of your plans:</p>
-            <PlanSelect label="Plan to add" value={newPlan} onChange={setNewPlan} />
+            <p className="small-print muted">Starts empty; you add the exercises. Or use one of your saved workouts:</p>
+            <PlanSelect label="Workout to add" value={newPlan} onChange={setNewPlan} />
             <div className="button-row two">
-              <button className="btn-secondary" onClick={add} disabled={!newPlan}>Add plan</button>
+              <button className="btn-secondary" onClick={add} disabled={!newPlan}>Add this workout</button>
               <button className="btn-secondary" onClick={() => setAdding(false)}>Cancel</button>
             </div>
           </div>

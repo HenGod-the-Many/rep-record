@@ -52,7 +52,7 @@ async function planNames(db: WorkoutDB) {
 }
 
 function labelOf(workouts: PlannedWorkout[], names: Map<string, string>): string {
-  return workouts.length === 0 ? 'Rest' : workouts.map((w) => names.get(w.planId) ?? 'Deleted plan').join(' + ');
+  return workouts.length === 0 ? 'Rest' : workouts.map((w) => names.get(w.planId) ?? 'Deleted workout').join(' + ');
 }
 
 /**
@@ -224,7 +224,7 @@ export async function makeDateCopy(db: WorkoutDB, date: string, index: number): 
     const w = day.workouts[index];
     if (!w) throw new ValidationError('That workout is no longer on this date.');
     const plan = await db.plans.get(w.planId);
-    if (!plan) throw new ValidationError('That plan no longer exists.');
+    if (!plan) throw new ValidationError('That workout no longer exists.');
     if (plan.hidden) return plan.id;
     const copyId = newId();
     await db.plans.add({ id: copyId, name: plan.name, notes: plan.notes, hidden: true, sourcePlanId: plan.id, warmupId: plan.warmupId ?? null });
@@ -261,7 +261,7 @@ export async function updatePlanEverywhere(db: WorkoutDB, copyId: string): Promi
     if (!copy?.hidden) throw new ValidationError('This workout is not a one-date copy.');
     const sourceId = copy.sourcePlanId;
     if (!sourceId || !(await db.plans.get(sourceId))) {
-      throw new ValidationError('The original plan no longer exists. Save this as a new plan instead.');
+      throw new ValidationError('The original workout no longer exists. Save this as a new workout instead.');
     }
     await db.planExercises.where('planId').equals(sourceId).delete();
     // The copy's entries move across keeping their ids, so sets already logged
@@ -283,7 +283,7 @@ export async function updatePlanEverywhere(db: WorkoutDB, copyId: string): Promi
 /** Turn a date's edited copy into a plan of its own, listed with the others. */
 export async function saveCopyAsNewPlan(db: WorkoutDB, copyId: string, name: string): Promise<void> {
   const n = name.trim().replace(/\s+/g, ' ');
-  if (!n) throw new ValidationError('Give the new plan a name.');
+  if (!n) throw new ValidationError('Give the new workout a name.');
   const copy = await db.plans.get(copyId);
   if (!copy?.hidden) throw new ValidationError('This workout is not a one-date copy.');
   // The new plan goes in the same folder as the plan it was edited from (W-18).

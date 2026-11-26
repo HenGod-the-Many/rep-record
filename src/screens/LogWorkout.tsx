@@ -134,7 +134,7 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
         </div>
       )}
       <WarmupCard session={session} />
-      {entries.length === 0 && <p className="banner">This plan has no exercises.</p>}
+      {entries.length === 0 && <p className="banner">This workout has no exercises.</p>}
       {units.map((u, i) => {
         const id = u.key;
         if (u.group) {
@@ -965,7 +965,7 @@ export function SwapPanel(props: { session: Session; entry: PlanExercise; curren
   const others = (choices?.others ?? []).filter((e) => !q || e.name.toLowerCase().includes(q));
   return (
     <div className="swap-panel">
-      <p className="small-print muted">For this workout only. The plan doesn't change.</p>
+      <p className="small-print muted">For this workout only. The saved workout doesn't change.</p>
       {props.current !== props.entry.exerciseId && props.original && (
         <button className="row" onClick={() => pick(props.entry.exerciseId)}>
           <span className="row-main">Back to {props.original.name}</span>

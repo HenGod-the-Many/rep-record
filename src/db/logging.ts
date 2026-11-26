@@ -34,7 +34,7 @@ export async function startOrResume(db: WorkoutDB, input: StartInput): Promise<s
       return existing.id;
     }
     const plan = await db.plans.get(input.planId);
-    if (!plan) throw new ValidationError('That plan no longer exists.');
+    if (!plan) throw new ValidationError('That workout no longer exists.');
     const id = newId();
     const warmup = plan.warmupId ? await db.warmups.get(plan.warmupId) : undefined;
     await db.sessions.add({

@@ -18,6 +18,7 @@ import {
 } from '../db/warmups';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header, RoundsStepper } from './common';
+import { LibraryTop } from './Library';
 
 /** Plans tab → Warm-ups: the list of routines (W-16). */
 export function WarmupList() {
@@ -33,8 +34,8 @@ export function WarmupList() {
   };
   return (
     <div className="screen">
-      <Header title="Warm-ups" back="/plans" />
-      <p className="small-print muted">Attach a warm-up to a plan and it comes first when you start that workout.</p>
+      <LibraryTop part="warmups" />
+      <p className="small-print muted">Attach a warm-up to a workout and it comes first when you start that workout.</p>
       <ul className="list">
         {(warmups ?? []).map((w) => (
           <li key={w.id}>
@@ -198,7 +199,7 @@ export function PlanWarmupChoice({ planId, value }: { planId: string; value: str
         ))}
       </select>
       <span className="small-print muted">
-        Build warm-ups under <button className="link" onClick={() => navigate('/warmups')}>Plans → Warm-ups</button>.
+        Build warm-ups under <button className="link" onClick={() => navigate('/warmups')}>Library → Warm-ups</button>.
       </span>
       <ErrorText message={error} />
     </label>

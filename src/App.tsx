@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useRoute, navigate } from './router';
 import { ExerciseList } from './screens/ExerciseList';
 import { ExerciseForm } from './screens/ExerciseForm';
@@ -17,9 +18,18 @@ import { BodyList, MetricPage, PhotosPage } from './screens/Body';
 import { useToday } from './useToday';
 import { applyUpdate, useUpdateReady } from './pwa';
 import { Gallery } from './ui/Gallery';
+import { Icon } from './ui/icons';
+import { TABS, tabFor, tabPath } from './tabs';
+import { lastLibraryPath } from './screens/Library';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+
+/** #/library opens the part of the Library used last. */
+function LibraryRedirect() {
+  useEffect(() => navigate(lastLibraryPath(), { replace: true }), []);
+  return null;
+}
 
 function Screen() {
   const { parts, query } = useRoute();
@@ -35,6 +45,7 @@ function Screen() {
   if (section === 'plans') return <PlanList />;
   if (section === 'warmups' && id) return <WarmupEdit warmupId={id} />;
   if (section === 'warmups') return <WarmupList />;
+  if (section === 'library') return <LibraryRedirect />;
   if (section === 'pick') return <ExercisePicker query={query} />;
   if (section === 'splits' && id) return <SplitEdit splitId={id} />;
   if (section === 'splits') return <SplitList />;
@@ -53,19 +64,9 @@ function Screen() {
   return <DayView key={today} date={today} isToday />;
 }
 
-const TABS: { key: string; label: string; path: string; sections: string[] }[] = [
-  { key: 'today', label: 'Today', path: '/today', sections: ['today', 'settings', 'log', ''] },
-  { key: 'calendar', label: 'Calendar', path: '/calendar', sections: ['calendar', 'day', 'move'] },
-  { key: 'splits', label: 'Splits', path: '/splits', sections: ['splits'] },
-  { key: 'plans', label: 'Plans', path: '/plans', sections: ['plans', 'pick', 'warmups'] },
-  { key: 'exercises', label: 'Exercises', path: '/exercises', sections: ['exercises'] },
-  { key: 'body', label: 'Stats', path: '/body', sections: ['body'] },
-];
-
 export function App() {
-  const { parts } = useRoute();
-  const section = parts[0] ?? '';
-  const active = TABS.find((t) => t.sections.includes(section))?.key ?? 'today';
+  const { parts, query } = useRoute();
+  const active = tabFor(parts, query);
   const updateReady = useUpdateReady();
   return (
     <div className="app">
@@ -80,8 +81,14 @@ export function App() {
       </main>
       <nav className="tabbar" aria-label="Sections">
         {TABS.map((t) => (
-          <button key={t.key} className={active === t.key ? 'active' : ''} onClick={() => navigate(t.path)}>
-            {t.label}
+          <button
+            key={t.key}
+            className={active === t.key ? 'active' : ''}
+            aria-current={active === t.key ? 'page' : undefined}
+            onClick={() => navigate(tabPath(t.key, lastLibraryPath()))}
+          >
+            <Icon name={t.icon} strong={active === t.key} />
+            <span>{t.label}</span>
           </button>
         ))}
       </nav>
