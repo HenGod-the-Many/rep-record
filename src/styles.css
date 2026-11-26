@@ -516,3 +516,10 @@ input:not([type='checkbox']), .select { border-width: 1.5px; }
 .home-others { margin: -10px 0 12px; }
 .home-edit { display: flex; justify-content: flex-start; margin: 0 0 22px; }
 .home-weight { margin-top: -10px; }
+
+/* ---- Progress (W-20 slice 4) ---- */
+.progress-section { margin: 0 0 24px; scroll-margin-top: calc(env(safe-area-inset-top) + 8px); }
+.pr-value { color: var(--accent-text); }
+.section-head .ui-section-label { margin: 0; }
+.stat-card { border-radius: 14px; }
+.stat-card .stat-label { font-size: 0.77rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--soft); }

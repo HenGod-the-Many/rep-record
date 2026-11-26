@@ -26,48 +26,120 @@ import { formatDate, todayLocal } from '../db/dates';
 import { getUnit, type Unit } from '../db/units';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header } from './common';
+import { LargeTitle, ListRow, TextButton } from '../ui/components';
+import { recentExercises, weekPrs, weekWorkouts } from '../db/home';
+import { useToday } from '../useToday';
+import { toDisplay } from '../db/units';
+import { TrendTiles, useWeekNumbers, WeekStrip, whole } from './WeekNumbers';
 import { LineChart } from './LineChart';
 import { StatsCards } from './Stats';
 
-// ---------- Body tab ----------
+// ---------- Progress tab ----------
 
-/** The Body tab (W-11): bodyweight, height and every switched-on metric with its latest value. */
-export function BodyList() {
+const RECENT_EXERCISES = 8;
+
+/**
+ * Progress (W-20, R-16.6): this week in detail, the overview cards, exercises
+ * most recently done (each opens its history), and body metrics. Home's
+ * numbers open here at the matching section (?focus=records|workouts|trends).
+ */
+export function BodyList({ focus }: { focus?: string | null }) {
+  const today = useToday();
+  const week = useWeekNumbers(today);
   const data = useLiveQuery(async () => {
     const [metrics, unit, all] = await Promise.all([shownMetrics(db), getUnit(db), listMetrics(db)]);
     const latest = await Promise.all(metrics.map((m) => latestEntry(db, m.id))); // one indexed read each
     const photosOn = all.find((m) => m.id === 'photos')?.enabled ?? false;
     const photoCount = photosOn ? await db.photos.count() : 0;
-    return { metrics, latest, unit, photosOn, photoCount };
-  }, []);
-  if (!data) return <div className="screen"><Header title="Progress" /></div>;
+    return {
+      metrics, latest, unit, photosOn, photoCount,
+      workouts: await weekWorkouts(db, today),
+      prs: await weekPrs(db, today),
+      exercises: await recentExercises(db, RECENT_EXERCISES),
+    };
+  }, [today]);
+  const ready = !!data && !!week;
+  useEffect(() => {
+    if (ready && focus) document.getElementById(`progress-${focus}`)?.scrollIntoView({ block: 'start' });
+  }, [ready, focus]);
+
+  const title = <LargeTitle context={week ? `This week · ${formatDate(week.week.from)} – ${formatDate(week.week.to)}` : undefined} title="Progress" />;
+  if (!data || !week) return <div className="screen">{title}</div>;
+  const history = (id: string) => navigate(`/exercises/${id}/history?back=${encodeURIComponent('/body')}`);
+  const wt = (lb: number) => `${Math.round(toDisplay(lb, data.unit) * 10) / 10} ${data.unit}`;
+
   return (
     <div className="screen">
-      <Header title="Progress" action={<button className="link" onClick={() => navigate('/settings')}>Settings</button>} />
+      {title}
+      <WeekStrip d={week} />
+
+      <section id="progress-workouts" className="progress-section">
+        <h2 className="ui-section-label">Workouts this week</h2>
+        {data.workouts.length === 0 && <p className="ui-caption">No finished workouts yet this week.</p>}
+        {data.workouts.map((w) => (
+          <ListRow key={w.sessionId} title={w.name} caption={formatDate(w.date)} value={`${w.minutes} min`} onClick={() => navigate(`/log/${w.sessionId}?back=${encodeURIComponent('/body?focus=workouts')}`)} />
+        ))}
+      </section>
+
+      <section id="progress-records" className="progress-section">
+        <h2 className="ui-section-label">New records this week</h2>
+        {data.prs.length === 0 && <p className="ui-caption">No new records yet this week. A first session sets the starting mark.</p>}
+        {data.prs.map((p) => (
+          <ListRow
+            key={p.exerciseId}
+            title={p.name}
+            caption={`${p.record === 'heaviest' ? 'Heaviest' : 'Est. 1-rep max'} · ${formatDate(p.date)}`}
+            value={<span className="pr-value">{wt(p.valueLb)}</span>}
+            onClick={() => history(p.exerciseId)}
+          />
+        ))}
+      </section>
+
+      <section id="progress-trends" className="progress-section">
+        <h2 className="ui-section-label">Trends</h2>
+        <TrendTiles d={week} today={today} onBodyweight={() => navigate('/body/bodyweight')} />
+        {week.volume.changePct !== null && (
+          <p className="ui-caption">Volume last week: {whole(toDisplay(week.volume.lastWeekLb, data.unit))} {data.unit}.</p>
+        )}
+      </section>
+
       <StatsCards />
-      <div className="section-head"><h2>Body</h2></div>
-      <ul className="list">
+
+      <section id="progress-exercises" className="progress-section">
+        <h2 className="ui-section-label">Exercises</h2>
+        {data.exercises.length === 0 && <p className="ui-caption">Exercises appear here once you log a set.</p>}
+        {data.exercises.map((e) => (
+          <ListRow key={e.exerciseId} title={e.name} caption={`Last done ${formatDate(e.lastDate)}`} onClick={() => history(e.exerciseId)} />
+        ))}
+        <TextButton onClick={() => navigate('/exercises')}>All exercises</TextButton>
+      </section>
+
+      <section className="progress-section">
+        <h2 className="ui-section-label">Body</h2>
         {data.metrics.map((m, i) => {
           const e = data.latest[i];
           return (
-            <li key={m.id}>
-              <button className="row" onClick={() => navigate(`/body/${m.id}`)}>
-                <span className="row-main">{m.name}</span>
-                <span className="row-sub">{e ? `${formatMetric(m, e.value, data.unit)} · ${formatDate(e.date)}` : 'No entries yet'}</span>
-              </button>
-            </li>
+            <ListRow
+              key={m.id}
+              title={m.name}
+              caption={e ? formatDate(e.date) : 'No entries yet'}
+              value={e ? formatMetric(m, e.value, data.unit) : undefined}
+              onClick={() => navigate(`/body/${m.id}`)}
+            />
           );
         })}
         {data.photosOn && (
-          <li>
-            <button className="row" onClick={() => navigate('/body/photos')}>
-              <span className="row-main">Progress photos</span>
-              <span className="row-sub">{data.photoCount === 0 ? 'No photos yet' : `${data.photoCount} ${data.photoCount === 1 ? 'photo' : 'photos'}`}</span>
-            </button>
-          </li>
+          <ListRow
+            title="Progress photos"
+            caption={data.photoCount === 0 ? 'No photos yet' : `${data.photoCount} ${data.photoCount === 1 ? 'photo' : 'photos'}`}
+            onClick={() => navigate('/body/photos')}
+          />
         )}
-      </ul>
-      <p className="small-print muted">Switch on measurements, body fat, photos or your own metrics in Settings → Body metrics.</p>
+        <p className="ui-caption">
+          Switch on measurements, body fat, photos or your own metrics in{' '}
+          <button className="link" onClick={() => navigate('/settings')}>Settings → Body metrics</button>.
+        </p>
+      </section>
     </div>
   );
 }

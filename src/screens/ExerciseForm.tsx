@@ -8,7 +8,7 @@ import { KIND_LABEL } from '../format';
 
 const EQUIPMENT = ['Barbell', 'Dumbbell', 'Machine', 'Cable', 'Bodyweight', 'EZ bar', 'Kettlebell', 'Band'];
 
-export function ExerciseForm({ id }: { id: string | null }) {
+export function ExerciseForm({ id, back = '/exercises' }: { id: string | null; back?: string }) {
   // null = looked up and not found; undefined = still loading.
   const existing = useLiveQuery(async () => (id ? ((await db.exercises.get(id)) ?? null) : null), [id]);
   const groups = useLiveQuery(() => muscleGroups(db), []) ?? [];
@@ -33,11 +33,11 @@ export function ExerciseForm({ id }: { id: string | null }) {
     }
   }, [existing, loaded]);
 
-  if (id && existing === undefined) return <div className="screen"><Header title="Exercise" back="/exercises" /></div>;
+  if (id && existing === undefined) return <div className="screen"><Header title="Exercise" back={back} /></div>;
   if (id && existing === null) {
     return (
       <div className="screen">
-        <Header title="Exercise" back="/exercises" />
+        <Header title="Exercise" back={back} />
         <p className="muted">This exercise no longer exists.</p>
       </div>
     );
@@ -46,20 +46,20 @@ export function ExerciseForm({ id }: { id: string | null }) {
   const save = async () => {
     const input = { name, muscleGroup, equipment, kind, ...(kind === 'activity' ? { hasDistance, met: Number(met.replace(',', '.')) } : {}) };
     const ok = await attempt(() => (id ? updateExercise(db, id, input) : createExercise(db, input)), setError);
-    if (ok) navigate('/exercises');
+    if (ok) navigate(back);
   };
 
   const toggleArchive = async () => {
     if (!id || !existing) return;
     await setArchived(db, id, !existing.archived);
-    navigate('/exercises');
+    navigate(back);
   };
 
   return (
     <div className="screen">
       <Header
         title={id ? 'Edit exercise' : 'New exercise'}
-        back="/exercises"
+        back={back}
         action={id ? <button className="link" onClick={() => navigate(`/exercises/${id}/history`)}>History</button> : undefined}
       />
       {existing?.archived && <p className="banner">This exercise is archived. It is hidden from lists and pickers.</p>}

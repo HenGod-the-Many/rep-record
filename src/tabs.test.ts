@@ -40,6 +40,9 @@ describe('four tabs (W-20, R-16.3)', () => {
     expect(route('/exercises/x1/history?back=%2Flog%2Fs1')).toBe('home');
     expect(route('/plans/p1?back=%2Fday%2F2026-11-25%3Fback%3D%252Fcalendar')).toBe('calendar');
     expect(route('/day/2026-11-25?back=%2Ftoday')).toBe('home');
+    // Progress -> history -> Edit: the edit form still sits under Progress.
+    expect(route('/exercises/x1?back=' + encodeURIComponent('/exercises/x1/history?back=' + encodeURIComponent('/body')))).toBe('progress');
+    expect(route('/log/s1?back=%2Fbody')).toBe('progress');
   });
 
   it('unknown routes fall back to Home', () => {

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { minutesExercised, planAdherence, weekPrCount, weekStreak, weeklyVolume } from './home';
+import { minutesExercised, planAdherence, recentExercises, weekPrCount, weekPrs, weekStreak, weeklyVolume, weekWorkouts } from './home';
 import { finishSession, logSet, startOrResume } from './logging';
 import { logActivity } from './activities';
-import { createExercise } from './exercises';
+import { createExercise, setArchived } from './exercises';
 import { addWorkoutToDate, scheduleSplit, setWeekStart } from './schedule';
 import type { SetPart, WorkoutDB } from './db';
 import { exerciseId, freshDb, planId } from '../test/helpers';
@@ -150,5 +150,41 @@ describe('Home: plan adherence (R-16.4)', () => {
     const db = await freshDb();
     await workout(db, '2026-11-16', [['Bench press', [w(135, 5)]]]);
     expect(await planAdherence(db, TODAY)).toBeNull();
+  });
+});
+
+describe('Progress: this week in detail (R-16.4, R-16.6)', () => {
+  it("lists this week's finished workouts, newest first, with their minutes", async () => {
+    const db = await freshDb();
+    const a = await workout(db, '2026-11-16', [['Bench press', [w(135, 5)]]], { minutes: 50 });
+    const b = await workout(db, '2026-11-18', [['Bench press', [w(135, 5)]]], { minutes: 300 });
+    await workout(db, '2026-11-17', [['Bench press', [w(135, 5)]]], { finish: false }); // open: not listed
+    await workout(db, '2026-11-12', [['Bench press', [w(135, 5)]]]); // last week
+    const list = await weekWorkouts(db, TODAY);
+    expect(list.map((x) => [x.sessionId, x.date, x.minutes])).toEqual([[b, '2026-11-18', 240], [a, '2026-11-16', 50]]);
+    expect(list[0].name).toBe('Push');
+  });
+
+  it("lists this week's new records, one line per exercise with its best record", async () => {
+    const db = await freshDb();
+    await workout(db, '2026-11-09', [['Bench press', [w(135, 5)]], ['Shoulder press', [w(85, 5)]]]);
+    await workout(db, '2026-11-17', [['Bench press', [w(145, 5)]]]);
+    await workout(db, '2026-11-18', [['Shoulder press', [w(85, 8)]]]); // same weight, more reps: e1RM only
+    const list = await weekPrs(db, TODAY);
+    expect(list.map((p) => [p.name, p.record])).toEqual([['Shoulder press', 'e1rm'], ['Bench press', 'heaviest']]);
+    expect(await weekPrCount(db, TODAY)).toBe(list.length);
+  });
+});
+
+describe('Progress: exercises most recently done (R-16.6)', () => {
+  it('lists exercises with logged sets, most recent first, each once, archived ones included', async () => {
+    const db = await freshDb();
+    await workout(db, '2026-11-02', [['Bench press', [w(135, 5)]], ['Shoulder press', [w(85, 5)]]]);
+    await workout(db, '2026-11-10', [['Bench press', [w(135, 5)]]]);
+    await workout(db, '2026-11-12', [['Leg press', [w(300, 10)]]]);
+    await setArchived(db, await exerciseId(db, 'Shoulder press'), true);
+    const list = await recentExercises(db, 10);
+    expect(list.map((x) => [x.name, x.lastDate])).toEqual([['Leg press', '2026-11-12'], ['Bench press', '2026-11-10'], ['Shoulder press', '2026-11-02']]);
+    expect((await recentExercises(db, 2)).length).toBe(2);
   });
 });

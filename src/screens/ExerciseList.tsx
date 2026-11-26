@@ -54,7 +54,7 @@ export function ExerciseList() {
           <ul className="list">
             {items.map((e) => (
               <li key={e.id}>
-                <button className="row" onClick={() => navigate(`/exercises/${e.id}`)}>
+                <button className="row" onClick={() => navigate(`/exercises/${e.id}/history`)}>
                   <span className="row-main">
                     {e.name}
                     {e.archived && <span className="tag">archived</span>}

@@ -1,7 +1,7 @@
 import type { Session, WorkoutDB } from './db';
 import { addDays, weekDates } from './dates';
 import { getWeekStart, resolveRange } from './schedule';
-import { liftingTotals, recentPrs, weekRange } from './stats';
+import { liftingTotals, recentPrs, weekRange, type PrEvent } from './stats';
 
 /**
  * The Home screen's numbers (W-20, R-16.4). Definitions are in the W-20 spec.
@@ -41,10 +41,7 @@ export async function minutesExercised(db: WorkoutDB, today: string): Promise<nu
   const sessions = await db.sessions.where('date').between(from, to, true, true).toArray();
   const activity = await activitySecondsBySession(db, sessions);
   let ms = 0;
-  for (const s of sessions) {
-    const timed = s.finishedAt !== null ? Math.min(Math.max(0, s.finishedAt - s.startedAt), MAX_WORKOUT_MS) : 0;
-    ms += Math.max(timed, (activity.get(s.id) ?? 0) * 1000);
-  }
+  for (const s of sessions) ms += workoutMs(s, activity.get(s.id) ?? 0);
   return Math.round(ms / 60_000);
 }
 
@@ -82,4 +79,63 @@ export async function planAdherence(db: WorkoutDB, today: string): Promise<{ don
   if (scheduled === 0) return null;
   const done = (await db.sessions.where('date').between(from, to, true, true).toArray()).filter((s) => s.finishedAt !== null).length;
   return { done, scheduled };
+}
+
+// ---------- Progress: this week in detail (slice 4) ----------
+
+/** How long one workout counts for (see minutesExercised). */
+function workoutMs(s: Session, activitySeconds: number): number {
+  const timed = s.finishedAt !== null ? Math.min(Math.max(0, s.finishedAt - s.startedAt), MAX_WORKOUT_MS) : 0;
+  return Math.max(timed, activitySeconds * 1000);
+}
+
+export interface WeekWorkout {
+  sessionId: string;
+  date: string;
+  name: string;
+  minutes: number;
+}
+
+/** This week's finished workouts, newest first, with the minutes each counts for. */
+export async function weekWorkouts(db: WorkoutDB, today: string): Promise<WeekWorkout[]> {
+  const { from, to } = await weekRange(db, today);
+  const sessions = (await db.sessions.where('date').between(from, to, true, true).toArray()).filter((s) => s.finishedAt !== null);
+  const activity = await activitySecondsBySession(db, sessions);
+  return sessions
+    .sort((a, b) => (a.date === b.date ? b.startedAt - a.startedAt : a.date < b.date ? 1 : -1))
+    .map((s) => ({ sessionId: s.id, date: s.date, name: s.planName, minutes: Math.round(workoutMs(s, activity.get(s.id) ?? 0) / 60_000) }));
+}
+
+/** This week's new records, one per exercise (the heaviest-weight record when it set both), newest first. */
+export async function weekPrs(db: WorkoutDB, today: string): Promise<PrEvent[]> {
+  const { from, to } = await weekRange(db, today);
+  const best = new Map<string, PrEvent>();
+  for (const e of await recentPrs(db, Number.POSITIVE_INFINITY)) {
+    if (e.date < from || e.date > to) continue;
+    const had = best.get(e.exerciseId);
+    if (!had || (had.record === 'e1rm' && e.record === 'heaviest' && e.date === had.date) || e.date > had.date) best.set(e.exerciseId, e);
+  }
+  return [...best.values()].sort((a, b) => (a.date === b.date ? 0 : a.date < b.date ? 1 : -1));
+}
+
+export interface RecentExercise {
+  exerciseId: string;
+  name: string;
+  lastDate: string;
+}
+
+/** Exercises with logged sets, most recently done first (history follows the exercise, archived or not). */
+export async function recentExercises(db: WorkoutDB, limit: number): Promise<RecentExercise[]> {
+  const dates = new Map((await db.sessions.toArray()).map((s) => [s.id, s.date]));
+  const last = new Map<string, string>();
+  for (const l of await db.setLogs.toArray()) {
+    const d = dates.get(l.sessionId);
+    if (d && (!last.has(l.exerciseId) || d > last.get(l.exerciseId)!)) last.set(l.exerciseId, d);
+  }
+  const names = new Map((await db.exercises.toArray()).map((e) => [e.id, e.name]));
+  return [...last.entries()]
+    .filter(([id]) => names.has(id))
+    .sort(([, a], [, b]) => (a < b ? 1 : a > b ? -1 : 0))
+    .slice(0, limit)
+    .map(([exerciseId, lastDate]) => ({ exerciseId, name: names.get(exerciseId)!, lastDate }));
 }
