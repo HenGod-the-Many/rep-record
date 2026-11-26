@@ -3,7 +3,7 @@ import { minutesExercised, planAdherence, weekPrCount, weekStreak, weeklyVolume 
 import { finishSession, logSet, startOrResume } from './logging';
 import { logActivity } from './activities';
 import { createExercise } from './exercises';
-import { addWorkoutToDate, setWeekStart } from './schedule';
+import { addWorkoutToDate, scheduleSplit, setWeekStart } from './schedule';
 import type { SetPart, WorkoutDB } from './db';
 import { exerciseId, freshDb, planId } from '../test/helpers';
 
@@ -136,6 +136,14 @@ describe('Home: plan adherence (R-16.4)', () => {
     await workout(db, '2026-11-16', [['Bench press', [w(135, 5)]]]);
     await workout(db, '2026-11-18', [['Bench press', [w(135, 5)]]], { finish: false });
     expect(await planAdherence(db, TODAY)).toEqual({ done: 1, scheduled: 3 });
+  });
+
+  it('counts workouts scheduled by a program', async () => {
+    const db = await freshDb();
+    const split = (await db.splits.toArray())[0]; // seeded 5-day program: 5 workouts and 2 rest days a week
+    await scheduleSplit(db, split.id, '2026-11-16', 28);
+    await workout(db, '2026-11-16', [['Bench press', [w(135, 5)]]]);
+    expect(await planAdherence(db, TODAY)).toEqual({ done: 1, scheduled: 5 });
   });
 
   it('nothing scheduled gives null', async () => {
