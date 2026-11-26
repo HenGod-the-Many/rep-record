@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gauge: home screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;text-align:left;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column; font-family: 'Space Grotesk', system-ui, sans-serif; background: {{c.bg}}; color: {{c.ink}}; overflow: hidden">
+  <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 14px; padding: 54px 16px 12px">
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: {{c.soft}}">WED 25 NOV · WEEK 48</span>
+      <button aria-label="Settings" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border: 1px solid {{c.line}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"></path><rect x="14" y="5" width="4" height="4"></rect><rect x="6" y="15" width="4" height="4"></rect></svg>
+      </button>
+    </div>
+    <h1 style="margin: 0; font-size: 40px; font-weight: 700; letter-spacing: -0.03em; line-height: 1">Today</h1>
+
+    <div style="display: flex; flex-direction: column; border: 1.5px solid {{c.accentLine}}; background: {{c.panel}}">
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 14px 14px 12px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; color: {{c.soft}}">DAY 3/5 · MUSCLE BUILDING</span>
+        <span style="font-size: 30px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05">Legs &amp; Abs</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid {{c.line}}">
+        <span style="display: flex; flex-direction: column; padding: 8px 14px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700">7</span><span style="font-size: 12px; color: {{c.soft}}">exercises</span></span>
+        <span style="display: flex; flex-direction: column; padding: 8px 14px; border-left: 1px solid {{c.line}}"><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700">~60</span><span style="font-size: 12px; color: {{c.soft}}">minutes</span></span>
+        <span style="display: flex; flex-direction: column; padding: 8px 14px; border-left: 1px solid {{c.line}}"><span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700">1</span><span style="font-size: 12px; color: {{c.soft}}">circuit</span></span>
+      </div>
+      <button style="height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 18px; font-weight: 700; background: {{c.accent}}; color: {{c.onAccent}}">
+        Start workout
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"></path></svg>
+      </button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h2 style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: {{c.soft}}">THIS WEEK</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid {{c.line}}">
+        <button style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; color: {{c.accentText}}">5</span>
+          <span style="font-size: 13px; color: {{c.soft}}">new PRs</span>
+        </button>
+        <button style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-left: 1px solid {{c.line}}">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700">3</span>
+          <span style="font-size: 13px; color: {{c.soft}}">workouts</span>
+        </button>
+        <button style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-left: 1px solid {{c.line}}">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700">184</span>
+          <span style="font-size: 13px; color: {{c.soft}}">minutes</span>
+        </button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h2 style="margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: {{c.soft}}">TRENDS</h2>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid {{c.line}}">
+        <button style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px">
+          <span style="font-size: 13px; color: {{c.soft}}">Bodyweight · tap to add</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700">186.2<small style="font-size: 13px"> lb</small></span>
+          <svg width="140" height="22" viewBox="0 0 140 22" fill="none" stroke="currentColor" stroke-width="1.6" style="color: {{c.accentText}}" aria-hidden="true"><polyline points="0,6 20,8 40,5 60,10 80,9 100,13 120,12 140,16"></polyline></svg>
+        </button>
+        <button style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-left: 1px solid {{c.line}}">
+          <span style="font-size: 13px; color: {{c.soft}}">Week streak</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700">6<small style="font-size: 13px"> wk</small></span>
+          <span style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 3px; height: 14px">
+            <span style="background: {{c.track}}"></span><span style="background: {{c.track}}"></span>
+            <span style="background: {{c.accent}}"></span><span style="background: {{c.accent}}"></span><span style="background: {{c.accent}}"></span>
+            <span style="background: {{c.accent}}"></span><span style="background: {{c.accent}}"></span><span style="background: {{c.accent}}"></span>
+          </span>
+        </button>
+        <button style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-top: 1px solid {{c.line}}">
+          <span style="font-size: 13px; color: {{c.soft}}">Weekly volume</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700">42,350<small style="font-size: 13px"> lb</small></span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: {{c.accentText}}">▲ 8% vs last week</span>
+        </button>
+        <button style="display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-top: 1px solid {{c.line}}; border-left: 1px solid {{c.line}}">
+          <span style="font-size: 13px; color: {{c.soft}}">Plan adherence</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700">3/5</span>
+          <span style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; height: 14px">
+            <span style="background: {{c.accent}}"></span><span style="background: {{c.accent}}"></span><span style="background: {{c.accent}}"></span>
+            <span style="background: {{c.track}}"></span><span style="background: {{c.track}}"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <nav aria-label="Main" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0 0 28px; border-top: 1px solid {{c.line}}; background: {{c.bg}}">
+    <a href="#" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 56px; justify-content: center; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: {{c.ink}}; border-top: 3px solid {{c.accent}}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true"><path d="M4 10 12 4l8 6v10H4z"></path><path d="M10 20v-6h4v6"></path></svg>HOME</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 56px; justify-content: center; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; color: {{c.soft}}; border-top: 3px solid transparent">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg>CALENDAR</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 56px; justify-content: center; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; color: {{c.soft}}; border-top: 3px solid transparent">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M4 5h16M4 10h16M4 15h16M4 20h10"></path></svg>LIBRARY</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 56px; justify-content: center; text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; color: {{c.soft}}; border-top: 3px solid transparent">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" aria-hidden="true"><path d="M3 20h18M6 16v-4M11 16V7M16 16v-6M21 4l-5 3"></path></svg>PROGRESS</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const dark = this.props.dark ?? false;
+const light = { bg: '#F7F7F2', panel: '#FFFFFF', ink: '#0C0C0C', soft: '#5A5A55', line: '#CFCFC6', accent: '#2B6E00', accentLine: '#2B6E00', onAccent: '#FFFFFF', accentText: '#2B6E00', track: '#DCDCD3' };
+const night = { bg: '#0A0A0A', panel: '#121212', ink: '#EDEDE8', soft: '#9C9C96', line: '#2C2C2A', accent: '#C6F432', accentLine: '#C6F432', onAccent: '#0A0A0A', accentText: '#C6F432', track: '#2C2C2A' };
+return { c: dark ? night : light };
+}
+}
+</script>
+</body>
+</html>
