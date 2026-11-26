@@ -177,14 +177,19 @@ export interface MenuItem {
 export function MoreMenu({ label, items }: { label: string; items: MenuItem[] }) {
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();
   useEffect(() => {
     if (!open) return;
+    box.current?.querySelector<HTMLButtonElement>('.ui-menu button:not(:disabled)')?.focus();
     const away = (e: PointerEvent) => {
       if (box.current && !box.current.contains(e.target as Node)) setOpen(false);
     };
     const esc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') {
+        setOpen(false);
+        trigger.current?.focus();
+      }
     };
     document.addEventListener('pointerdown', away);
     document.addEventListener('keydown', esc);
@@ -195,7 +200,7 @@ export function MoreMenu({ label, items }: { label: string; items: MenuItem[] })
   }, [open]);
   return (
     <div className="ui-more" ref={box}>
-      <button className="ui-icon-btn" aria-label={label} aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
+      <button ref={trigger} className="ui-icon-btn" aria-label={label} aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>
         <Icon name="more" />
       </button>
       {open && (
