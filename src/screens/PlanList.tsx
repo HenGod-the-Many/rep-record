@@ -5,6 +5,7 @@ import { createPlan } from '../db/plans';
 import { createFolder, deleteFolder, duplicateFolder, listFolders, moveFolder, plansInFolder, renameFolder } from '../db/folders';
 import { navigate } from '../router';
 import { attempt, ErrorText } from './common';
+import { MoreMenu } from '../ui/components';
 import { LibraryTop } from './Library';
 
 type Counted = Plan & { count: number };
@@ -149,11 +150,16 @@ function FolderGroup(props: {
             </div>
           ) : (
             <div className="folder-actions">
-              <button className="btn-secondary" onClick={() => setRenaming(folder.name)}>Rename</button>
-              <button className="btn-secondary" onClick={copy}>Duplicate</button>
-              <button className="btn-danger" onClick={remove}>Delete</button>
-              <button className="icon-btn" aria-label={`Move ${folder.name} up`} disabled={props.first} onClick={() => run(() => moveFolder(db, folder.id, -1))}>▲</button>
-              <button className="icon-btn" aria-label={`Move ${folder.name} down`} disabled={props.last} onClick={() => run(() => moveFolder(db, folder.id, 1))}>▼</button>
+              <MoreMenu
+                label={`More for folder ${folder.name}`}
+                items={[
+                  { label: 'Rename', onSelect: () => setRenaming(folder.name) },
+                  { label: 'Duplicate', onSelect: copy },
+                  { label: 'Move up', disabled: props.first, onSelect: () => run(() => moveFolder(db, folder.id, -1)) },
+                  { label: 'Move down', disabled: props.last, onSelect: () => run(() => moveFolder(db, folder.id, 1)) },
+                  { label: 'Delete folder', danger: true, onSelect: remove },
+                ]}
+              />
             </div>
           )}
           <ErrorText message={error} />

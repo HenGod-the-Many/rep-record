@@ -6,6 +6,7 @@ import { distanceUnit, fromShownDistance, toShownDistance } from '../db/activiti
 import { getUnit } from '../db/units';
 import { navigate } from '../router';
 import { attempt, ErrorText, Header } from './common';
+import { MoreMenu } from '../ui/components';
 
 export function EntryEdit({ planId, entryId }: { planId: string; entryId: string }) {
   const data = useLiveQuery(async () => {
@@ -75,7 +76,11 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
 
   return (
     <div className="screen">
-      <Header title={ex?.name ?? 'Exercise in workout'} back={back} />
+      <Header
+        title={ex?.name ?? 'Exercise in workout'}
+        back={back}
+        action={<MoreMenu label={`More for ${ex?.name ?? 'this exercise'}`} items={[{ label: 'Remove from workout', danger: true, onSelect: remove }]} />}
+      />
 
       {isActivity ? (
         <div className="stack">
@@ -157,7 +162,6 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
         + Add alternate
       </button>
 
-      <button className="btn-danger block spaced" onClick={remove}>Remove from workout</button>
     </div>
   );
 }

@@ -19,6 +19,7 @@ import { DEFAULT_TIME } from '../db/seed';
 import { navigate } from '../router';
 import { withUndo } from '../undo';
 import { attempt, ErrorText, Header } from './common';
+import { MoreMenu } from '../ui/components';
 import { LibraryTop } from './Library';
 import { PlanSelect, TimeSelect, UndoBar } from './pickers';
 
@@ -145,14 +146,21 @@ It is on your calendar (${ranges.join('; ')}). Those planned days will be remove
 
   return (
     <div className="screen">
-      <Header title={split.name} back="/splits" />
-      {renaming === null ? (
-        <div className="button-row">
-          <button className="btn-secondary" onClick={() => setRenaming(split.name)}>Rename</button>
-          <button className="btn-secondary" onClick={async () => navigate(`/splits/${await duplicateSplit(db, splitId)}`)}>Duplicate</button>
-          <button className="btn-danger" onClick={remove}>Delete</button>
-        </div>
-      ) : (
+      <Header
+        title={split.name}
+        back="/splits"
+        action={
+          <MoreMenu
+            label={`More for ${split.name}`}
+            items={[
+              { label: 'Rename', onSelect: () => setRenaming(split.name) },
+              { label: 'Duplicate', onSelect: async () => navigate(`/splits/${await duplicateSplit(db, splitId)}`) },
+              { label: 'Delete program', danger: true, onSelect: remove },
+            ]}
+          />
+        }
+      />
+      {renaming === null ? null : (
         <div className="inline-form">
           <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="Program name" autoFocus />
           <button className="btn-primary" onClick={saveName}>Save</button>
@@ -224,9 +232,10 @@ It is on your calendar (${ranges.join('; ')}). Those planned days will be remove
             <span>
               {formatDate(s.startDate)} – {formatDate(addDays(s.startDate, s.lengthDays - 1))}
             </span>
-            <button className="btn-danger" onClick={() => attempt(() => withUndo('Removed a schedule', () => deleteSchedule(db, s.id)), setError)}>
-              Remove
-            </button>
+            <MoreMenu
+              label={`More for ${formatDate(s.startDate)}`}
+              items={[{ label: 'Remove from the calendar', danger: true, onSelect: () => attempt(() => withUndo('Removed a schedule', () => deleteSchedule(db, s.id)), setError) }]}
+            />
           </li>
         ))}
       </ul>
