@@ -36,11 +36,11 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
   }, [data, loadedFor]);
 
   const back = `/plans/${planId}`;
-  if (!data) return <div className="screen"><Header title="Exercise in plan" back={back} /></div>;
+  if (!data) return <div className="screen"><Header title="Exercise in workout" back={back} /></div>;
   if (!data.entry) {
     return (
       <div className="screen">
-        <Header title="Exercise in plan" back={back} />
+        <Header title="Exercise in workout" back={back} />
         <p className="muted">This entry no longer exists.</p>
       </div>
     );
@@ -68,14 +68,14 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
   };
 
   const remove = async () => {
-    if (!window.confirm(`Remove ${ex?.name ?? 'this exercise'} from the plan? Its history is kept.`)) return;
+    if (!window.confirm(`Remove ${ex?.name ?? 'this exercise'} from the workout? Its history is kept.`)) return;
     await removeEntry(db, entryId);
     navigate(back);
   };
 
   return (
     <div className="screen">
-      <Header title={ex?.name ?? 'Exercise in plan'} back={back} />
+      <Header title={ex?.name ?? 'Exercise in workout'} back={back} />
 
       {isActivity ? (
         <div className="stack">
@@ -98,7 +98,7 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
       <>
       {data?.entry.groupKey ? (
         <p className="small-print muted">
-          Sets follow the {data.entry.groupKind === 'circuit' ? 'circuit' : 'superset'}'s rounds ({data.entry.groupRounds}). Change rounds from the plan's Edit.
+          Sets follow the {data.entry.groupKind === 'circuit' ? 'circuit' : 'superset'}'s rounds ({data.entry.groupRounds}). Change rounds from the workout's Edit.
         </p>
       ) : (
       <div className="field">
@@ -157,7 +157,7 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
         + Add alternate
       </button>
 
-      <button className="btn-danger block spaced" onClick={remove}>Remove from plan</button>
+      <button className="btn-danger block spaced" onClick={remove}>Remove from workout</button>
     </div>
   );
 }

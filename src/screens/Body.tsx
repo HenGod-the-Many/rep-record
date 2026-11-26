@@ -40,10 +40,10 @@ export function BodyList() {
     const photoCount = photosOn ? await db.photos.count() : 0;
     return { metrics, latest, unit, photosOn, photoCount };
   }, []);
-  if (!data) return <div className="screen"><Header title="Stats" /></div>;
+  if (!data) return <div className="screen"><Header title="Progress" /></div>;
   return (
     <div className="screen">
-      <Header title="Stats" action={<button className="link" onClick={() => navigate('/settings')}>Settings</button>} />
+      <Header title="Progress" action={<button className="link" onClick={() => navigate('/settings')}>Settings</button>} />
       <StatsCards />
       <div className="section-head"><h2>Body</h2></div>
       <ul className="list">

@@ -4,7 +4,8 @@ import { db, type Folder, type Plan } from '../db/db';
 import { createPlan } from '../db/plans';
 import { createFolder, deleteFolder, duplicateFolder, listFolders, moveFolder, plansInFolder, renameFolder } from '../db/folders';
 import { navigate } from '../router';
-import { attempt, ErrorText, Header } from './common';
+import { attempt, ErrorText } from './common';
+import { LibraryTop } from './Library';
 
 type Counted = Plan & { count: number };
 
@@ -13,12 +14,12 @@ const openFolders: Record<string, boolean> = {};
 
 export function PlanList() {
   const data = useLiveQuery(async () => {
-    const [folders, entries, warmups] = await Promise.all([listFolders(db), db.planExercises.toArray(), db.warmups.count()]);
+    const [folders, entries] = await Promise.all([listFolders(db), db.planExercises.toArray()]);
     const counts = new Map<string, number>();
     for (const e of entries) counts.set(e.planId, (counts.get(e.planId) ?? 0) + 1);
     const withCount = (ps: Plan[]): Counted[] => ps.map((p) => ({ ...p, count: counts.get(p.id) ?? 0 }));
     const inFolders = await Promise.all(folders.map(async (f) => ({ folder: f, plans: withCount(await plansInFolder(db, f.id)) })));
-    return { inFolders, loose: withCount(await plansInFolder(db, null)), warmups };
+    return { inFolders, loose: withCount(await plansInFolder(db, null)) };
   }, []);
   const [name, setName] = useState('');
   const [folderName, setFolderName] = useState('');
@@ -49,13 +50,7 @@ export function PlanList() {
   const folders = data?.inFolders ?? [];
   return (
     <div className="screen">
-      <Header title="Plans" />
-      <button className="row warmups-row" onClick={() => navigate('/warmups')}>
-        <span className="row-main">Warm-ups</span>
-        <span className="row-sub">
-          {data ? `${data.warmups} routine${data.warmups === 1 ? '' : 's'} · build and edit` : ''}
-        </span>
-      </button>
+      <LibraryTop part="workouts" />
 
       {folders.map(({ folder, plans }, i) => (
         <FolderGroup
@@ -74,7 +69,7 @@ export function PlanList() {
       <PlanRows plans={data?.loose ?? []} />
 
       <div className="inline-form">
-        <input placeholder="New plan name" value={name} onChange={(e) => setName(e.target.value)} aria-label="New plan name" />
+        <input placeholder="New workout name" value={name} onChange={(e) => setName(e.target.value)} aria-label="New workout name" />
         <button className="btn-primary" onClick={add}>Create</button>
       </div>
       <div className="inline-form">
@@ -118,7 +113,7 @@ function FolderGroup(props: {
   const run = (fn: () => Promise<unknown>) => attempt(fn, setError);
 
   const remove = async () => {
-    const what = plans.length === 0 ? 'It is empty.' : `Its ${plans.length} plan${plans.length === 1 ? '' : 's'} will be kept, outside any folder.`;
+    const what = plans.length === 0 ? 'It is empty.' : `Its ${plans.length} workout${plans.length === 1 ? '' : 's'} will be kept, outside any folder.`;
     if (!window.confirm(`Delete the folder "${folder.name}"? ${what}`)) return;
     await run(() => deleteFolder(db, folder.id));
   };
@@ -136,13 +131,13 @@ function FolderGroup(props: {
         <span className="folder-icon" aria-hidden="true">{open ? '▾' : '▸'}</span>
         <span className="row-main">{folder.name}</span>
         <span className="row-sub">
-          {plans.length} plan{plans.length === 1 ? '' : 's'}
+          {plans.length} workout{plans.length === 1 ? '' : 's'}
         </span>
       </button>
       {open && (
         <>
           {plans.length === 0 ? (
-            <p className="small-print muted">Empty. Open a plan and choose this folder under "Folder".</p>
+            <p className="small-print muted">Empty. Open a workout and choose this folder under "Folder".</p>
           ) : (
             <PlanRows plans={plans} />
           )}

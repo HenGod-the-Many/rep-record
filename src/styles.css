@@ -501,3 +501,13 @@ input:not([type='checkbox']), .select { border-width: 1.5px; }
 .tabbar { border-top-color: var(--hairline); }
 .tabbar button.active { color: var(--accent-text); font-weight: 700; }
 .banner, .update-bar { background: var(--surface-2); }
+
+/* ---- Four tabs with icons (W-20 slice 2) ---- */
+.tabbar { background: var(--surface); }
+.tabbar button {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-height: 56px; padding: 6px 2px 4px; color: var(--soft);
+  font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.tabbar button.active { color: var(--accent-text); font-weight: 700; }
+.content { padding-bottom: calc(56px + env(safe-area-inset-bottom) + 24px); }

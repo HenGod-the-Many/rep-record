@@ -40,8 +40,8 @@ export async function makeGroup(db: WorkoutDB, planId: string, entryIds: string[
   return db.transaction('rw', db.planExercises, async () => {
     const entries = await getEntries(db, planId);
     const at = entryIds.map((id) => entries.findIndex((e) => e.id === id)).sort((a, b) => a - b);
-    if (at.some((i) => i < 0)) throw new ValidationError('That exercise is no longer in the plan.');
-    if (at.some((i, n) => n > 0 && i !== at[n - 1] + 1)) throw new ValidationError('Pick exercises that are in a row in the plan.');
+    if (at.some((i) => i < 0)) throw new ValidationError('That exercise is no longer in the workout.');
+    if (at.some((i, n) => n > 0 && i !== at[n - 1] + 1)) throw new ValidationError('Pick exercises that are in a row in the workout.');
     if (at.some((i) => entries[i].groupKey)) throw new ValidationError('One of those exercises is already in a superset or circuit.');
     const key = newId();
     for (const i of at) {

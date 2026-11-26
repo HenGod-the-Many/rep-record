@@ -19,6 +19,7 @@ import { DEFAULT_TIME } from '../db/seed';
 import { navigate } from '../router';
 import { withUndo } from '../undo';
 import { attempt, ErrorText, Header } from './common';
+import { LibraryTop } from './Library';
 import { PlanSelect, TimeSelect, UndoBar } from './pickers';
 
 type Unit = 'days' | 'weeks';
@@ -53,7 +54,7 @@ export function SplitList() {
 
   return (
     <div className="screen">
-      <Header title="Splits" />
+      <LibraryTop part="programs" />
       <UndoBar />
       <ul className="list">
         {(data ?? []).map((s) => (
@@ -69,9 +70,9 @@ export function SplitList() {
         ))}
       </ul>
       <div className="card">
-        <div className="card-title">New split</div>
+        <div className="card-title">New program</div>
         <div className="stack">
-          <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} aria-label="New split name" />
+          <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} aria-label="New program name" />
           <LengthInput label="Cycle length" value={len} unit={unit} onValue={setLen} onUnit={setUnit} />
           <button className="btn-primary" onClick={create}>Create</button>
         </div>
@@ -99,12 +100,12 @@ export function SplitEdit({ splitId }: { splitId: string }) {
   const [schedUnit, setSchedUnit] = useState<Unit>('weeks');
   const [error, setError] = useState<string | null>(null);
 
-  if (!data) return <div className="screen"><Header title="Split" back="/splits" /></div>;
+  if (!data) return <div className="screen"><Header title="Program" back="/splits" /></div>;
   if (!data.split) {
     return (
       <div className="screen">
-        <Header title="Split" back="/splits" />
-        <p className="muted">This split no longer exists.</p>
+        <Header title="Program" back="/splits" />
+        <p className="muted">This program no longer exists.</p>
       </div>
     );
   }
@@ -120,7 +121,7 @@ export function SplitEdit({ splitId }: { splitId: string }) {
     if (await attempt(() => setCycleLength(db, splitId, n), setError)) setCycle(null);
   };
   const addWorkout = async (dayId: string, current: { planId: string; time: string }[]) => {
-    if (!newPlan) return setError('Pick a plan to add.');
+    if (!newPlan) return setError('Pick a workout to add.');
     if (await attempt(() => setSplitDayWorkouts(db, dayId, [...current, { planId: newPlan, time: newTime }]), setError)) {
       setAddingTo(null);
       setNewPlan('');
@@ -134,10 +135,10 @@ export function SplitEdit({ splitId }: { splitId: string }) {
   const remove = async () => {
     const ranges = schedules.map((s) => `${formatDate(s.startDate)} – ${formatDate(addDays(s.startDate, s.lengthDays - 1))}`);
     const warning = ranges.length
-      ? `Delete the split "${split.name}"?
+      ? `Delete the program "${split.name}"?
 
 It is on your calendar (${ranges.join('; ')}). Those planned days will be removed too. You can undo right after.`
-      : `Delete the split "${split.name}"?`;
+      : `Delete the program "${split.name}"?`;
     if (!window.confirm(warning)) return;
     if (await attempt(() => withUndo(`Deleted ${split.name}`, () => deleteSplit(db, splitId)), setError)) navigate('/splits');
   };
@@ -153,7 +154,7 @@ It is on your calendar (${ranges.join('; ')}). Those planned days will be remove
         </div>
       ) : (
         <div className="inline-form">
-          <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="Split name" autoFocus />
+          <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="Program name" autoFocus />
           <button className="btn-primary" onClick={saveName}>Save</button>
           <button className="btn-secondary" onClick={() => setRenaming(null)}>Cancel</button>
         </div>
@@ -181,7 +182,7 @@ It is on your calendar (${ranges.join('; ')}). Those planned days will be remove
             {d.workouts.map((w, i) => (
               <div className="workout-line" key={i}>
                 <span>
-                  <strong>{names.get(w.planId) ?? 'Deleted plan'}</strong> <span className="muted">· {timeLabel(w.time)}</span>
+                  <strong>{names.get(w.planId) ?? 'Deleted workout'}</strong> <span className="muted">· {timeLabel(w.time)}</span>
                 </span>
                 <span className="workout-actions">
                   <TimeSelect
@@ -201,7 +202,7 @@ It is on your calendar (${ranges.join('; ')}). Those planned days will be remove
             ))}
             {addingTo === d.id ? (
               <div className="stack">
-                <PlanSelect label={`Plan for day ${d.dayIndex + 1}`} value={newPlan} onChange={setNewPlan} />
+                <PlanSelect label={`Workout for day ${d.dayIndex + 1}`} value={newPlan} onChange={setNewPlan} />
                 <TimeSelect label="Time" value={newTime} onChange={setNewTime} />
                 <div className="button-row two">
                   <button className="btn-primary" onClick={() => addWorkout(d.id, d.workouts)}>Add</button>
@@ -230,7 +231,7 @@ It is on your calendar (${ranges.join('; ')}). Those planned days will be remove
         ))}
       </ul>
       <div className="card">
-        <div className="card-title">Schedule this split</div>
+        <div className="card-title">Schedule this program</div>
         <div className="stack">
           <label className="field">
             <span>Start date (day 1 of the cycle)</span>
