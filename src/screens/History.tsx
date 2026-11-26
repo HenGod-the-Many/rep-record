@@ -79,7 +79,7 @@ export function History({ exerciseId, back }: { exerciseId: string; back: string
 
   return (
     <div className="screen">
-      <Header title={exercise.name} back={back} action={<button className="btn-secondary small-btn" onClick={() => navigate(`/exercises/${exerciseId}?back=${encodeURIComponent(`/exercises/${exerciseId}/history`)}`)}>Edit</button>} />
+      <Header title={exercise.name} back={back} action={<button className="btn-secondary small-btn" onClick={() => navigate(`/exercises/${exerciseId}?back=${encodeURIComponent(`/exercises/${exerciseId}/history?back=${encodeURIComponent(back)}`)}`)}>Edit</button>} />
       {history.length === 0 ? (
         <p className="banner">No sets logged yet.</p>
       ) : (

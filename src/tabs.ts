@@ -37,9 +37,12 @@ function sectionTab(section: string): TabKey {
  * the tab it was opened from: an exercise's history opened from Progress, or
  * from the workout being logged, doesn't jump to Library.
  */
-export function tabFor(parts: string[], query: URLSearchParams): TabKey {
+export function tabFor(parts: string[], query: URLSearchParams, depth = 0): TabKey {
   const back = query.get('back');
-  if (back?.startsWith('/')) return sectionTab(back.split(/[/?]/).filter(Boolean)[0] ?? '');
+  if (back?.startsWith('/') && depth < 5) {
+    const [path, qs = ''] = back.split('?');
+    return tabFor(path.split('/').filter(Boolean), new URLSearchParams(qs), depth + 1);
+  }
   return sectionTab(parts[0] ?? '');
 }
 

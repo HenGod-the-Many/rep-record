@@ -63,7 +63,7 @@ function cardDraftsFor(key: string) {
 }
 
 /** The logging screen: one card per exercise in the plan, sets saved the moment they are logged. */
-export function LogWorkout({ sessionId }: { sessionId: string }) {
+export function LogWorkout({ sessionId, back = '/today' }: { sessionId: string; back?: string }) {
   const data = useLiveQuery(async () => {
     const session = await db.sessions.get(sessionId);
     if (!session) return null;
@@ -80,11 +80,11 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
   /** Slots already done when the screen opened; they start folded. */
   const doneAtOpen = useRef<Set<string> | null>(null);
 
-  if (data === undefined) return <div className="screen"><Header title="Workout" back="/today" /></div>;
+  if (data === undefined) return <div className="screen"><Header title="Workout" back={back} /></div>;
   if (data === null) {
     return (
       <div className="screen">
-        <Header title="Workout" back="/today" />
+        <Header title="Workout" back={back} />
         <p className="banner">This workout no longer exists.</p>
       </div>
     );
@@ -121,7 +121,7 @@ export function LogWorkout({ sessionId }: { sessionId: string }) {
 
   return (
     <div className="screen log-screen">
-      <Header title={session.planName} back="/today" />
+      <Header title={session.planName} back={back} />
       <p className="subtitle">
         {timeLabel(session.time)} · {formatDate(session.date)}
       </p>

@@ -77,7 +77,7 @@ export function BodyList({ focus }: { focus?: string | null }) {
         <h2 className="ui-section-label">Workouts this week</h2>
         {data.workouts.length === 0 && <p className="ui-caption">No finished workouts yet this week.</p>}
         {data.workouts.map((w) => (
-          <ListRow key={w.sessionId} title={w.name} caption={formatDate(w.date)} value={`${w.minutes} min`} onClick={() => navigate(`/log/${w.sessionId}`)} />
+          <ListRow key={w.sessionId} title={w.name} caption={formatDate(w.date)} value={`${w.minutes} min`} onClick={() => navigate(`/log/${w.sessionId}?back=${encodeURIComponent('/body?focus=workouts')}`)} />
         ))}
       </section>
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { minutesExercised, planAdherence, recentExercises, weekPrCount, weekPrs, weekStreak, weeklyVolume, weekWorkouts } from './home';
 import { finishSession, logSet, startOrResume } from './logging';
 import { logActivity } from './activities';
-import { createExercise } from './exercises';
+import { createExercise, setArchived } from './exercises';
 import { addWorkoutToDate, scheduleSplit, setWeekStart } from './schedule';
 import type { SetPart, WorkoutDB } from './db';
 import { exerciseId, freshDb, planId } from '../test/helpers';
@@ -182,6 +182,7 @@ describe('Progress: exercises most recently done (R-16.6)', () => {
     await workout(db, '2026-11-02', [['Bench press', [w(135, 5)]], ['Shoulder press', [w(85, 5)]]]);
     await workout(db, '2026-11-10', [['Bench press', [w(135, 5)]]]);
     await workout(db, '2026-11-12', [['Leg press', [w(300, 10)]]]);
+    await setArchived(db, await exerciseId(db, 'Shoulder press'), true);
     const list = await recentExercises(db, 10);
     expect(list.map((x) => [x.name, x.lastDate])).toEqual([['Leg press', '2026-11-12'], ['Bench press', '2026-11-10'], ['Shoulder press', '2026-11-02']]);
     expect((await recentExercises(db, 2)).length).toBe(2);

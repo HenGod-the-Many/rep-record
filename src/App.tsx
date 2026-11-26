@@ -61,7 +61,7 @@ function Screen() {
   if (section === 'body' && id) return <MetricPage metricId={id} />;
   if (section === 'body') return <BodyList focus={query.get('focus')} />;
   if (import.meta.env.DEV && section === 'ui') return <Gallery />;
-  if (section === 'log' && id) return <LogWorkout key={id} sessionId={id} />;
+  if (section === 'log' && id) return <LogWorkout key={id} sessionId={id} back={back?.startsWith('/') ? back : '/today'} />;
   return <Home key={today} today={today} />;
 }
 
