@@ -54,6 +54,7 @@ written only by Taylor.
 | KF-14 | Build warm-up routines and use them before a workout | should | 2 | planned |
 | KF-15 | Do supersets and circuits in plans, workouts and warm-ups | should | 3 | planned |
 | KF-16 | Get around the app easily, with a sleek look and a home screen that shows my day and my numbers | should | 4 | planned |
+| KF-17 | Know how long workouts and exercises take, with a timer while I train | should | 4 | planned |
 
 ---
 
@@ -236,7 +237,20 @@ Added 2026-11-25 from Taylor's UI review answers (navigation option A, "Program"
 | R-16.6 Progress holds PRs, stats, body metrics and charts; an exercise opens on its history | should | Demonstration | W-20 | built | W-20 PRs #44–#50 and slice 8; evidence in docs/evidence/w20/ |
 | R-16.7 Adding bodyweight takes 2 taps plus typing; rare and risky actions sit in a "…" menu; the calendar shows done, planned and missed days differently | should | Demonstration | W-20 | built | W-20 PRs #44–#50 and slice 8; evidence in docs/evidence/w20/ |
 
-Totals: 31 must, 43 should, 2 could, 1 later.
+## KF-17 Know how long workouts and exercises take, with a timer while I train
+
+Added 2026-11-25 from Taylor's answer on minutes exercised. Proposed with the W-25 spec; waits for its approval.
+
+| Requirement | Priority | Method | Item | Status | Evidence |
+|---|---|---|---|---|---|
+| R-17.1 Start workout starts a timer shown on the logging screen; it can be paused and resumed, and paused time is not counted | should | Test, Demonstration | W-25 | planned | |
+| R-17.2 The timer stops at the last target set's tick and runs on if more sets are logged; the workout ends at the last tick | should | Test, Demonstration | W-25 | planned | |
+| R-17.3 Each exercise gets the time before its own ticks (3 s per rep for its first set), so alternating supersets and exercises added mid-workout are timed correctly | should | Test | W-25 | planned | |
+| R-17.4 Exercise history shows an average time; workouts show about N min, from the last 5 times | should | Test, Demonstration | W-25 | planned | |
+| R-17.5 Minutes exercised uses the timed workout duration | should | Test | W-25 | planned | |
+| R-17.6 Edit screens save as you change, except where a button is better (listed in the W-25 spec) | should | Demonstration | W-25 | planned | |
+
+Totals: 31 must, 49 should, 2 could, 1 later.
 
 ## Riskiest assumption
 
