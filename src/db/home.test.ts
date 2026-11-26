@@ -165,6 +165,15 @@ describe('Progress: this week in detail (R-16.4, R-16.6)', () => {
     expect(list[0].name).toBe('Push');
   });
 
+  it('also lists an unfinished workout with activity time, so the list adds up to minutes exercised', async () => {
+    const db = await freshDb();
+    await workout(db, '2026-11-16', [['Bench press', [w(135, 5)]]], { minutes: 50 });
+    const run = await activity(db, '2026-11-17', 30); // never finished
+    const list = await weekWorkouts(db, TODAY);
+    expect(list.map((x) => [x.sessionId, x.minutes, x.finished])).toEqual([[run, 30, false], [expect.any(String), 50, true]]);
+    expect(list.reduce((n, x) => n + x.minutes, 0)).toBe(await minutesExercised(db, TODAY));
+  });
+
   it("lists this week's new records, one line per exercise with its best record", async () => {
     const db = await freshDb();
     await workout(db, '2026-11-09', [['Bench press', [w(135, 5)]], ['Shoulder press', [w(85, 5)]]]);

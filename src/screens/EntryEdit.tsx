@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { removeAlternate, removeEntry, setActivityTarget, updateTargets } from '../db/plans';
@@ -23,6 +23,26 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
   const [dist, setDist] = useState('');
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** Shown after each save: edit screens save as you change (W-20 answer 2), no Save button. */
+  const [saved, setSaved] = useState(false);
+  // A change is saved shortly after it is typed, and any change still waiting is saved when the
+  // screen closes, so tapping Back with the cursor still in a box never loses it.
+  const pending = useRef<(() => unknown) | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flush = () => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+    const run = pending.current;
+    pending.current = null;
+    run?.();
+  };
+  const later = (run: () => unknown) => {
+    setSaved(false);
+    pending.current = run;
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(flush, 700);
+  };
+  useEffect(() => () => flush(), []);
 
   useEffect(() => {
     if (data?.entry && loadedFor !== data.entry.id) {
@@ -51,21 +71,29 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
   const unit = ex?.kind === 'timed' ? 'seconds' : 'reps';
 
   const isActivity = ex?.kind === 'activity';
-  const saveActivity = async () => {
+  const saveActivity = async (v: { min?: string; dist?: string } = {}) => {
     const u = data.unit ?? 'lb';
+    const m = v.min ?? min;
+    const d = v.dist ?? dist;
     const ok = await attempt(
-      () => setActivityTarget(db, entryId, Number(min), dist.trim() ? fromShownDistance(Number(dist.replace(',', '.')), u) : null),
+      () => setActivityTarget(db, entryId, Number(m), d.trim() ? fromShownDistance(Number(d.replace(',', '.')), u) : null),
       setError,
     );
-    if (ok) navigate(back);
+    setSaved(ok);
   };
 
-  const save = async () => {
+  // Values passed in come straight from the box being left, so a save never uses a stale value.
+  const save = async (v: { targetSets?: number; repMin?: string; repMax?: string; note?: string } = {}) => {
     const ok = await attempt(
-      () => updateTargets(db, entryId, { targetSets: sets, repMin: Number(min), repMax: Number(max), note }),
+      () => updateTargets(db, entryId, { targetSets: v.targetSets ?? sets, repMin: Number(v.repMin ?? min), repMax: Number(v.repMax ?? max), note: v.note ?? note }),
       setError,
     );
-    if (ok) navigate(back);
+    setSaved(ok);
+  };
+  const stepSets = (by: number) => {
+    const n = Math.min(20, Math.max(1, sets + by));
+    setSets(n);
+    void save({ targetSets: n });
   };
 
   const remove = async () => {
@@ -90,17 +118,17 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
           <div className="field-pair">
             <label className="field">
               <span>Target minutes</span>
-              <input inputMode="numeric" value={min} onChange={(e) => setMin(e.target.value)} />
+              <input inputMode="numeric" value={min} onChange={(e) => { const v = e.target.value; setMin(v); later(() => saveActivity({ min: v })); }} onBlur={flush} />
             </label>
             {ex?.hasDistance && (
               <label className="field">
                 <span>Target {distanceUnit(data.unit ?? 'lb')} (optional)</span>
-                <input inputMode="decimal" value={dist} onChange={(e) => setDist(e.target.value)} />
+                <input inputMode="decimal" value={dist} onChange={(e) => { const v = e.target.value; setDist(v); later(() => saveActivity({ dist: v })); }} onBlur={flush} />
               </label>
             )}
           </div>
           <ErrorText message={error} />
-          <button className="btn-primary block" onClick={saveActivity}>Save target</button>
+          <p className="ui-caption" aria-live="polite">{saved ? 'Saved.' : 'Changes save when you leave a box.'}</p>
         </div>
       ) : (
       <>
@@ -112,28 +140,28 @@ export function EntryEdit({ planId, entryId }: { planId: string; entryId: string
       <div className="field">
         <span>Target sets</span>
         <div className="stepper">
-          <button aria-label="Fewer sets" onClick={() => setSets((s) => Math.max(1, s - 1))}>−</button>
+          <button aria-label="Fewer sets" onClick={() => stepSets(-1)}>−</button>
           <output aria-live="polite">{sets}</output>
-          <button aria-label="More sets" onClick={() => setSets((s) => Math.min(20, s + 1))}>+</button>
+          <button aria-label="More sets" onClick={() => stepSets(1)}>+</button>
         </div>
       </div>
       )}
       <div className="field-pair">
         <label className="field">
           <span>Min {unit}</span>
-          <input inputMode="numeric" value={min} onChange={(e) => setMin(e.target.value)} />
+          <input inputMode="numeric" value={min} onChange={(e) => { const v = e.target.value; setMin(v); later(() => save({ repMin: v })); }} onBlur={flush} />
         </label>
         <label className="field">
           <span>Max {unit}</span>
-          <input inputMode="numeric" value={max} onChange={(e) => setMax(e.target.value)} />
+          <input inputMode="numeric" value={max} onChange={(e) => { const v = e.target.value; setMax(v); later(() => save({ repMax: v })); }} onBlur={flush} />
         </label>
       </div>
       <label className="field">
         <span>Note (optional)</span>
-        <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. per leg" />
+        <input value={note} onChange={(e) => { const v = e.target.value; setNote(v); later(() => save({ note: v })); }} onBlur={flush} placeholder="e.g. per leg" />
       </label>
       <ErrorText message={error} />
-      <button className="btn-primary block" onClick={save}>Save targets</button>
+      <p className="ui-caption" aria-live="polite">{saved ? 'Saved.' : 'Changes save as you make them.'}</p>
       </>
       )}
 

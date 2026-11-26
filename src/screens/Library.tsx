@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { navigate } from '../router';
 import { LargeTitle, SegmentedSwitch } from '../ui/components';
 
@@ -44,7 +44,7 @@ function remember(part: LibraryPart) {
 }
 
 export function LibraryTop({ part, action }: { part: LibraryPart; action?: ReactNode }) {
-  remember(part);
+  useEffect(() => remember(part), [part]);
   return (
     <>
       <LargeTitle title="Library" action={action} />

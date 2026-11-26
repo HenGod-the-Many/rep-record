@@ -75,9 +75,9 @@ export function BodyList({ focus }: { focus?: string | null }) {
 
       <section id="progress-workouts" className="progress-section">
         <h2 className="ui-section-label">Workouts this week</h2>
-        {data.workouts.length === 0 && <p className="ui-caption">No finished workouts yet this week.</p>}
+        {data.workouts.length === 0 && <p className="ui-caption">No workouts yet this week.</p>}
         {data.workouts.map((w) => (
-          <ListRow key={w.sessionId} title={w.name} caption={formatDate(w.date)} value={`${w.minutes} min`} onClick={() => navigate(`/log/${w.sessionId}?back=${encodeURIComponent('/body?focus=workouts')}`)} />
+          <ListRow key={w.sessionId} title={w.name} caption={`${formatDate(w.date)}${w.finished ? '' : ' · not finished (activity time)'}`} value={`${w.minutes} min`} onClick={() => navigate(`/log/${w.sessionId}?back=${encodeURIComponent('/body?focus=workouts')}`)} />
         ))}
       </section>
 

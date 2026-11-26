@@ -94,16 +94,29 @@ export interface WeekWorkout {
   date: string;
   name: string;
   minutes: number;
+  /** False for an unfinished workout that counts only for its activity time. */
+  finished: boolean;
 }
 
-/** This week's finished workouts, newest first, with the minutes each counts for. */
+/**
+ * This week's workouts that count toward minutes exercised, newest first: every
+ * finished workout, plus unfinished ones with logged activity time. The minutes
+ * add up to minutesExercised.
+ */
 export async function weekWorkouts(db: WorkoutDB, today: string): Promise<WeekWorkout[]> {
   const { from, to } = await weekRange(db, today);
-  const sessions = (await db.sessions.where('date').between(from, to, true, true).toArray()).filter((s) => s.finishedAt !== null);
-  const activity = await activitySecondsBySession(db, sessions);
-  return sessions
+  const all = await db.sessions.where('date').between(from, to, true, true).toArray();
+  const activity = await activitySecondsBySession(db, all);
+  return all
+    .filter((s) => s.finishedAt !== null || (activity.get(s.id) ?? 0) > 0)
     .sort((a, b) => (a.date === b.date ? b.startedAt - a.startedAt : a.date < b.date ? 1 : -1))
-    .map((s) => ({ sessionId: s.id, date: s.date, name: s.planName, minutes: Math.round(workoutMs(s, activity.get(s.id) ?? 0) / 60_000) }));
+    .map((s) => ({
+      sessionId: s.id,
+      date: s.date,
+      name: s.planName,
+      minutes: Math.round(workoutMs(s, activity.get(s.id) ?? 0) / 60_000),
+      finished: s.finishedAt !== null,
+    }));
 }
 
 /** This week's new records, one per exercise (the heaviest-weight record when it set both), newest first. */

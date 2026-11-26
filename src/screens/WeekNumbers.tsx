@@ -90,7 +90,7 @@ export function TrendTiles({ d, today, onBodyweight, onTrend }: { d: WeekNumbers
         onClick={onTrend}
       />
       <MetricTile
-        label="Plan adherence"
+        label="Adherence"
         value={adh ? adh.done : '—'}
         unit={adh ? `of ${adh.scheduled}` : undefined}
         caption={adh ? undefined : 'nothing scheduled this week'}

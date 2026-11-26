@@ -3,7 +3,8 @@ import { backupOverdue } from '../db/backup';
 import { getUnit } from '../db/units';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { formatDate, timeLabel, todayLocal } from '../db/dates';
+import { formatDate, timeLabel } from '../db/dates';
+import { useToday } from '../useToday';
 import { getEntries } from '../db/plans';
 import { createDateWorkout, makeDateCopy } from '../db/reschedule';
 import { findSession, orderedEntries, reopenSession, startOrResume } from '../db/logging';
@@ -67,7 +68,8 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
   const [error, setError] = useState<string | null>(null);
 
   // Logging (start, resume, reopen) is only for today, whichever screen shows it.
-  const canLog = isToday || date === todayLocal();
+  const today = useToday();
+  const canLog = isToday || date === today;
   const title = isToday ? 'Today' : formatDate(date);
   const here = isToday ? '/today' : `/day/${date}`;
   const dayMenu = (workoutCount: number, overridden: boolean): MenuItem[] => [
