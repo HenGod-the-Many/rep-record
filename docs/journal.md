@@ -2,6 +2,19 @@
 
 Newest first.
 
+## 2026-11-25 (late): Plate picked, design system, W-20 spec
+
+- Taylor picked **Plate** ("Plate for sure"). Wrote the design system
+  (docs/design/design-system.md: colours, type, spacing, icons, navigation,
+  components, checks) and decision 0008 (Plate, bundled fonts, rem type,
+  four tabs; stored data names unchanged).
+- Colours are now measured, not worked out by hand: docs/design/contrast-check.py
+  checks 17 pairs per mode. Its first run failed 3 pairs (light field edges
+  2.95 : 1, empty progress segments 1.62 and 2.10 : 1); after darkening them
+  it reports 0 failing. The step 2 mock-ups still show the old, fainter shades.
+- Drafted the W-20 spec (eight slices, each its own PR) and KF-16 with
+  R-16.1 to R-16.7 (planned). Waiting for Taylor's approval; nothing built.
+
 ## 2026-11-25 (evening): hotfix v0.8.1, UI answers, step 2 directions
 
 - **Hotfix v0.8.1 released** (#37 into main, tag v0.8.1, #41 main → dev). Bug
