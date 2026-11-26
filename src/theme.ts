@@ -53,8 +53,12 @@ export function applyTheme(choice: ThemeChoice = getThemeChoice()): void {
 
 export function setThemeChoice(choice: ThemeChoice): void {
   const s = storage();
-  if (choice === 'auto') s?.removeItem(THEME_KEY);
-  else s?.setItem(THEME_KEY, choice);
+  try {
+    if (choice === 'auto') s?.removeItem(THEME_KEY);
+    else s?.setItem(THEME_KEY, choice);
+  } catch {
+    // Storage full or refused: still show the choice for this visit.
+  }
   applyTheme(choice);
   listeners.forEach((l) => l());
 }

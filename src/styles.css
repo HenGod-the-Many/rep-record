@@ -286,6 +286,7 @@ input:not([type='checkbox']) {
 .diff-foot { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-top: 2px; }
 .pick-overlay {
   position: absolute; inset: 2px 0; border-radius: 12px; border: 2px dashed var(--accent);
+  background: var(--bg);
   background: color-mix(in srgb, var(--bg) 88%, transparent); color: var(--accent-text); font-weight: 700; font-size: 1.1rem;
 }
 .change-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 4px; }
@@ -470,7 +471,7 @@ input:not([type='checkbox']) {
 .header h1, .month-nav h2, .section-head h2, h1, h2 {
   font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em; line-height: 1.05;
 }
-.header h1 { font-size: 1.9rem; }
+.header h1 { font-size: 1.9rem; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
 .month-nav h2, .section-head h2 { font-size: 1.4rem; }
 .header-back, .header-link, .link { color: var(--accent-text); }
 .group-title { font-size: 0.77rem; font-weight: 700; letter-spacing: 0.08em; }
@@ -478,7 +479,8 @@ input:not([type='checkbox']) {
   font-family: var(--font-display); font-weight: 700; font-variant-numeric: tabular-nums;
 }
 .stat-big { font-size: 1.75rem; }
-.step-value input { font-size: max(16px, 1.5rem); }
+/* Logging steppers keep their old size until the logging slice (7) is checked on screen. */
+.step-value input { font-size: max(16px, 1.06rem); }
 .stepper output { font-size: 1.5rem; }
 .card { border-radius: 18px; border-color: var(--hairline); }
 .row, .alt-row, .check-row, .move-row, .warmups-row, .group-block { border-radius: 14px; }
