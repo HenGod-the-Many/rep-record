@@ -561,3 +561,19 @@ input:not([type='checkbox']), .select { border-width: 1.5px; }
 .folder { overflow: visible; }
 .folder-head { border-radius: 18px; }
 .icon-btn { display: inline-grid; place-items: center; }
+
+/* ---- Logging screen look (W-20 slice 7): no behaviour changes ---- */
+.step-value input { font-size: max(16px, 1.5rem); padding-bottom: 12px; }
+.step-unit { bottom: 2px; }
+.step-btn { display: grid; place-items: center; color: var(--ink); background: var(--surface-2); }
+.check-btn { display: grid; place-items: center; border-radius: 14px; }
+.check-btn .icon { width: 26px; height: 26px; }
+.done-tick { display: grid; place-items: center; }
+.exercise-card .card-title, .group-card .card-title { font-family: var(--font-display); font-weight: 700; font-size: 1.4rem; text-transform: uppercase; line-height: 1.05; }
+.log-current { position: relative; margin: 0 0 12px; }
+.log-current > .card { border: 0; box-shadow: inset 4px 0 0 var(--accent), 0 0 0 1.5px var(--line); margin-bottom: 0; }
+.log-current::before { content: 'Now'; display: block; margin: 0 0 6px 4px; font-size: 0.77rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); }
+/* The rep-range hint (e.g. 12-15) is longer than a typed number: keep it readable in the box. */
+.step-value input::placeholder { font-size: max(14px, 0.9rem); }
+.move-btns .icon-btn { display: inline-grid; place-items: center; }
+.round-chips button, .more-btn { display: inline-grid; place-items: center; }

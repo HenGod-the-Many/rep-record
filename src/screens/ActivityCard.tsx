@@ -6,6 +6,7 @@ import type { Unit } from '../db/units';
 import { formatTargets } from '../format';
 import { navigate } from '../router';
 import { attempt, CardTitle, ErrorText, MoveButtons, type SlotControls } from './common';
+import { Icon } from '../ui/icons';
 import { SwapPanel } from './LogWorkout';
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
@@ -87,25 +88,25 @@ export function ActivityCard(props: { session: Session; entry: PlanExercise; exe
       )}
       <div className="activity-head">
         <p className="small-print muted">{lastLine}</p>
-        <button className={`check-btn${log ? ' done' : ''}`} aria-label={log ? 'Update activity' : 'Log activity'} onClick={save}>✓</button>
+        <button className={`check-btn${log ? ' done' : ''}`} aria-label={log ? 'Update activity' : 'Log activity'} onClick={save}><Icon name="check" strong /></button>
       </div>
       <div className="activity-row">
         <div className="stepper-box">
-          <button className="step-btn" aria-label="5 minutes less" onClick={() => setMinutes(step(minutes, -5, 1))}>−</button>
+          <button className="step-btn" aria-label="5 minutes less" onClick={() => setMinutes(step(minutes, -5, 1))}><Icon name="minus" size={20} strong /></button>
           <label className="step-value">
             <input inputMode="decimal" aria-label="Minutes" value={minutes} onChange={(e) => setMinutes(e.target.value)} />
             <span className="step-unit">min</span>
           </label>
-          <button className="step-btn" aria-label="5 minutes more" onClick={() => setMinutes(step(minutes, 5, 1))}>+</button>
+          <button className="step-btn" aria-label="5 minutes more" onClick={() => setMinutes(step(minutes, 5, 1))}><Icon name="plus" size={20} strong /></button>
         </div>
         {exercise.hasDistance && (
           <div className="stepper-box">
-            <button className="step-btn" aria-label="Less distance" onClick={() => setDistance(step(distance, -0.5, 0))}>−</button>
+            <button className="step-btn" aria-label="Less distance" onClick={() => setDistance(step(distance, -0.5, 0))}><Icon name="minus" size={20} strong /></button>
             <label className="step-value">
               <input inputMode="decimal" aria-label={`Distance in ${distanceUnit(unit)}`} value={distance} onChange={(e) => setDistance(e.target.value)} />
               <span className="step-unit">{distanceUnit(unit)}</span>
             </label>
-            <button className="step-btn" aria-label="More distance" onClick={() => setDistance(step(distance, 0.5, 0))}>+</button>
+            <button className="step-btn" aria-label="More distance" onClick={() => setDistance(step(distance, 0.5, 0))}><Icon name="plus" size={20} strong /></button>
           </div>
         )}
       </div>
