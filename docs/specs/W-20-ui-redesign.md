@@ -57,6 +57,10 @@ screen, setup grouped in one Library). Background: the
 **Definitions** (new functions, each with tests):
 - *Minutes exercised this week:* for each finished workout, finish time minus
   start time, capped at 4 hours; plus the duration of each logged activity.
+  Clarified while building (slice 3, 2026-11-25): activities are logged inside
+  a workout, so each workout counts once, as the longer of its start-to-finish
+  time and its activity time (an unfinished workout counts its activity time
+  only). Adding both would count the same minutes twice.
 - *Week streak:* weeks in a row, ending this week or last week, with at least
   one finished workout or activity. Weeks start on the existing week setting.
 - *Weekly volume:* the existing lifting volume for this week, and the change

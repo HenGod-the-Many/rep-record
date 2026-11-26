@@ -7,6 +7,7 @@ import { PlanDetail } from './screens/PlanDetail';
 import { EntryEdit } from './screens/EntryEdit';
 import { ExercisePicker } from './screens/ExercisePicker';
 import { DayView } from './screens/DayView';
+import { Home } from './screens/Home';
 import { MoveDay } from './screens/MoveDay';
 import { Calendar } from './screens/Calendar';
 import { SplitEdit, SplitList } from './screens/Splits';
@@ -61,7 +62,7 @@ function Screen() {
   if (section === 'body') return <BodyList />;
   if (import.meta.env.DEV && section === 'ui') return <Gallery />;
   if (section === 'log' && id) return <LogWorkout key={id} sessionId={id} />;
-  return <DayView key={today} date={today} isToday />;
+  return <Home key={today} today={today} />;
 }
 
 export function App() {

@@ -3,7 +3,7 @@ import { backupOverdue } from '../db/backup';
 import { getUnit } from '../db/units';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
-import { formatDate, timeLabel } from '../db/dates';
+import { formatDate, timeLabel, todayLocal } from '../db/dates';
 import { getEntries } from '../db/plans';
 import { createDateWorkout, makeDateCopy } from '../db/reschedule';
 import { findSession, orderedEntries, reopenSession, startOrResume } from '../db/logging';
@@ -26,7 +26,7 @@ import { PlanSelect, TimeSelect, UndoBar } from './pickers';
 
 /** One date's workouts, with quick changes. Used for Today and for any calendar date. */
 /** One line on Today when the last backup is more than 7 days old (W-07). */
-function BackupReminder() {
+export function BackupReminder() {
   const overdue = useLiveQuery(() => backupOverdue(db), []);
   if (!overdue) return null;
   return (
@@ -65,6 +65,8 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
   const [newTime, setNewTime] = useState(DEFAULT_TIME);
   const [error, setError] = useState<string | null>(null);
 
+  // Logging (start, resume, reopen) is only for today, whichever screen shows it.
+  const canLog = isToday || date === todayLocal();
   const title = isToday ? 'Today' : formatDate(date);
   const here = isToday ? '/today' : `/day/${date}`;
   const action = isToday ? (
@@ -157,7 +159,7 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
               <span className="done-mark">✓ Done · {w.setCount} {w.setCount === 1 ? 'set' : 'sets'}</span>
               {w.session.journalNote.trim() && <p className="workout-note small-print">{w.session.journalNote}</p>}
               <button className="btn-secondary" onClick={() => navigate(`/log/${w.session!.id}`)}>View</button>
-              {isToday && (
+              {canLog && (
                 <button
                   className="btn-secondary"
                   onClick={async () => {
@@ -169,10 +171,10 @@ export function DayView({ date, isToday, back }: { date: string; isToday?: boole
               )}
             </div>
           ) : w.session ? (
-            <button className={`${isToday ? 'btn-primary' : 'btn-secondary'} block`} onClick={() => navigate(`/log/${w.session!.id}`)}>
-              {isToday ? 'Resume workout' : 'View workout'} · {w.setCount} {w.setCount === 1 ? 'set' : 'sets'} logged
+            <button className={`${canLog ? 'btn-primary' : 'btn-secondary'} block`} onClick={() => navigate(`/log/${w.session!.id}`)}>
+              {canLog ? 'Resume workout' : 'View workout'} · {w.setCount} {w.setCount === 1 ? 'set' : 'sets'} logged
             </button>
-          ) : isToday ? (
+          ) : canLog ? (
             <button
               className="btn-primary block"
               disabled={!w.plan}
