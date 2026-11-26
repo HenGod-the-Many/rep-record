@@ -2,6 +2,30 @@
 
 Newest first.
 
+## 2026-11-25 (evening): hotfix v0.8.1, UI answers, step 2 directions
+
+- **Hotfix v0.8.1 released** (#37 into main, tag v0.8.1, #41 main → dev). Bug
+  from Taylor's workout: after a weight change, the reps after the drop could
+  not be edited (120 × 6 → 100 × 1 instead of → 100 × 5). Each weight in a
+  weight-changed set now has its own weight and reps steppers. Two new tests
+  (failed before, pass after); `npm run check` 259 pass; checked in the app at
+  phone size; deploy succeeded and the live bundle contains the new text.
+  Not tried on the iPhone. Own bug caught before merge: "Back to one weight"
+  briefly kept the second weight; fixed and re-checked.
+- Lesson: the audit session shared this folder, so switching branches here
+  would have moved its work. The hotfix moved to its own worktree
+  (../rr-hotfix, now removed).
+- **Taylor's UI answers** (brief): option A, "Program" for split, "Workout"
+  for plan, restyle and rework flows, home in three groups, both proposed
+  metrics (weekly volume, plan adherence). Future features W-21 to W-24
+  pocketed in the queue (#40).
+- **Step 2 started:** three visual directions for the home screen, each in
+  light and dark, on a design canvas:
+  [Rep Record home screen: three visual directions](https://claude.ai/artifact/Mg4JmpVt4THJMbJqAE5RKw)
+  (private to Taylor). Source kept in docs/design/home-directions/. Sample
+  numbers. Colours chosen to pass 4.5 : 1 in both modes (worked by hand, not
+  measured on the rendered page). Waiting for Taylor to pick one.
+
 ## 2026-11-25: UI audit (step 1 of the UI review)
 
 - Read-only audit of dev (6793e5f) at 390 × 844, published as an artifact:

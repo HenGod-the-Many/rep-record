@@ -23,7 +23,7 @@ goal is something "sleek and modern and intuitive to use".
    type scale, spacing, components) and a decision record.
 4. **Build in slices** through a spec, screen by screen, with the usual review.
 
-Steps 2–4 wait for Taylor after the audit.
+Steps 2–4 wait for Taylor after the audit. Step 2 approved by Taylor 2026-11-25.
 
 ## Taylor's answers so far
 
@@ -44,8 +44,8 @@ Steps 2–4 wait for Taylor after the audit.
   - Navigation: **option A**, four tabs: Home, Calendar, Library, Progress.
     Library holds Programs, Workouts, Exercises and Warm-ups behind one switch.
     Settings behind a gear on Home.
-  - Name: **"Program"** replaces "split". (Whether "plan" becomes "Workout",
-    as in the audit's option A, is proposed but not yet confirmed.)
+  - Names: **"Program"** replaces "split", and **"Workout"** replaces "plan"
+    (one workout's exercises), confirmed by Taylor 2026-11-25.
   - Scope: **restyle and rework the flows.**
   - Home screen, in three groups:
     1. **Start workout**: today's workout with Start.
@@ -53,7 +53,7 @@ Steps 2–4 wait for Taylor after the audit.
     3. **Extended metrics**: bodyweight, week streak (weeks in a row with at
        least one workout), plus metrics Claude proposes. Proposed 2026-11-25:
        weekly volume (total weight lifted vs last week) and plan adherence
-       (planned workouts done this week). Taylor to pick.
+       (planned workouts done this week). Taylor chose **both** (2026-11-25).
 - Future features Taylor pocketed the same day are in the queue (W-21 to W-24),
   not part of this redesign.
 
