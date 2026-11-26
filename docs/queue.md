@@ -39,7 +39,7 @@ block, and the Awaiting owner list. Requirement status lives in
 | 16 | W-17 | Logging as it really happened: as-run order, fold finished exercises, remove Rep change | R-05.9 (changed), R-05.11, R-05.12 | [W-17](specs/W-17-logging-as-run.md) | W-06 | no | Awaiting owner | Added 2026-11-24 from Taylor's first workout; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
 | 17 | W-18 | Plan folders, duplicate a folder, Warm-ups easier to find | R-02.5, R-02.6 | [W-18](specs/W-18-plan-folders.md) | W-04 | no | Awaiting owner | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; built 2026-11-24 |
 | 18 | W-19 | Supersets and circuits in plans, workouts and warm-ups | KF-15, R-15.1–R-15.4 | [W-19](specs/W-19-supersets-circuits.md) | W-17 | no | Awaiting owner | Added 2026-11-24; release 3; spec approved by Taylor 2026-11-24 with defaults; decision 0007; built 2026-11-24 |
-| 19 | W-20 | UI redesign: Home / Calendar / Library / Progress, "Program" for split, restyle and rework flows, light and dark | KF-16, R-16.1–R-16.7 | [W-20](specs/W-20-ui-redesign.md) | none | no | Awaiting owner | Added 2026-11-25. Spec approved by Taylor 2026-11-25 with all six defaults; built in eight slices (PRs #44–#50 and slice 8), each reviewed; not released yet (v0.9.0 waits for Taylor's OK) |
+| 19 | W-20 | UI redesign: Home / Calendar / Library / Progress, "Program" for split, restyle and rework flows, light and dark | KF-16, R-16.1–R-16.7 | [W-20](specs/W-20-ui-redesign.md) | none | no | Awaiting owner | Added 2026-11-25. Spec approved by Taylor 2026-11-25 with all six defaults; built in eight slices (PRs #44–#51), each reviewed; released as v0.9.0 2026-11-25 (#54, tag v0.9.0) |
 | 20 | W-21 | Progression predictions: when to add weight, the next weight, predicted 1-rep max | not yet | not yet | W-08 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. W-08 already estimates a 1-rep max per set; this adds a forecast from the trend |
 | 21 | W-22 | Duration predictions for a program, a workout and single exercises, from logged times | not yet | not yet | W-17 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. Needs per-set times; check what is logged today |
 | 22 | W-23 | Strength vs cardio balance, week over week and overall | not yet | not yet | W-15 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. Activities (W-15) are already stored apart from lifts |
@@ -52,7 +52,7 @@ Newest first.
 
 ### W-20: UI redesign (Plate)
 
-- Delivered in: eight pull requests to `dev`: #44 foundation, #45 navigation, #46 Home, #47 Progress, #48 Calendar, #49 Library, #50 logging look, then slice 8 (accessibility pass and screenshots).
+- Delivered in: eight pull requests to `dev`: #44 foundation, #45 navigation, #46 Home, #47 Progress, #48 Calendar, #49 Library, #50 logging look, #51 slice 8 (accessibility pass, screenshots, tap counts). Released as v0.9.0 (#54, tag v0.9.0, deployed 2026-11-25).
 - Result:
   - **Look:** Plate everywhere (colours, Barlow Condensed and Inter bundled, icons). Light and dark follow the phone, with Auto / Light / Dark in Settings.
   - **Tabs:** four of them, Home · Calendar · Library · Progress.
