@@ -2,6 +2,15 @@
 
 Newest first.
 
+## 2026-11-25 (later): W-25 spec drafted, release held
+
+- Taylor held the v0.9.0 release ("Not yet") pending two answers.
+- On minutes exercised, Taylor wants a real workout timer: it starts at Start workout, can be paused and resumed, and stops at the last tick. Exercise times come from tick times, at 3 s per rep, so they work for supersets and for exercises added mid-workout. Taylor also wants averages per exercise and per workout.
+- On saving, most edit screens should save as they change, with a button kept where it is better.
+- Drafted docs/specs/W-25-workout-timer.md: KF-17, R-17.1 to R-17.6, five slices, eight default answers, and a table of which screens keep Save.
+- Key fact: every set already stores its tick time and every workout its start time, so past workouts can be timed too.
+- Nothing built; waiting for Taylor's approval. W-20 stays merged on dev, unreleased.
+
 ## 2026-11-25 (night): W-20 built in eight slices
 
 - **Approval:** Taylor approved the W-20 spec ("Yes to all. Approved."). It was built the same night, one pull request per slice, each reviewed by the acceptance-reviewer before merging. #44 foundation, #45 tabs and Library, #46 Home, #47 Progress, #48 Calendar, #49 Library menus, #50 logging look, then slice 8.

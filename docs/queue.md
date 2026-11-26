@@ -43,6 +43,7 @@ block, and the Awaiting owner list. Requirement status lives in
 | 20 | W-21 | Progression predictions: when to add weight, the next weight, predicted 1-rep max | not yet | not yet | W-08 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. W-08 already estimates a 1-rep max per set; this adds a forecast from the trend |
 | 21 | W-22 | Duration predictions for a program, a workout and single exercises, from logged times | not yet | not yet | W-17 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. Needs per-set times; check what is logged today |
 | 22 | W-23 | Strength vs cardio balance, week over week and overall | not yet | not yet | W-15 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. Activities (W-15) are already stored apart from lifts |
+| 23b | W-25 | Workout timer: start/stop, auto-stop at the last set, time per exercise (supersets by tick times), averages; save as you change on the remaining edit screens | KF-17, R-17.1–R-17.6 | [W-25](specs/W-25-workout-timer.md) | W-20 | no | Not ready | Asked by Taylor 2026-11-25 (minutes answer and saving answer); spec waits for approval. Base for W-22 predictions |
 | 23 | W-24 | Recommendations: weak spots and improvements from the logs, short user surveys and other inputs | not yet | not yet | W-21, W-23 | no | Not ready | Pocketed by Taylor 2026-11-25 for later. Rules-based first; no backend, so no cloud AI unless Taylor decides otherwise |
 
 ## Awaiting owner
