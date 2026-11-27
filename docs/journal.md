@@ -2,6 +2,14 @@
 
 Newest first.
 
+## 2026-11-27 (later): W-25 unblocked by Taylor's backup; 15-minute limit between ticks
+
+- **Real data:** Taylor sent a backup (3 workouts, 41 sets; the file stays out of the repo). `node scripts/timing-report.mjs` gave per-set times of about 1 to 4 minutes within an exercise; Pull (25 Nov) 60:52 against 61:02 start to Finish.
+- **Found:** Push (24 Nov) came out at 1 h 55 min. The last set was ticked an hour after the one before, four seconds before Finish (a forgotten tick). Two sets hit the 5-minute set limit.
+- **Taylor's answers** (recorded as answers 9 to 12 in the spec): A, a stretch of more than 15 minutes between ticks counts 15 (Push now 69:14, Pull unchanged); activities count typed-in time; long activities never cut; supersets fine. Taylor would like to override the derived time: suggested as a new item.
+- **Built:** the 15-minute limit in `workoutMs`; the stretch before an activity's tick holds the activity plus up to 15 minutes. Tests first (the forgotten-tick test failed before the change). `npm run check`: 314 tests pass.
+- **Suggestion (new item, not W-25):** let the user override a workout's or exercise's derived time.
+
 ## 2026-11-27: W-25 slice 1 (timing model) built; blocked on real workouts
 
 - **Built:** src/db/timing.ts, the timing model. Tests first: 20 known-answer tests (straight sets, alternating superset, circuit, added exercise, pause, 5-minute limit, activities, end at last tick, minutes exercised, averages). Seen failing before the model existed. `npm run check`: 310 tests pass (290 old ones unchanged).

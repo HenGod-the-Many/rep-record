@@ -14,12 +14,15 @@ import type { ExerciseKind, Pause, Session, SetLog } from './db';
  * - An activity counts its own logged duration (it is typed in, not ticked live).
  * - An exercise's time is the sum of its sets' times.
  * - A workout runs from Start to its last tick (no ticks: to Finish), pauses
- *   taken out, at most 4 hours.
+ *   taken out; a stretch between two ticks counts at most 15 minutes;
+ *   at most 4 hours. Logged activities are never cut.
  */
 
 export const SECONDS_PER_REP = 3;
 /** Longest time one set can be given (answer 2). */
 export const MAX_SET_MS = 5 * 60 * 1000;
+/** A stretch between two ticks counts at most this long toward the workout (Taylor, 2026-11-27, answer 9). */
+export const MAX_GAP_MS = 15 * 60 * 1000;
 /** A workout counts at most this long. */
 export const MAX_WORKOUT_MS = 4 * 60 * 60 * 1000;
 /** Averages are over this many most recent times (answer 5). */
@@ -95,11 +98,27 @@ export function elapsedMs(session: TimedSession, end: number, start = session.st
   return Math.min(Math.max(0, end - start - pausedMs(session.pauses, start, end)), MAX_WORKOUT_MS);
 }
 
-/** The workout's timed duration: Start to its end, pauses taken out. */
+/**
+ * The workout's timed duration: Start to its end, pauses taken out, at most 4
+ * hours. A stretch between two ticks counts at most 15 minutes (a forgotten
+ * tick caught up later); the time from Start to the first tick is not limited.
+ */
 export function workoutMs(session: TimedSession, sets: TimedSet[], kindOf: KindOf = () => 'weight'): number {
   const end = workoutEnd(session, sets);
   if (end === null) return 0;
-  return elapsedMs(session, end, startOf(session, byTick(sets), kindOf));
+  const ordered = byTick(sets);
+  const start = startOf(session, ordered, kindOf);
+  if (!ordered.length) return elapsedMs(session, end, start);
+  let ms = elapsedMs(session, ordered[0].loggedAt, start);
+  for (let i = 1; i < ordered.length; i++) {
+    const a = ordered[i - 1].loggedAt;
+    const b = ordered[i].loggedAt;
+    // The stretch before an activity's tick holds the activity, plus up to 15 minutes like any other.
+    const kind = kindOf(ordered[i].exerciseId);
+    const limit = kind === 'activity' ? MAX_GAP_MS + ownMs(ordered[i], kind) : MAX_GAP_MS;
+    ms += Math.min(Math.max(0, b - a - pausedMs(session.pauses, a, b)), limit);
+  }
+  return Math.min(ms, MAX_WORKOUT_MS);
 }
 
 /** Logged activity time in the workout. */

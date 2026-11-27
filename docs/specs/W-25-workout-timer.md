@@ -133,3 +133,15 @@ the workouts already in the app.
 8. Release: **W-20 and W-25 together as v0.9.0**, so the minutes rule changes
    only once on the phone. Overtaken: Taylor released W-20 alone as v0.9.0
    (2026-11-25); W-25 goes in the next release.
+
+## Answers added after slice 1 (Taylor, 2026-11-27, after seeing the model on their real workouts)
+
+9. A forgotten tick caught up at Finish stretched the 24 Nov workout to 1 h 55 min (really about 57 min).
+   **A stretch of more than 15 minutes between two ticks counts 15 minutes** toward the workout's time.
+   Time from Start to the first tick is not limited. The stretch before an activity's tick holds the
+   activity plus up to 15 minutes.
+10. Activities count the time typed in ("a 30 minute run should indeed be 30 minutes"). Taylor would also
+    like to override the app's derived time; that is a new item, not part of W-25.
+11. The 4-hour limit stays for the clock, but long activities must not be cut (a long hike): logged
+    activity time is never limited.
+12. Supersets: each first set's 3 s per rep is fine; if ticks are late, "that's just a limitation".
