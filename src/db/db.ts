@@ -151,6 +151,14 @@ export interface Session {
   warmupRounds?: number;
   /** Plan slot ids in the order they were done (W-17). Missing or empty = the plan's order. The plan is unchanged. */
   slotOrder?: string[];
+  /** Times the workout timer was paused (W-25). `to` is null while paused. Missing = never paused. */
+  pauses?: Pause[];
+}
+
+/** One pause of the workout timer (W-25), as epoch milliseconds. */
+export interface Pause {
+  from: number;
+  to: number | null;
 }
 
 /** One stretch of a set at one weight. A set whose weight changed mid-set has several. */
