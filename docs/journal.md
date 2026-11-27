@@ -2,6 +2,18 @@
 
 Newest first.
 
+## 2026-11-27: W-25 slice 1 (timing model) built; blocked on real workouts
+
+- **Built:** src/db/timing.ts, the timing model. Tests first: 20 known-answer tests (straight sets, alternating superset, circuit, added exercise, pause, 5-minute limit, activities, end at last tick, minutes exercised, averages). Seen failing before the model existed. `npm run check`: 310 tests pass (290 old ones unchanged).
+- **Report script:** `node scripts/timing-report.mjs <backup.json>` prints each logged workout's time, per-exercise and per-set times, and flags sets at the 5-minute limit or under 10 s. Tried on a made-up backup.
+- **Choices to confirm with Taylor:**
+  - Activities count their typed-in duration, not the time since the previous tick. The literal rule plus the 5-minute limit would turn a 30-minute run into 5 minutes.
+  - A workout still counts at most 4 hours, carried over from the old rule.
+  - A superset's two exercises add up to slightly less than the time on them: each exercise's first set is cut to 3 s per rep, as approved.
+- **Review:** acceptance-reviewer: accept after one fix (a test did not pin the activity-only rule). Fixed; the new test was seen failing with the rule removed; a second reviewer confirmed it met.
+- **Blocked:** the spec says to run the model over the workouts already logged before building screens. They exist only on Taylor's phone; no backup is on this computer. Next step: Taylor exports a backup (Settings, Backup) and puts it where this PC can read it; then run the script and show Taylor the per-set times.
+- Backup files (`rep-record-backup-*.json`) are now git-ignored: they hold personal data.
+
 ## 2026-11-25 (end): v0.9.0 released, W-25 approved, handoff
 
 - **Released v0.9.0, the Plate redesign (W-20)**, at Taylor's request ("push what you have to main now").
