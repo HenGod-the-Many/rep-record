@@ -163,6 +163,28 @@ describe('Workout time (R-17.2, R-17.5)', () => {
     expect(countedMs(session(), sets, kinds({ run: 'activity' }))).toBe(30 * MIN);
   });
 
+  it('a stretch of more than 15 minutes between two ticks counts 15 (a forgotten tick, caught up at Finish)', () => {
+    // Sets at 4:00 and 8:00; the last set ticked an hour later at 1:08:00: 4 + 4 + 15 = 23 minutes.
+    const sets = [set('rope', 240), set('rope', 480), set('rope', 480 + 60 * 60)];
+    expect(workoutMs(session({ finishSec: 480 + 60 * 60 + 4 }), sets)).toBe(23 * MIN);
+  });
+
+  it('the 15-minute limit applies to time on the clock, after pauses are taken out', () => {
+    // 30 minutes between ticks, 20 of them paused: 10 minutes count.
+    const sets = [set('bench', 60), set('bench', 60 + 30 * 60)];
+    const s = session({ pauses: [{ from: at(120), to: at(120 + 20 * 60) }] });
+    expect(workoutMs(s, sets)).toBe(11 * MIN);
+  });
+
+  it('time from Start to the first tick is not limited (warm-up, setting up)', () => {
+    expect(workoutMs(session(), [set('bench', 20 * 60)])).toBe(20 * MIN);
+  });
+
+  it('a long logged activity is never cut: a 6-hour hike counts 6 hours', () => {
+    const sets = [set('hike', 60, secs(6 * 3600))];
+    expect(countedMs(session({ finishSec: 120 }), sets, kinds({ hike: 'activity' }))).toBe(6 * 60 * MIN);
+  });
+
   it('a workout counts at most 4 hours (carried over from the old rule)', () => {
     expect(workoutMs(session({ finishSec: 6 * 3600 }), [])).toBe(4 * 60 * MIN);
   });
