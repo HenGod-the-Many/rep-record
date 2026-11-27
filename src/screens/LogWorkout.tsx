@@ -9,6 +9,9 @@ import {
   changeWeightAt,
   deleteSet,
   finishSession,
+  isPaused,
+  pauseTimer,
+  resumeTimer,
   logSet,
   moveSlot,
   orderedEntries,
@@ -36,6 +39,7 @@ import { Icon } from '../ui/icons';
 import { foldedByDefault, foldSummary } from '../db/fold';
 import { groupLabel } from '../db/groups';
 import type { GroupKind } from '../db/db';
+import { MAX_GAP_MS, pausedMs, timerMs } from '../db/timing';
 
 const EMPTY: SetPart = { weightLb: null, reps: null, seconds: null };
 
@@ -193,6 +197,8 @@ export function LogWorkout({ sessionId, back = '/today' }: { sessionId: string; 
   };
   // The exercise being worked on now: the first one not yet done.
   const currentIndex = units.findIndex((u) => !(u.group ? u.done : u.members[0].done));
+  // The timer stops by itself once every target set is ticked (R-17.2), or at Finish.
+  const timerStopped = session.finishedAt !== null || (units.length > 0 && units.every((u) => u.done));
 
   return (
     <div className="screen log-screen">
@@ -200,6 +206,7 @@ export function LogWorkout({ sessionId, back = '/today' }: { sessionId: string; 
       <p className="subtitle">
         {timeLabel(session.time)} · {formatDate(session.date)}
       </p>
+      <WorkoutTimer session={session} logs={logs} exercises={exercises} stopped={timerStopped} onError={setError} />
       {session.finishedAt !== null && (
         <div className="banner finished-banner">
           <span>Finished. Changes still save.</span>
@@ -246,6 +253,54 @@ export function LogWorkout({ sessionId, back = '/today' }: { sessionId: string; 
           }}
         >
           Finish workout
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** "4:05", or "1:02:09" from an hour on. */
+export function clockText(ms: number): string {
+  const total = Math.floor(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = String(total % 60).padStart(2, '0');
+  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`;
+}
+
+/**
+ * The workout timer (W-25, R-17.1, R-17.2): running minutes and seconds since
+ * Start workout, with pause and resume. It stops by itself at the last target
+ * set and shows the time to that tick; an extra set moves it on.
+ */
+function WorkoutTimer(props: { session: Session; logs: SetLog[]; exercises: Map<string, Exercise>; stopped: boolean; onError: (m: string | null) => void }) {
+  const { session, logs, exercises, stopped } = props;
+  const paused = isPaused(session);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (stopped || paused) return;
+    const t = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(t);
+  }, [stopped, paused]);
+  const kindOf = (id: string) => exercises.get(id)?.kind ?? 'weight';
+  const at = Math.max(now, Date.now());
+  const ms = timerMs(session, logs, at, stopped, kindOf);
+  // No set ticked for 15 minutes: the timer holds there, as that is all that will be counted (answer 9).
+  const lastTick = logs.reduce((m, l) => Math.max(m, l.loggedAt), 0);
+  const held = !stopped && !paused && lastTick > 0 && at - lastTick - pausedMs(session.pauses, lastTick, at) >= MAX_GAP_MS;
+  const status = session.finishedAt !== null ? 'Finished' : stopped ? 'Stopped at the last set' : paused ? 'Paused' : held ? 'Held: no set for 15 min' : 'Workout time';
+  return (
+    <div className={`workout-timer${(paused || held) && !stopped ? ' paused' : ''}`} role="timer" aria-label={`${status}: ${clockText(ms)}`}>
+      <div className="timer-text">
+        <span className="timer-label">{status}</span>
+        <span className="timer-clock" aria-hidden="true">{clockText(ms)}</span>
+      </div>
+      {!stopped && (
+        <button
+          className="btn-secondary timer-button"
+          onClick={() => attempt(() => (paused ? resumeTimer(db, session.id) : pauseTimer(db, session.id)), props.onError)}
+        >
+          <Icon name={paused ? 'play' : 'pause'} size={18} /> {paused ? 'Resume' : 'Pause'}
         </button>
       )}
     </div>

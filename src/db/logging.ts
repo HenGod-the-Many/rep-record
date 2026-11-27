@@ -57,7 +57,41 @@ export async function startOrResume(db: WorkoutDB, input: StartInput): Promise<s
 }
 
 export async function finishSession(db: WorkoutDB, sessionId: string): Promise<void> {
-  await db.sessions.update(sessionId, { finishedAt: Date.now() });
+  const now = Date.now();
+  await db.transaction('rw', db.sessions, async () => {
+    const s = await db.sessions.get(sessionId);
+    // A pause still open at Finish ends there.
+    const pauses = s?.pauses?.map((p) => (p.to === null ? { ...p, to: now } : p));
+    await db.sessions.update(sessionId, pauses ? { finishedAt: now, pauses } : { finishedAt: now });
+  });
+}
+
+/* ---------- workout timer (W-25) ---------- */
+
+/** The timer is paused: the last pause has not been resumed. */
+export function isPaused(session: Pick<Session, 'pauses'>): boolean {
+  const last = session.pauses?.[session.pauses.length - 1];
+  return !!last && last.to === null;
+}
+
+/** Pause the workout timer. Does nothing if it is already paused. */
+export async function pauseTimer(db: WorkoutDB, sessionId: string, now = Date.now()): Promise<void> {
+  await db.transaction('rw', db.sessions, async () => {
+    const s = await db.sessions.get(sessionId);
+    if (!s || isPaused(s)) return;
+    await db.sessions.update(sessionId, { pauses: [...(s.pauses ?? []), { from: now, to: null }] });
+  });
+}
+
+/** Resume the workout timer. Does nothing if it is not paused. */
+export async function resumeTimer(db: WorkoutDB, sessionId: string, now = Date.now()): Promise<void> {
+  await db.transaction('rw', db.sessions, async () => {
+    const s = await db.sessions.get(sessionId);
+    if (!s || !isPaused(s)) return;
+    const pauses = s.pauses!.slice();
+    pauses[pauses.length - 1] = { ...pauses[pauses.length - 1], to: Math.max(now, pauses[pauses.length - 1].from) };
+    await db.sessions.update(sessionId, { pauses });
+  });
 }
 
 export async function reopenSession(db: WorkoutDB, sessionId: string): Promise<void> {

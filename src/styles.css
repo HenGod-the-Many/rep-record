@@ -306,6 +306,16 @@ input:not([type='checkbox']) {
 .swap-list { max-height: 50vh; overflow-y: auto; }
 .finished-banner { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .finish { margin: 16px 0; }
+/* Workout timer (W-25): stays in view at the top while the cards scroll. */
+.workout-timer {
+  position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 0 0 12px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+}
+.timer-text { display: flex; flex-direction: column; min-width: 0; }
+.timer-label { color: var(--muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+.timer-clock { font-family: var(--font-display); font-weight: 700; font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.workout-timer.paused .timer-clock { color: var(--muted); }
+.timer-button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; flex: none; }
 .done-line { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
 .done-mark { flex: 1; color: var(--good); font-weight: 700; }
 .diff-foot .link { min-width: 64px; min-height: 44px; padding: 0 10px; font-size: 0.9rem; }

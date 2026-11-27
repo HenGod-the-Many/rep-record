@@ -145,3 +145,19 @@ export function averageMs(newestFirst: number[]): number | null {
   if (!recent.length) return null;
   return recent.reduce((a, b) => a + b, 0) / recent.length;
 }
+
+/**
+ * What the workout timer shows at `now` (R-17.1, R-17.2). Stopped (every target
+ * set ticked, or the workout finished): the workout's time, which ends at its
+ * last tick. Running: up to the last tick as counted, then on to `now` with
+ * pauses taken out, no more than 15 minutes past the last tick, so the timer
+ * never shows more than will be counted.
+ */
+export function timerMs(session: TimedSession, sets: TimedSet[], now: number, stopped: boolean, kindOf: KindOf = () => 'weight'): number {
+  if (stopped) return workoutMs(session, sets, kindOf);
+  const ordered = byTick(sets);
+  if (!ordered.length) return elapsedMs(session, now, startOf(session, ordered, kindOf));
+  const last = ordered[ordered.length - 1].loggedAt;
+  const since = Math.min(Math.max(0, now - last - pausedMs(session.pauses, last, now)), MAX_GAP_MS);
+  return Math.min(workoutMs(session, sets, kindOf) + since, MAX_WORKOUT_MS);
+}
