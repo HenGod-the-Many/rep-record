@@ -157,6 +157,16 @@ describe('Workout time (R-17.2, R-17.5)', () => {
     expect(countedMs(session(), sets, kinds({ run: 'activity' }))).toBe(40 * MIN);
   });
 
+  it('minutes exercised: the activity-only rule holds when the clock ran longer than the activity', () => {
+    // Started at 8:00, a 30-minute run typed in at 10:00, never finished: 30 minutes, not 2 hours.
+    const sets = [set('run', 2 * 3600, secs(30 * 60))];
+    expect(countedMs(session(), sets, kinds({ run: 'activity' }))).toBe(30 * MIN);
+  });
+
+  it('a workout counts at most 4 hours (carried over from the old rule)', () => {
+    expect(workoutMs(session({ finishSec: 6 * 3600 }), [])).toBe(4 * 60 * MIN);
+  });
+
   it('minutes exercised: a workout left open with no ticks counts nothing', () => {
     expect(countedMs(session(), [], kinds())).toBe(0);
   });
