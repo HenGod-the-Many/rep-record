@@ -88,6 +88,8 @@ export function ExerciseForm({ id, back = '/exercises' }: { id: string | null; b
       setMuscleGroup(existing.muscleGroup);
       setEquipment(existing.equipment);
       setMet(String(existing.met ?? 5));
+      setKind(existing.kind);
+      setHasDistance(existing.hasDistance ?? true);
     }
   };
   const changeKind = async (k: ExerciseKind) => {
