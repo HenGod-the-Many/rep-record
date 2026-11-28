@@ -78,3 +78,18 @@ describe('unique names (R-01.4)', () => {
     await expect(updateExercise(db, id, { ...curl, name: 'machine FLY' })).resolves.toBeUndefined();
   });
 });
+
+describe('changing how an exercise is measured asks first when it has history (W-25, R-17.6)', () => {
+  it('counts the sets logged for the exercise, from any workout', async () => {
+    const db = await freshDb();
+    const { loggedSetCount } = exercisesModule;
+    const { logSet, startOrResume } = await import('./logging');
+    const { planId } = await import('../test/helpers');
+    const bench = await exerciseId(db, 'Bench press');
+    expect(await loggedSetCount(db, bench)).toBe(0);
+    const s = await startOrResume(db, { date: '2026-11-27', planId: await planId(db, 'Push'), time: 'morning' });
+    for (const n of [1, 2]) await logSet(db, { sessionId: s, exerciseId: bench, planExerciseId: null, setNumber: n, parts: [{ weightLb: 135, reps: 5, seconds: null }] });
+    expect(await loggedSetCount(db, bench)).toBe(2);
+    expect(await loggedSetCount(db, await exerciseId(db, 'Squat'))).toBe(0);
+  });
+});

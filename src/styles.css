@@ -312,7 +312,7 @@ input:not([type='checkbox']) {
 .finish { margin: 16px 0; }
 /* Workout timer (W-25): stays in view at the top while the cards scroll. */
 .workout-timer {
-  position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  position: sticky; top: env(safe-area-inset-top); z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px;
   margin: 0 0 12px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
 }
 .timer-text { display: flex; flex-direction: column; min-width: 0; }

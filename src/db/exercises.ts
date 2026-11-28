@@ -78,6 +78,11 @@ export async function setArchived(db: WorkoutDB, id: string, archived: boolean):
   await db.exercises.update(id, { archived });
 }
 
+/** How many sets have been logged for an exercise (history follows the exercise). */
+export async function loggedSetCount(db: WorkoutDB, exerciseId: string): Promise<number> {
+  return db.setLogs.where('exerciseId').equals(exerciseId).count();
+}
+
 /** Distinct muscle groups in use, for the form's suggestions. */
 export async function muscleGroups(db: WorkoutDB): Promise<string[]> {
   const all = await db.exercises.toArray();

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { navigate } from '../router';
 import { ValidationError } from '../db/errors';
 import { Icon } from '../ui/icons';
@@ -92,6 +92,54 @@ export function RoundsStepper({ value, onChange, max = 20 }: { value: number; on
       <button aria-label="Fewer rounds" disabled={value <= 1} onClick={() => onChange(value - 1)}>−</button>
       <span className="rounds-value" aria-live="polite">{value}</span>
       <button aria-label="More rounds" disabled={value >= max} onClick={() => onChange(value + 1)}>+</button>
+    </div>
+  );
+}
+
+/**
+ * A rename box (W-25, R-17.6): no Save button. The name is saved when the box
+ * is left or Enter is pressed; Escape cancels. A refused name (empty, or already
+ * in use) shows its error and keeps the box open with the old name kept.
+ */
+export function RenameField(props: { label: string; initial: string; onSave: (name: string) => Promise<unknown>; onClose: () => void; onError: (m: string | null) => void }) {
+  const [value, setValue] = useState(props.initial);
+  const done = useRef(false);
+  // Closing the screen with a changed name still in the box saves it (a refused name is dropped).
+  const latest = useRef({ value, initial: props.initial, onSave: props.onSave });
+  latest.current = { value, initial: props.initial, onSave: props.onSave };
+  useEffect(
+    () => () => {
+      const l = latest.current;
+      if (!done.current && l.value.trim() !== l.initial.trim()) l.onSave(l.value).catch(() => undefined);
+    },
+    [],
+  );
+  const finish = async () => {
+    if (done.current) return;
+    done.current = true;
+    if (value.trim() === props.initial.trim() || (await attempt(() => props.onSave(value), props.onError))) props.onClose();
+    else done.current = false;
+  };
+  return (
+    <div className="inline-form">
+      <input
+        aria-label={props.label}
+        value={value}
+        autoFocus
+        enterKeyHint="done"
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={() => void finish()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            void finish();
+          } else if (e.key === 'Escape') {
+            done.current = true;
+            props.onError(null);
+            props.onClose();
+          }
+        }}
+      />
     </div>
   );
 }

@@ -25,7 +25,7 @@ import {
 import { formatDate, todayLocal } from '../db/dates';
 import { getUnit, type Unit } from '../db/units';
 import { navigate } from '../router';
-import { attempt, ErrorText, Header } from './common';
+import { attempt, ErrorText, Header, RenameField } from './common';
 import { LargeTitle, ListRow, TextButton } from '../ui/components';
 import { recentExercises, weekPrs, weekWorkouts } from '../db/home';
 import { useToday } from '../useToday';
@@ -518,11 +518,7 @@ export function BodyMetricsSection() {
         {optional.map((m) =>
           renaming?.id === m.id ? (
             <li key={m.id} className="stack">
-              <input aria-label="New name" value={renaming.name} onChange={(e) => setRenaming({ id: m.id, name: e.target.value })} />
-              <div className="button-row two">
-                <button className="btn-primary" onClick={async () => { if (await attempt(() => renameMetric(db, m.id, renaming.name), setError)) setRenaming(null); }}>Save</button>
-                <button className="btn-secondary" onClick={() => setRenaming(null)}>Cancel</button>
-              </div>
+              <RenameField label={`New name for ${m.name}`} initial={renaming.name} onSave={(n) => renameMetric(db, m.id, n)} onClose={() => setRenaming(null)} onError={setError} />
             </li>
           ) : (
             <li key={m.id} className="switch-row">

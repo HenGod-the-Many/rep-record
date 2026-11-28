@@ -17,7 +17,7 @@ import {
   updateMove,
 } from '../db/warmups';
 import { navigate } from '../router';
-import { attempt, ErrorText, Header, RoundsStepper } from './common';
+import { attempt, ErrorText, Header, RenameField, RoundsStepper } from './common';
 import { Icon } from '../ui/icons';
 import { MoreMenu } from '../ui/components';
 import { LibraryTop } from './Library';
@@ -148,11 +148,7 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
         }
       />
       {renaming === null ? null : (
-        <div className="inline-form">
-          <input aria-label="Warm-up name" value={renaming} onChange={(e) => setRenaming(e.target.value)} autoFocus />
-          <button className="btn-primary" onClick={async () => { if (await attempt(() => renameWarmup(db, w.id, renaming), setError)) setRenaming(null); }}>Save</button>
-          <button className="btn-secondary" onClick={() => setRenaming(null)}>Cancel</button>
-        </div>
+        <RenameField label="Warm-up name" initial={renaming} onSave={(n) => renameWarmup(db, w.id, n)} onClose={() => setRenaming(null)} onError={setError} />
       )}
       {used.length > 0 && <p className="small-print muted">Used by {used.join(', ')}.</p>}
       <RoundsStepper value={w.rounds ?? 1} max={10} onChange={(n) => attempt(() => setWarmupRounds(db, w.id, n), setError)} />
