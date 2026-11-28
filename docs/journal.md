@@ -2,6 +2,12 @@
 
 Newest first.
 
+## 2026-11-28 (end): W-22 spec drafted
+
+- Taylor asked for W-22 next. A separate session could not be started over Remote Control, so the spec was written here: docs/specs/W-22-duration-predictions.md, R-17.7 to R-17.11 (planned), six default answers.
+- Key fact from Taylor's backup: about half of each workout is time between exercises (about 4½ min per exercise on both Push and Pull), so a prediction counts set-up, each exercise, and the time between.
+- Nothing built; waiting for Taylor's approval.
+
 ## 2026-11-28 (handoff): W-25 and two releases done; W-22 next
 
 - **State:** v0.9.1 (tab bar hotfix) and v0.10.0 (W-25) released and live; dev = main plus the release docs. `npm run check` on dev: 334 tests pass. No open pull requests, no leftover worktrees.

@@ -10,12 +10,13 @@ Written: 2026-11-28 by the handoff skill
 - Release 2 and earlier items still Awaiting owner: acceptance steps in docs/queue.md and docs/verification-plan.md
 
 ## Open questions
+- Approve the W-22 spec (docs/specs/W-22-duration-predictions.md) and its six default answers, or change them
 - Should ticking a set resume a paused timer? (sets ticked while paused do not count)
 - Renames have no Cancel on the phone (Escape cancels on a keyboard); OK?
 - Taylor would like to override a workout's or exercise's derived time: a new item, not yet specced
 
 ## Prompts for another session
-- In C:\Taylors_Repos\Work Out Journal, use the spec skill on W-22 in docs/queue.md (duration predictions for a program, a workout and single exercises, built on the W-25 timing model in src/db/timing.ts and src/db/averages.ts); write the spec for Taylor's approval and build nothing
+- After Taylor approves W-22: in C:\Taylors_Repos\Work Out Journal, use the work-item skill on W-22 in docs/queue.md (spec docs/specs/W-22-duration-predictions.md), one slice per pull request; release only on Taylor's OK
 
 ## Completion
-83 requirements: 69 verified, 10 built, 4 planned, 0 accepted
+88 requirements: 69 verified, 10 built, 9 planned, 0 accepted

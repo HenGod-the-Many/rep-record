@@ -249,8 +249,13 @@ Added 2026-11-25 from Taylor's answer on minutes exercised. Spec W-25 approved b
 | R-17.4 Exercise history shows an average time; workouts show about N min, from the last 5 times | should | Test, Demonstration | W-25 | verified | #60; src/db/averages.test.ts; history-average-*, home-about-min-*, library-about-min-*.jpg; final W-25 review (acceptance-reviewer, 2026-11-27): Met |
 | R-17.5 Minutes exercised uses the timed workout duration | should | Test | W-25 | verified | #60; home.test.ts (four old-rule tests rewritten, as R-17.5 replaces that rule); final W-25 review (acceptance-reviewer, 2026-11-27): Met |
 | R-17.6 Edit screens save as you change, except where a button is better (listed in the W-25 spec) | should | Demonstration | W-25 | built | #62 and the warm-up move fix in the W-25 finish PR; browser demonstration by the author (exercise edit, renames, superset, warm-up move); re-check: the warm-up fix met, but a change still in a box could be lost when the editor closes; guarded in cfcc580 (not re-reviewed; this browser cannot show the gap). Not seen on the iPhone |
+| R-17.7 Each exercise in a workout shows a predicted time from its own pace per set (last 5), with a starting estimate when never done | should | Test | W-22 | planned | |
+| R-17.8 A workout's predicted time is set-up + its exercises + the time between exercises, from the last 5 workouts | should | Test | W-22 | planned | |
+| R-17.9 The workout screen shows the prediction with each exercise's time; Home and Library show "about N min" from it; it follows edits at once | should | Test, Demonstration | W-22 | planned | |
+| R-17.10 A program shows each day's predicted time and the total for one cycle | should | Test, Demonstration | W-22 | planned | |
+| R-17.11 During a workout, "about N min left" shows under the timer | should | Test, Demonstration | W-22 | planned | |
 
-Totals: 31 must, 49 should, 2 could, 1 later.
+Totals: 31 must, 54 should, 2 could, 1 later.
 
 ## Riskiest assumption
 
