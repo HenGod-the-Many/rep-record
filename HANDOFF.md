@@ -1,5 +1,5 @@
 # Handoff note
-Written: 2026-11-28 after W-25
+Written: 2026-11-28 by the handoff skill
 
 ## Waiting for review
 - v0.10.0 released (#64, tag v0.10.0): W-25 workout timer, exercise timing, save as you change; run the acceptance script in docs/specs/W-25-workout-timer.md on the iPhone
@@ -15,7 +15,7 @@ Written: 2026-11-28 after W-25
 - Taylor would like to override a workout's or exercise's derived time: a new item, not yet specced
 
 ## Prompts for another session
-- Nothing queued; next work is Taylor's choice (W-22 duration predictions builds on W-25; a time-override item needs a spec)
+- In C:\Taylors_Repos\Work Out Journal, use the spec skill on W-22 in docs/queue.md (duration predictions for a program, a workout and single exercises, built on the W-25 timing model in src/db/timing.ts and src/db/averages.ts); write the spec for Taylor's approval and build nothing
 
 ## Completion
 83 requirements: 69 verified, 10 built, 4 planned, 0 accepted
