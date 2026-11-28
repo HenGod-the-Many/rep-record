@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Session, type WarmupMove } from '../db/db';
 import {
@@ -79,6 +79,16 @@ function MoveForm(props: { initial?: WarmupMove; submitLabel: string; onSubmit: 
     if (ok) props.onDone?.();
   };
   const save = props.live ? () => void props.onSubmit(moveFor(timed)) : undefined;
+  // Live: a change still in a box is saved when the editor or screen closes (tapping Back mid-typing).
+  const latest = useRef({ move: moveFor(timed), live: !!props.live, onSubmit: props.onSubmit });
+  latest.current = { move: moveFor(timed), live: !!props.live, onSubmit: props.onSubmit };
+  useEffect(
+    () => () => {
+      const l = latest.current;
+      if (l.live) void l.onSubmit(l.move);
+    },
+    [],
+  );
   const choose = (t: boolean) => {
     setTimed(t);
     if (props.live) void props.onSubmit(moveFor(t));
