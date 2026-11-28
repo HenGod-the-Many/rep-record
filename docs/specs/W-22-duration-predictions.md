@@ -1,6 +1,6 @@
 # W-22: Duration predictions
 
-Status: draft 2026-11-28, waiting for Taylor's approval
+Status: approved by Taylor 2026-11-28 ("Approve defaults"): all six default answers
 Cleared to run unattended: yes, once approved (every line below can be shown by a test, a screenshot or the report script; nothing is left to assume once the answers are approved)
 Satisfies: KF-17, R-17.7–R-17.11 (new)
 
@@ -65,6 +65,22 @@ useful. Taylor has 2 timed workouts so far (3 by the time this is built). Slice
 1 runs the model over the backup, predicting each workout from the others, and
 reports the gap before any screen is built. A gap over 25% on a normal workout
 (not one with a forgotten tick) is a stop-and-ask.
+
+## Slice 1 result (2026-11-28, Taylor's backup of 2026-11-27)
+
+`node scripts/timing-report.mjs <backup> --predict`, each workout predicted from
+the other one only:
+
+- Push (24 Nov): predicted 76:41, took 69:14 (+11%; this workout had a forgotten tick).
+- Pull (25 Nov): predicted 87:22, took 60:52 (**+44%**: over the 25% stop line).
+
+Why: Pull shares none of its 7 exercises with Push, the only other timed
+workout, so every exercise used the never-done estimate (2½ min per set; Pull's
+real pace was 1:18). Using Taylor's own Push average per set instead (2:17)
+still gives 80:32 (+32%): Push is slower work than Pull. With one other workout
+and no shared exercises, no average predicts Pull well. The model can only be
+judged when a workout is predicted from earlier runs of the same workout.
+Stopped and asked Taylor.
 
 ## Slices
 

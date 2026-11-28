@@ -161,3 +161,102 @@ export function timerMs(session: TimedSession, sets: TimedSet[], now: number, st
   const since = Math.min(Math.max(0, now - last - pausedMs(session.pauses, last, now)), MAX_GAP_MS);
   return Math.min(workoutMs(session, sets, kindOf) + since, MAX_WORKOUT_MS);
 }
+
+// ---------- Predictions (W-22, R-17.7, R-17.8, R-17.11) ----------
+
+/** Starting estimates before there is history (W-22 answers 2 and 3). */
+export const REST_GUESS_MS = 2 * 60 * 1000;
+export const SETUP_GUESS_MS = 5 * 60 * 1000;
+export const BETWEEN_GUESS_MS = 3 * 60 * 1000;
+
+/** Your pace, from past workouts: time per set for each exercise, set-up, and time between exercises. */
+export interface Pace {
+  perSetMs: Map<string, number>;
+  setupMs: number;
+  betweenMs: number;
+}
+
+/** One exercise as planned. For timed exercises repMin/repMax are seconds; for activities, minutes. */
+export interface PlannedSlot {
+  exerciseId: string;
+  kind: ExerciseKind;
+  sets: number;
+  repMin: number;
+  repMax: number;
+}
+
+/**
+ * Pace from past workouts, newest first. Time per set: an exercise's time over
+ * its sets, in the newest 5 workouts it was done in. Set-up: time before the first
+ * set began (at most 15 minutes). Between exercises: the workout's time left over
+ * after set-up and every set, per change of exercise. Both over the newest 5.
+ */
+export function paceFrom(newestFirst: { session: TimedSession; sets: TimedSet[] }[], kindOf: KindOf): Pace {
+  const time = new Map<string, number>();
+  const count = new Map<string, number>();
+  const seen = new Map<string, number>();
+  const setups: number[] = [];
+  const betweens: number[] = [];
+  for (const { session, sets } of newestFirst) {
+    if (!sets.length) continue;
+    const perSet = setTimes(session, sets, kindOf);
+    const perEx = exerciseTimes(session, sets, kindOf);
+    for (const [ex, ms] of perEx) {
+      if (kindOf(ex) === 'activity' || (seen.get(ex) ?? 0) >= AVERAGE_OF) continue;
+      seen.set(ex, (seen.get(ex) ?? 0) + 1);
+      time.set(ex, (time.get(ex) ?? 0) + ms);
+      count.set(ex, (count.get(ex) ?? 0) + sets.filter((s) => s.exerciseId === ex).length);
+    }
+    const ordered = byTick(sets);
+    const start = startOf(session, ordered, kindOf);
+    const first = ordered[0];
+    const setup = Math.max(0, first.loggedAt - start - pausedMs(session.pauses, start, first.loggedAt) - (perSet.get(first.id) ?? 0));
+    if (setups.length < AVERAGE_OF) setups.push(Math.min(setup, MAX_GAP_MS));
+    const exercises = perEx.size;
+    if (exercises >= 2 && betweens.length < AVERAGE_OF) {
+      const setsMs = [...perSet.values()].reduce((a, b) => a + b, 0);
+      betweens.push(Math.max(0, workoutMs(session, sets, kindOf) - setup - setsMs) / (exercises - 1));
+    }
+  }
+  const perSetMs = new Map<string, number>();
+  for (const [ex, ms] of time) if ((count.get(ex) ?? 0) > 0) perSetMs.set(ex, ms / count.get(ex)!);
+  const mean = (xs: number[], guess: number) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : guess);
+  return { perSetMs, setupMs: mean(setups, SETUP_GUESS_MS), betweenMs: mean(betweens, BETWEEN_GUESS_MS) };
+}
+
+/** One exercise's predicted time: its sets × its own time per set, or a starting estimate if never done. */
+export function slotMs(slot: PlannedSlot, pace: Pace): number {
+  const mid = (slot.repMin + slot.repMax) / 2;
+  if (slot.kind === 'activity') return mid * 60 * 1000;
+  const own = pace.perSetMs.get(slot.exerciseId);
+  if (own !== undefined) return slot.sets * own;
+  const work = slot.kind === 'timed' ? mid * 1000 : mid * SECONDS_PER_REP * 1000;
+  return slot.sets * (work + REST_GUESS_MS);
+}
+
+/** A workout's prediction: set-up + every exercise + a change of exercise between blocks (a superset is one block). */
+export function predictWorkout(blocks: PlannedSlot[][], pace: Pace): { totalMs: number; slotMs: number[][] } {
+  const per = blocks.map((b) => b.map((s) => slotMs(s, pace)));
+  if (!blocks.length) return { totalMs: 0, slotMs: per };
+  const sets = per.flat().reduce((a, b) => a + b, 0);
+  return { totalMs: pace.setupMs + sets + pace.betweenMs * (blocks.length - 1), slotMs: per };
+}
+
+/**
+ * Time left in a workout: the target sets not yet ticked, a change of exercise for
+ * each block not yet started, and, before the first tick, what is left of the set-up.
+ */
+export function timeLeftMs(blocks: { slot: PlannedSlot; done: number }[][], pace: Pace, now: { ticked: boolean; elapsedMs: number }): number {
+  let ms = 0;
+  let notStarted = 0;
+  for (const block of blocks) {
+    if (block.every((m) => m.done === 0)) notStarted++;
+    for (const { slot, done } of block) {
+      const left = Math.max(0, slot.sets - done);
+      if (!left) continue;
+      ms += slot.kind === 'activity' ? slotMs(slot, pace) : (left / slot.sets) * slotMs(slot, pace);
+    }
+  }
+  if (!now.ticked) return ms + Math.max(0, pace.setupMs - now.elapsedMs) + pace.betweenMs * Math.max(0, notStarted - 1);
+  return ms + pace.betweenMs * notStarted;
+}
