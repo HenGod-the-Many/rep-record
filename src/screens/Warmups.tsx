@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Session, type WarmupMove } from '../db/db';
 import {
@@ -17,7 +17,7 @@ import {
   updateMove,
 } from '../db/warmups';
 import { navigate } from '../router';
-import { attempt, ErrorText, Header, RoundsStepper } from './common';
+import { attempt, ErrorText, Header, RenameField, RoundsStepper } from './common';
 import { Icon } from '../ui/icons';
 import { MoreMenu } from '../ui/components';
 import { LibraryTop } from './Library';
@@ -59,45 +59,65 @@ export function WarmupList() {
 }
 
 /** The boxes for one move: name, then reps or a time (minutes and seconds). */
-function MoveForm(props: { initial?: WarmupMove; submitLabel: string; onSubmit: (m: WarmupMove) => Promise<boolean>; onCancel?: () => void }) {
+/**
+ * A move's name and reps or time. Adding a move keeps its button. Editing a move
+ * saves as you change (W-25, R-17.6): each box when it is left, Reps/Time at once;
+ * Done closes it.
+ */
+function MoveForm(props: { initial?: WarmupMove; submitLabel: string; onSubmit: (m: WarmupMove) => Promise<boolean>; onCancel?: () => void; live?: boolean; onDone?: () => void }) {
   const i = props.initial;
   const [name, setName] = useState(i?.name ?? '');
   const [timed, setTimed] = useState(i ? i.seconds !== null : false);
   const [count, setCount] = useState(i?.reps !== null && i?.reps !== undefined ? String(i.reps) : '10');
   const [min, setMin] = useState(i?.seconds ? String(Math.floor(i.seconds / 60)) : '1');
   const [sec, setSec] = useState(i?.seconds ? String(i.seconds % 60) : '0');
+  const moveFor = (t: boolean): WarmupMove =>
+    t ? { name, reps: null, seconds: Number(min || 0) * 60 + Number(sec || 0) } : { name, reps: Number(count), seconds: null };
   const submit = async () => {
-    const move: WarmupMove = timed
-      ? { name, reps: null, seconds: Number(min || 0) * 60 + Number(sec || 0) }
-      : { name, reps: Number(count), seconds: null };
-    if (await props.onSubmit(move) && !props.initial) {
-      setName('');
-    }
+    const ok = await props.onSubmit(moveFor(timed));
+    if (ok && !props.initial) setName('');
+    if (ok) props.onDone?.();
+  };
+  const save = props.live ? () => void props.onSubmit(moveFor(timed)) : undefined;
+  // Live: a change still in a box is saved when the editor or screen closes (tapping Back mid-typing).
+  const latest = useRef({ move: moveFor(timed), live: !!props.live, onSubmit: props.onSubmit });
+  latest.current = { move: moveFor(timed), live: !!props.live, onSubmit: props.onSubmit };
+  useEffect(
+    () => () => {
+      const l = latest.current;
+      if (l.live) void l.onSubmit(l.move);
+    },
+    [],
+  );
+  const choose = (t: boolean) => {
+    setTimed(t);
+    if (props.live) void props.onSubmit(moveFor(t));
   };
   return (
     <div className="stack move-form">
-      <input aria-label="Move name" placeholder="e.g. Arm circles" value={name} onChange={(e) => setName(e.target.value)} />
+      <input aria-label="Move name" placeholder="e.g. Arm circles" value={name} onChange={(e) => setName(e.target.value)} onBlur={save} />
       <div className="segmented two" role="group" aria-label="Reps or time">
-        <button className={!timed ? 'active' : ''} aria-pressed={!timed} onClick={() => setTimed(false)}>Reps</button>
-        <button className={timed ? 'active' : ''} aria-pressed={timed} onClick={() => setTimed(true)}>Time</button>
+        <button className={!timed ? 'active' : ''} aria-pressed={!timed} onClick={() => choose(false)}>Reps</button>
+        <button className={timed ? 'active' : ''} aria-pressed={timed} onClick={() => choose(true)}>Time</button>
       </div>
       {timed ? (
         <div className="height-boxes">
           <div className="input-unit">
-            <input inputMode="numeric" aria-label="Minutes" value={min} onChange={(e) => setMin(e.target.value)} />
+            <input inputMode="numeric" aria-label="Minutes" value={min} onChange={(e) => setMin(e.target.value)} onBlur={save} />
             <span className="muted">min</span>
           </div>
           <div className="input-unit">
-            <input inputMode="numeric" aria-label="Seconds" value={sec} onChange={(e) => setSec(e.target.value)} />
+            <input inputMode="numeric" aria-label="Seconds" value={sec} onChange={(e) => setSec(e.target.value)} onBlur={save} />
             <span className="muted">s</span>
           </div>
         </div>
       ) : (
         <div className="input-unit">
-          <input inputMode="numeric" aria-label="Reps" value={count} onChange={(e) => setCount(e.target.value)} />
+          <input inputMode="numeric" aria-label="Reps" value={count} onChange={(e) => setCount(e.target.value)} onBlur={save} />
           <span className="muted">reps</span>
         </div>
       )}
+      {props.live && <p className="ui-caption">Changes save when you leave a box.</p>}
       <div className={props.onCancel ? 'button-row two' : ''}>
         <button className={`btn-primary${props.onCancel ? '' : ' block'}`} onClick={submit}>{props.submitLabel}</button>
         {props.onCancel && <button className="btn-secondary" onClick={props.onCancel}>Cancel</button>}
@@ -148,11 +168,7 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
         }
       />
       {renaming === null ? null : (
-        <div className="inline-form">
-          <input aria-label="Warm-up name" value={renaming} onChange={(e) => setRenaming(e.target.value)} autoFocus />
-          <button className="btn-primary" onClick={async () => { if (await attempt(() => renameWarmup(db, w.id, renaming), setError)) setRenaming(null); }}>Save</button>
-          <button className="btn-secondary" onClick={() => setRenaming(null)}>Cancel</button>
-        </div>
+        <RenameField label="Warm-up name" initial={renaming} onSave={(n) => renameWarmup(db, w.id, n)} onClose={() => setRenaming(null)} onError={setError} />
       )}
       {used.length > 0 && <p className="small-print muted">Used by {used.join(', ')}.</p>}
       <RoundsStepper value={w.rounds ?? 1} max={10} onChange={(n) => attempt(() => setWarmupRounds(db, w.id, n), setError)} />
@@ -162,13 +178,13 @@ export function WarmupEdit({ warmupId }: { warmupId: string }) {
             <li key={i}>
               <MoveForm
                 initial={m}
-                submitLabel="Save"
-                onCancel={() => setEditing(null)}
+                live
+                submitLabel="Done"
                 onSubmit={async (mv) => {
-                  const ok = await attempt(() => updateMove(db, w.id, i, mv), setError);
-                  if (ok) setEditing(null);
-                  return ok;
+                  if (mv.name === m.name && mv.reps === m.reps && mv.seconds === m.seconds) return true;
+                  return attempt(() => updateMove(db, w.id, i, mv), setError);
                 }}
+                onDone={() => setEditing(null)}
               />
             </li>
           ) : (

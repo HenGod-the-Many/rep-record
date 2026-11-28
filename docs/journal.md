@@ -2,6 +2,67 @@
 
 Newest first.
 
+## 2026-11-28: W-25 finished (slices 4 and 5), v0.9.1 released
+
+- **v0.9.1 released** on Taylor's OK: the tab bar hotfix (#59 merged into main, tag v0.9.1, deploy succeeded; the live stylesheet has the new layout). main synced into dev (#61).
+- **Slice 4, save as you change (#62):** exercise edit saves each box when it is left; a taken name shows its error under the box and keeps the old name; "Measured as" asks first when the exercise has logged sets. One shared rename box (workout, folder, program, warm-up, metric) saves on leaving it or Enter; Escape cancels. Superset kind and rounds change at once. The workout timer now sticks below the iPhone status bar. Review: Accept; its two suggestions done (a refused save also resets "Measured as"; the spec's 0.7 s sentence corrected to say renames and the exercise form save when a box is left).
+- **Slice 5:** screenshots in both modes (`docs/evidence/w25/`). Final whole-W-25 review: accept after one fix. Editing a warm-up move still had Save and Cancel and is not in the table; it now saves as you change (Done closes it). The re-check confirmed that, and found one more gap: a change still in a box could be lost if the editor closed without the box being left (iPhone). Guarded like the rename box (cfcc580). Chromium saves either way, so the browser could not show the gap; not re-reviewed, so R-17.6 stays built.
+- **Requirements:** R-17.1 to R-17.6 updated from the reviewers' verdicts. Queue: W-25 Awaiting owner.
+- **Open for Taylor:** release v0.10.0; whether ticking a set should resume a paused timer; renames have no Cancel on the phone.
+
+## 2026-11-27 (night): W-25 slice 3 (averages, minutes from the timer); hotfix for the tab bar
+
+- **Slice 3 built:** `src/db/averages.ts`. An exercise's average time per workout (keyed on the exercise) and each workout's average timed duration, over the last 5, leaving out a workout still in progress today; one-date copies count toward their original. Shown as "Average time" on exercise history, and "about N min" on Home's workout card and the Library's workout rows. Home's and Progress's minutes exercised now use the timing model (R-17.5).
+- **Tests rewritten, said plainly:** four tests in `home.test.ts` checked the W-20 minutes rule (Start to Finish), which R-17.5 replaces. They were rewritten for the timer rule. The new ones fail against the old code (5 failures) and pass on the new. The reviewer judged this a real requirement change, not a loosening, but noted the spec line "every existing test passes unchanged" is not met word for word: Taylor's call.
+- **Review:** accept after one fix. Home showed no "about N min" for a workout edited for one date (it looked up the copy's id). Fixed with `averageFor`; the new assertion was seen failing with the old lookup.
+- **Browser (dev data):** Library "Pull · 7 exercises · about 4 min"; Home "3 sets logged · about 4 min"; Bench press history "Average time · about 1 min"; Home minutes 33 (the old rule gave 50 on the same data).
+- **Hotfix (Taylor, during today's workout):** the tab bar got stuck mid-screen on the iPhone and covered the exercise buttons. Cause: a `position: fixed` bar on a scrolling page, which iPhone Safari leaves stuck after the keyboard closes. Fix: the page no longer scrolls, only the content area does, and the tab bar is the last row of the layout (`src/styles.css` only). Reviewed: Accept. PR #59 to main is open and waits for Taylor's OK to release as v0.9.1. Not testable off the iPhone.
+- **Permissions:** Taylor asked for fewer approval prompts. I cannot change my own permission settings; pointed Taylor to `/permissions` and `/fewer-permission-prompts`. Most prompts came from working outside the project folder (the hotfix worktree); stay inside it.
+
+## 2026-11-27 (evening): W-25 slice 2, the timer on the logging screen
+
+- **Built:** a timer pinned to the top of the logging screen: running m:ss, Pause and Resume (saved with the workout as `pauses`; no database upgrade; backups carry them; older backups load). It stops by itself when every target set is ticked and shows Start to the last tick; an extra set moves it on. Finish closes an open pause.
+- **Held after 15 minutes:** with no tick for 15 minutes the clock holds, labelled "Held: no set for 15 min", so it never shows more than will be counted (answer 9). Found in the browser: a running clock that did not move looked broken without the label.
+- **Checks:** 11 new tests (seen failing first); `npm run check` 325 pass. In the browser at phone size: pause froze the clock; ticking the last target set gave "Stopped at the last set: 20:20" with no Pause button; an extra set moved it to 20:54.
+- **Review:** acceptance-reviewer: Accept, no must-fix. Its suggestion fixed before merging: if the workout was paused when the last target set was ticked, Resume was hidden; it now stays. Checked in the browser.
+- **For Taylor:** sets ticked while paused do not count toward the workout's time. Should ticking a set resume the timer by itself? (Changes how logging behaves, so not done without a yes.)
+
+## 2026-11-27 (later): W-25 unblocked by Taylor's backup; 15-minute limit between ticks
+
+- **Real data:** Taylor sent a backup (3 workouts, 41 sets; the file stays out of the repo). `node scripts/timing-report.mjs` gave per-set times of about 1 to 4 minutes within an exercise; Pull (25 Nov) 60:52 against 61:02 start to Finish.
+- **Found:** Push (24 Nov) came out at 1 h 55 min. The last set was ticked an hour after the one before, four seconds before Finish (a forgotten tick). Two sets hit the 5-minute set limit.
+- **Taylor's answers** (recorded as answers 9 to 12 in the spec): A, a stretch of more than 15 minutes between ticks counts 15 (Push now 69:14, Pull unchanged); activities count typed-in time; long activities never cut; supersets fine. Taylor would like to override the derived time: suggested as a new item.
+- **Built:** the 15-minute limit in `workoutMs`; the stretch before an activity's tick holds the activity plus up to 15 minutes. Tests first (the forgotten-tick test failed before the change). `npm run check`: 314 tests pass.
+- **Suggestion (new item, not W-25):** let the user override a workout's or exercise's derived time.
+
+## 2026-11-27: W-25 slice 1 (timing model) built; blocked on real workouts
+
+- **Built:** src/db/timing.ts, the timing model. Tests first: 20 known-answer tests (straight sets, alternating superset, circuit, added exercise, pause, 5-minute limit, activities, end at last tick, minutes exercised, averages). Seen failing before the model existed. `npm run check`: 310 tests pass (290 old ones unchanged).
+- **Report script:** `node scripts/timing-report.mjs <backup.json>` prints each logged workout's time, per-exercise and per-set times, and flags sets at the 5-minute limit or under 10 s. Tried on a made-up backup.
+- **Choices to confirm with Taylor:**
+  - Activities count their typed-in duration, not the time since the previous tick. The literal rule plus the 5-minute limit would turn a 30-minute run into 5 minutes.
+  - A workout still counts at most 4 hours, carried over from the old rule.
+  - A superset's two exercises add up to slightly less than the time on them: each exercise's first set is cut to 3 s per rep, as approved.
+- **Review:** acceptance-reviewer: accept after one fix (a test did not pin the activity-only rule). Fixed; the new test was seen failing with the rule removed; a second reviewer confirmed it met.
+- **Blocked:** the spec says to run the model over the workouts already logged before building screens. They exist only on Taylor's phone; no backup is on this computer. Next step: Taylor exports a backup (Settings, Backup) and puts it where this PC can read it; then run the script and show Taylor the per-set times.
+- Backup files (`rep-record-backup-*.json`) are now git-ignored: they hold personal data.
+
+## 2026-11-25 (end): v0.9.0 released, W-25 approved, handoff
+
+- **Released v0.9.0, the Plate redesign (W-20)**, at Taylor's request ("push what you have to main now").
+  - Release PR #54 (dev into main, merge commit 027c259); tag v0.9.0 pushed.
+  - The GitHub Pages deploy succeeded. The live bundle contains the new screens ("Adherence", "Changes save as you make them"), and its offline list holds the bundled fonts.
+- **W-25 approved by Taylor** ("I approve w-25"): workout timer, exercise timing, save as you change. All default answers stand, except answer 8 (release with W-20), which no longer applies.
+  - Recorded in the spec and the queue (#53). W-25 is Ready.
+  - Taylor: "we will release the next features after they're done too".
+- **Minutes exercised:** the live app still uses the interim rule (the longer of start-to-finish and activity time) until W-25 replaces it with the timer.
+- **Checks:** `npm run check` on dev: 290 tests pass, build OK.
+- **What tripped me up this session:**
+  - Long inline Python inside a bash command broke twice on quoting. Once it left edits uncommitted on dev; nothing was lost, and I moved them back to the branch. Scripts saved to a file avoid this.
+  - Fetching a non-app file from the Vite dev server made Vite try to compile it, and its error overlay covered every screenshot. A reload cleared it.
+- **The final whole-W-20 review's last must-fix** (an edit lost when tapping Back mid-typing) was fixed and checked in the browser. It was not sent back to the reviewer, so R-16.1–R-16.7 stay "built", not "verified".
+- **Not verified on the iPhone:** the whole W-20 acceptance script.
+
 ## 2026-11-25 (later): W-25 spec drafted, release held
 
 - Taylor held the v0.9.0 release ("Not yet") pending two answers.

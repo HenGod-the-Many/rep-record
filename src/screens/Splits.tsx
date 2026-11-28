@@ -18,7 +18,7 @@ import {
 import { DEFAULT_TIME } from '../db/seed';
 import { navigate } from '../router';
 import { withUndo } from '../undo';
-import { attempt, ErrorText, Header } from './common';
+import { attempt, ErrorText, Header, RenameField } from './common';
 import { MoreMenu } from '../ui/components';
 import { Icon } from '../ui/icons';
 import { LibraryTop } from './Library';
@@ -113,9 +113,6 @@ export function SplitEdit({ splitId }: { splitId: string }) {
   }
   const { split, days, schedules, names } = data;
 
-  const saveName = async () => {
-    if (renaming !== null && (await attempt(() => renameSplit(db, splitId, renaming), setError))) setRenaming(null);
-  };
   const saveCycle = async () => {
     if (cycle === null) return;
     const n = toDays(Number(cycle), cycleUnit);
@@ -162,11 +159,7 @@ It is on your calendar (${ranges.join('; ')}). Those planned days will be remove
         }
       />
       {renaming === null ? null : (
-        <div className="inline-form">
-          <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="Program name" autoFocus />
-          <button className="btn-primary" onClick={saveName}>Save</button>
-          <button className="btn-secondary" onClick={() => setRenaming(null)}>Cancel</button>
-        </div>
+        <RenameField label="Program name" initial={renaming} onSave={(n) => renameSplit(db, splitId, n)} onClose={() => setRenaming(null)} onError={setError} />
       )}
       <ErrorText message={error} />
 

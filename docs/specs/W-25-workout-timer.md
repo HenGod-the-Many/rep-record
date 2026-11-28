@@ -62,8 +62,11 @@ So timing works for past workouts too, not only new ones.
 | Edit a body-metric entry (date and value) | Save | **Keeps Save** | Date and value are changed together; half an edit (new date on a taken day) is refused |
 | Add a body-metric entry, quick bodyweight, new exercise, new workout, "Save as new workout" | Save / Create | **Keep their button** | These create something; a button says when it exists |
 
-No screen needs a button for speed: every save is one small database write,
-and typed boxes save 0.7 s after typing stops, or when the screen closes.
+No screen needs a button for speed: every save is one small database write.
+Renames and the exercise form save when a box is left (or Enter is pressed),
+and any change still in a box is saved when the screen closes; other typed
+boxes save 0.7 s after typing stops. (Wording corrected after slice 4's review
+to match what was built; the table rows are unchanged.)
 
 ## Out of scope
 
@@ -133,3 +136,15 @@ the workouts already in the app.
 8. Release: **W-20 and W-25 together as v0.9.0**, so the minutes rule changes
    only once on the phone. Overtaken: Taylor released W-20 alone as v0.9.0
    (2026-11-25); W-25 goes in the next release.
+
+## Answers added after slice 1 (Taylor, 2026-11-27, after seeing the model on their real workouts)
+
+9. A forgotten tick caught up at Finish stretched the 24 Nov workout to 1 h 55 min (really about 57 min).
+   **A stretch of more than 15 minutes between two ticks counts 15 minutes** toward the workout's time.
+   Time from Start to the first tick is not limited. The stretch before an activity's tick holds the
+   activity plus up to 15 minutes.
+10. Activities count the time typed in ("a 30 minute run should indeed be 30 minutes"). Taylor would also
+    like to override the app's derived time; that is a new item, not part of W-25.
+11. The 4-hour limit stays for the clock, but long activities must not be cut (a long hike): logged
+    activity time is never limited.
+12. Supersets: each first set's 3 s per rep is fine; if ticks are late, "that's just a limitation".

@@ -2,14 +2,12 @@ import type { Session, WorkoutDB } from './db';
 import { addDays, weekDates } from './dates';
 import { getWeekStart, resolveRange } from './schedule';
 import { liftingTotals, recentPrs, weekRange, type PrEvent } from './stats';
+import { countedMs } from './timing';
 
 /**
  * The Home screen's numbers (W-20, R-16.4). Definitions are in the W-20 spec.
  * "This week" follows the first-day-of-week setting.
  */
-
-/** A workout left running counts at most this long. */
-export const MAX_WORKOUT_MS = 4 * 60 * 60 * 1000;
 
 /** Exercises that set a new record (heaviest weight or best estimated 1-rep max) this week, each counted once. */
 export async function weekPrCount(db: WorkoutDB, today: string): Promise<number> {
@@ -31,17 +29,28 @@ async function activitySecondsBySession(db: WorkoutDB, sessions: Session[]): Pro
 }
 
 /**
- * Minutes exercised this week. Each workout counts once: start to finish
- * (capped at 4 hours) if it was finished, or the time of its logged activities
- * if that is longer or it was never finished. Activities are logged inside a
- * workout, so adding both would count the same minutes twice.
+ * How long each workout counts for (W-25, R-17.5): its timed duration from the
+ * timing model (Start to the last tick, pauses out, 15 minutes at most between
+ * ticks). An activity logged in a workout is inside that time; an activity-only
+ * workout never finished counts its logged activity time.
  */
+async function countedBySession(db: WorkoutDB, sessions: Session[]): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  if (!sessions.length) return out;
+  const kinds = new Map((await db.exercises.toArray()).map((e) => [e.id, e.kind]));
+  const kindOf = (id: string) => kinds.get(id) ?? 'weight';
+  const logs = await db.setLogs.where('sessionId').anyOf(sessions.map((s) => s.id)).toArray();
+  for (const s of sessions) out.set(s.id, countedMs(s, logs.filter((l) => l.sessionId === s.id), kindOf));
+  return out;
+}
+
+/** Minutes exercised this week: the timed duration of each workout (R-17.5). */
 export async function minutesExercised(db: WorkoutDB, today: string): Promise<number> {
   const { from, to } = await weekRange(db, today);
   const sessions = await db.sessions.where('date').between(from, to, true, true).toArray();
-  const activity = await activitySecondsBySession(db, sessions);
+  const counted = await countedBySession(db, sessions);
   let ms = 0;
-  for (const s of sessions) ms += workoutMs(s, activity.get(s.id) ?? 0);
+  for (const s of sessions) ms += counted.get(s.id) ?? 0;
   return Math.round(ms / 60_000);
 }
 
@@ -83,38 +92,31 @@ export async function planAdherence(db: WorkoutDB, today: string): Promise<{ don
 
 // ---------- Progress: this week in detail (slice 4) ----------
 
-/** How long one workout counts for (see minutesExercised). */
-function workoutMs(s: Session, activitySeconds: number): number {
-  const timed = s.finishedAt !== null ? Math.min(Math.max(0, s.finishedAt - s.startedAt), MAX_WORKOUT_MS) : 0;
-  return Math.max(timed, activitySeconds * 1000);
-}
-
 export interface WeekWorkout {
   sessionId: string;
   date: string;
   name: string;
   minutes: number;
-  /** False for an unfinished workout that counts only for its activity time. */
+  /** False for a workout that was never finished (it still counts its timed duration). */
   finished: boolean;
 }
 
 /**
- * This week's workouts that count toward minutes exercised, newest first: every
- * finished workout, plus unfinished ones with logged activity time. The minutes
- * add up to minutesExercised.
+ * This week's workouts that count toward minutes exercised (any with a timed
+ * duration), newest first. The minutes add up to minutesExercised.
  */
 export async function weekWorkouts(db: WorkoutDB, today: string): Promise<WeekWorkout[]> {
   const { from, to } = await weekRange(db, today);
   const all = await db.sessions.where('date').between(from, to, true, true).toArray();
-  const activity = await activitySecondsBySession(db, all);
+  const counted = await countedBySession(db, all);
   return all
-    .filter((s) => s.finishedAt !== null || (activity.get(s.id) ?? 0) > 0)
+    .filter((s) => (counted.get(s.id) ?? 0) > 0)
     .sort((a, b) => (a.date === b.date ? b.startedAt - a.startedAt : a.date < b.date ? 1 : -1))
     .map((s) => ({
       sessionId: s.id,
       date: s.date,
       name: s.planName,
-      minutes: Math.round(workoutMs(s, activity.get(s.id) ?? 0) / 60_000),
+      minutes: Math.round((counted.get(s.id) ?? 0) / 60_000),
       finished: s.finishedAt !== null,
     }));
 }

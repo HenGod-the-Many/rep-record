@@ -4,3 +4,6 @@ dev-dist/
 *.tsbuildinfo
 .env*
 screenshots-tmp/
+
+# Backup files hold personal data: never commit them
+rep-record-backup-*.json

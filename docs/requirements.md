@@ -243,12 +243,12 @@ Added 2026-11-25 from Taylor's answer on minutes exercised. Spec W-25 approved b
 
 | Requirement | Priority | Method | Item | Status | Evidence |
 |---|---|---|---|---|---|
-| R-17.1 Start workout starts a timer shown on the logging screen; it can be paused and resumed, and paused time is not counted | should | Test, Demonstration | W-25 | planned | |
-| R-17.2 The timer stops at the last target set's tick and runs on if more sets are logged; the workout ends at the last tick | should | Test, Demonstration | W-25 | planned | |
-| R-17.3 Each exercise gets the time before its own ticks (3 s per rep for its first set), so alternating supersets and exercises added mid-workout are timed correctly | should | Test | W-25 | planned | |
-| R-17.4 Exercise history shows an average time; workouts show about N min, from the last 5 times | should | Test, Demonstration | W-25 | planned | |
-| R-17.5 Minutes exercised uses the timed workout duration | should | Test | W-25 | planned | |
-| R-17.6 Edit screens save as you change, except where a button is better (listed in the W-25 spec) | should | Demonstration | W-25 | planned | |
+| R-17.1 Start workout starts a timer shown on the logging screen; it can be paused and resumed, and paused time is not counted | should | Test, Demonstration | W-25 | verified | #58; src/db/timer.test.ts; docs/evidence/w25/timer-*.jpg; final W-25 review (acceptance-reviewer, 2026-11-27): Met. Not seen on the iPhone |
+| R-17.2 The timer stops at the last target set's tick and runs on if more sets are logged; the workout ends at the last tick | should | Test, Demonstration | W-25 | verified | #56, #58; timing.test.ts, timer.test.ts; timer-stopped-*.jpg; final W-25 review (acceptance-reviewer, 2026-11-27): Met |
+| R-17.3 Each exercise gets the time before its own ticks (3 s per rep for its first set), so alternating supersets and exercises added mid-workout are timed correctly | should | Test | W-25 | verified | #56, #57; src/db/timing.test.ts known answers; checked on Taylor's backup; final W-25 review (acceptance-reviewer, 2026-11-27): Met |
+| R-17.4 Exercise history shows an average time; workouts show about N min, from the last 5 times | should | Test, Demonstration | W-25 | verified | #60; src/db/averages.test.ts; history-average-*, home-about-min-*, library-about-min-*.jpg; final W-25 review (acceptance-reviewer, 2026-11-27): Met |
+| R-17.5 Minutes exercised uses the timed workout duration | should | Test | W-25 | verified | #60; home.test.ts (four old-rule tests rewritten, as R-17.5 replaces that rule); final W-25 review (acceptance-reviewer, 2026-11-27): Met |
+| R-17.6 Edit screens save as you change, except where a button is better (listed in the W-25 spec) | should | Demonstration | W-25 | built | #62 and the warm-up move fix in the W-25 finish PR; browser demonstration by the author (exercise edit, renames, superset, warm-up move); re-check: the warm-up fix met, but a change still in a box could be lost when the editor closes; guarded in cfcc580 (not re-reviewed; this browser cannot show the gap). Not seen on the iPhone |
 
 Totals: 31 must, 49 should, 2 could, 1 later.
 

@@ -4,11 +4,13 @@ import { db, type Folder, type Plan } from '../db/db';
 import { createPlan } from '../db/plans';
 import { createFolder, deleteFolder, duplicateFolder, listFolders, moveFolder, plansInFolder, renameFolder } from '../db/folders';
 import { navigate } from '../router';
-import { attempt, ErrorText } from './common';
+import { attempt, ErrorText, RenameField } from './common';
 import { MoreMenu } from '../ui/components';
 import { LibraryTop } from './Library';
+import { aboutMinutes, workoutAverages } from '../db/averages';
+import { todayLocal } from '../db/dates';
 
-type Counted = Plan & { count: number };
+type Counted = Plan & { count: number; averageMs?: number };
 
 /** Folders left open, kept while the app runs so coming back from a plan keeps them open. */
 const openFolders: Record<string, boolean> = {};
@@ -16,9 +18,10 @@ const openFolders: Record<string, boolean> = {};
 export function PlanList() {
   const data = useLiveQuery(async () => {
     const [folders, entries] = await Promise.all([listFolders(db), db.planExercises.toArray()]);
+    const averages = await workoutAverages(db, todayLocal());
     const counts = new Map<string, number>();
     for (const e of entries) counts.set(e.planId, (counts.get(e.planId) ?? 0) + 1);
-    const withCount = (ps: Plan[]): Counted[] => ps.map((p) => ({ ...p, count: counts.get(p.id) ?? 0 }));
+    const withCount = (ps: Plan[]): Counted[] => ps.map((p) => ({ ...p, count: counts.get(p.id) ?? 0, averageMs: averages.get(p.id) }));
     const inFolders = await Promise.all(folders.map(async (f) => ({ folder: f, plans: withCount(await plansInFolder(db, f.id)) })));
     return { inFolders, loose: withCount(await plansInFolder(db, null)) };
   }, []);
@@ -91,6 +94,7 @@ function PlanRows({ plans }: { plans: Counted[] }) {
             <span className="row-main">{p.name}</span>
             <span className="row-sub">
               {p.count} exercise{p.count === 1 ? '' : 's'}
+              {p.averageMs !== undefined ? ` · ${aboutMinutes(p.averageMs)}` : ''}
             </span>
           </button>
         </li>
@@ -122,9 +126,6 @@ function FolderGroup(props: {
     let id = '';
     if (await run(async () => { id = await duplicateFolder(db, folder.id); })) props.onOpenCopy(id);
   };
-  const saveName = async () => {
-    if (renaming !== null && (await run(() => renameFolder(db, folder.id, renaming)))) setRenaming(null);
-  };
 
   return (
     <section className={`card folder${open ? ' open' : ''}`}>
@@ -143,11 +144,7 @@ function FolderGroup(props: {
             <PlanRows plans={plans} />
           )}
           {renaming !== null ? (
-            <div className="inline-form">
-              <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="Folder name" autoFocus />
-              <button className="btn-primary" onClick={saveName}>Save</button>
-              <button className="btn-secondary" onClick={() => setRenaming(null)}>Cancel</button>
-            </div>
+            <RenameField label="Folder name" initial={renaming} onSave={(n) => renameFolder(db, folder.id, n)} onClose={() => setRenaming(null)} onError={setError} />
           ) : (
             <div className="folder-actions">
               <MoreMenu
