@@ -7,7 +7,7 @@ Newest first.
 - Taylor approved the W-22 spec with all six defaults.
 - Slice 1 built on `feature/w22-prediction-model` (not merged): `paceFrom`, `slotMs`, `predictWorkout`, `timeLeftMs` in `src/db/timing.ts`; 13 known-answer tests, seen failing first; `npm run check` 347 pass; `--predict` added to the report script.
 - On Taylor's backup: Push +11% (forgotten tick), Pull +44%, over the spec's 25% stop line. Cause: Pull shares no exercises with Push, the only other timed workout, so it used the never-done estimate (2½ min per set against a real 1:18). Taylor's own average per set (2:17, from Push) still gives +32%. Details in the spec under "Slice 1 result".
-- Stopped and asked Taylor: build on and re-check once workouts repeat, or wait for more logged workouts first.
+- Stopped and asked Taylor: build on and re-check once workouts repeat, or wait for more logged workouts first. Taylor: "Build, re-check later".
 
 ## 2026-11-28 (end): W-22 spec drafted
 

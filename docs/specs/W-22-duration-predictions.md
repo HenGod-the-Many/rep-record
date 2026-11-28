@@ -80,7 +80,9 @@ real pace was 1:18). Using Taylor's own Push average per set instead (2:17)
 still gives 80:32 (+32%): Push is slower work than Pull. With one other workout
 and no shared exercises, no average predicts Pull well. The model can only be
 judged when a workout is predicted from earlier runs of the same workout.
-Stopped and asked Taylor.
+Stopped and asked Taylor. **Taylor, 2026-11-28: "Build, re-check later."**
+Build the screens; re-run `--predict` once workouts have repeated (the 25% stop
+line applies to that re-check, not to this one).
 
 ## Slices
 
