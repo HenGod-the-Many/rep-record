@@ -8,7 +8,7 @@ import type { Unit } from '../db/units';
 import { dateOfCopy, saveCopyAsNewPlan, updatePlanEverywhere } from '../db/reschedule';
 import { formatDate } from '../db/dates';
 import { navigate } from '../router';
-import { attempt, ErrorText, Header, RoundsStepper } from './common';
+import { attempt, ErrorText, Header, RenameField, RoundsStepper } from './common';
 import { Icon } from '../ui/icons';
 import { MoreMenu } from '../ui/components';
 import { getUnit } from '../db/units';
@@ -71,10 +71,6 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
     if (await attempt(() => saveCopyAsNewPlan(db, planId, newName), setError)) setKeeping(false);
   };
 
-  const saveName = async () => {
-    if (renaming === null) return;
-    if (await attempt(() => renamePlan(db, planId, renaming), setError)) setRenaming(null);
-  };
 
   const duplicate = async () => {
     const id = await duplicatePlan(db, planId);
@@ -135,11 +131,7 @@ export function PlanDetail({ planId, backTo }: { planId: string; backTo?: string
       <PlanWarmupChoice planId={plan.id} value={plan.warmupId} />
       {!plan.hidden && <PlanFolderChoice planId={plan.id} value={plan.folderId} />}
       {renaming === null ? null : (
-        <div className="inline-form">
-          <input value={renaming} onChange={(e) => setRenaming(e.target.value)} aria-label="Workout name" autoFocus />
-          <button className="btn-primary" onClick={saveName}>Save</button>
-          <button className="btn-secondary" onClick={() => { setRenaming(null); setError(null); }}>Cancel</button>
-        </div>
+        <RenameField label="Workout name" initial={renaming} onSave={(n) => renamePlan(db, planId, n)} onClose={() => setRenaming(null)} onError={setError} />
       )}
       <ErrorText message={error} />
 
@@ -297,12 +289,18 @@ function GroupEditor(props: { planId: string; groupKey: string; kind: GroupKind;
   const run = async (fn: () => Promise<unknown>) => {
     if (await attempt(fn, setError)) props.onDone();
   };
+  // Kind and rounds change at once (W-25, R-17.6); each change is small and easy to undo.
+  const change = async (k: GroupKind, r: number) => {
+    setKind(k);
+    setRounds(r);
+    await attempt(() => setGroup(db, props.planId, props.groupKey, k, r), setError);
+  };
   return (
     <div className="group-editor">
-      <KindChoice value={kind} onChange={setKind} />
-      <RoundsStepper value={rounds} onChange={setRounds} />
+      <KindChoice value={kind} onChange={(k) => void change(k, rounds)} />
+      <RoundsStepper value={rounds} onChange={(r) => void change(kind, r)} />
       <div className="button-row">
-        <button className="btn-primary" onClick={() => run(() => setGroup(db, props.planId, props.groupKey, kind, rounds))}>Save</button>
+        <button className="btn-primary" onClick={props.onDone}>Done</button>
         <button className="btn-secondary" onClick={() => run(() => ungroup(db, props.planId, props.groupKey))}>Ungroup</button>
       </div>
       <ul className="mini-list">

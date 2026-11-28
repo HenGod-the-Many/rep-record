@@ -62,8 +62,11 @@ So timing works for past workouts too, not only new ones.
 | Edit a body-metric entry (date and value) | Save | **Keeps Save** | Date and value are changed together; half an edit (new date on a taken day) is refused |
 | Add a body-metric entry, quick bodyweight, new exercise, new workout, "Save as new workout" | Save / Create | **Keep their button** | These create something; a button says when it exists |
 
-No screen needs a button for speed: every save is one small database write,
-and typed boxes save 0.7 s after typing stops, or when the screen closes.
+No screen needs a button for speed: every save is one small database write.
+Renames and the exercise form save when a box is left (or Enter is pressed),
+and any change still in a box is saved when the screen closes; other typed
+boxes save 0.7 s after typing stops. (Wording corrected after slice 4's review
+to match what was built; the table rows are unchanged.)
 
 ## Out of scope
 
