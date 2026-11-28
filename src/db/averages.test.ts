@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { SetPart, WorkoutDB } from './db';
-import { exerciseAverageMs, workoutAverages } from './averages';
+import { averageFor, exerciseAverageMs, workoutAverages } from './averages';
 import { logSet, startOrResume } from './logging';
 import { exerciseId, freshDb, planId } from '../test/helpers';
 
@@ -71,6 +71,9 @@ describe("A workout's average time, \"about N min\" (R-17.4)", () => {
     await workout(db, '2026-11-20', [['Bench press', 5], ['Bench press', 10]], { plan: copy });
     const avg = await workoutAverages(db, TODAY);
     expect(avg.get(push)).toBe(10 * MIN);
+    // Home looks up today's workout, which may be the copy itself: it finds the same average.
+    expect(averageFor(avg, await db.plans.get(copy))).toBe(10 * MIN);
+    expect(averageFor(avg, await db.plans.get(push))).toBe(10 * MIN);
   });
 
   it('has no entry for a workout never done', async () => {

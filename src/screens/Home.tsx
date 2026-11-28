@@ -4,7 +4,7 @@ import { db } from '../db/db';
 import { formatDate, timeLabel } from '../db/dates';
 import { findSession, startOrResume } from '../db/logging';
 import { getEntries } from '../db/plans';
-import { aboutMinutes, workoutAverages } from '../db/averages';
+import { aboutMinutes, averageFor, workoutAverages } from '../db/averages';
 import { resolveDate } from '../db/schedule';
 import { entryOn, parseShown, saveEntry } from '../db/body';
 import { navigate } from '../router';
@@ -88,7 +88,7 @@ export function Home({ today }: { today: string }) {
           name={next.plan?.name ?? 'Deleted workout'}
           facts={[
             next.session ? `${next.setCount} ${next.setCount === 1 ? 'set' : 'sets'} logged` : `${next.exerciseCount} ${next.exerciseCount === 1 ? 'exercise' : 'exercises'}`,
-            averages.has(next.planId) ? aboutMinutes(averages.get(next.planId)!) : null,
+            averageFor(averages, next.plan) !== undefined ? aboutMinutes(averageFor(averages, next.plan)!) : null,
           ].filter(Boolean).join(' · ')}
         >
           <MainAction onClick={() => start(next)} disabled={!next.plan}>

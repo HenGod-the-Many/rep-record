@@ -1,4 +1,4 @@
-import type { Session, SetLog, WorkoutDB } from './db';
+import type { Plan, Session, SetLog, WorkoutDB } from './db';
 import { averageMs, countedMs, exerciseTimes, type KindOf } from './timing';
 
 /**
@@ -54,4 +54,10 @@ export async function workoutAverages(db: WorkoutDB, today: string): Promise<Map
 /** "about 42 min" (at least 1 min). */
 export function aboutMinutes(ms: number): string {
   return `about ${Math.max(1, Math.round(ms / 60_000))} min`;
+}
+
+/** The average for a plan, looking through a one-date copy to the workout it was copied from. */
+export function averageFor(averages: Map<string, number>, plan: Pick<Plan, 'id' | 'hidden' | 'sourcePlanId'> | undefined): number | undefined {
+  if (!plan) return undefined;
+  return averages.get(plan.hidden && plan.sourcePlanId ? plan.sourcePlanId : plan.id);
 }
