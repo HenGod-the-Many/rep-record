@@ -58,21 +58,60 @@ describe('Home: new PRs this week (R-16.4)', () => {
   });
 });
 
-describe('Home: minutes exercised this week (R-16.4)', () => {
-  it('finish minus start for each finished workout, capped at 4 hours; open workouts without activities count 0', async () => {
+/**
+ * A workout timed by its ticks (W-25): started at 08:00 on `date`, one set ticked
+ * at each of `ticks` minutes after Start, finished at `finish` minutes (or never).
+ */
+async function timed(db: WorkoutDB, date: string, ticks: number[], opts: { finish?: number | null; run?: [number, number] } = {}) {
+  const s = await startOrResume(db, { date, planId: await planId(db, 'Push'), time: 'morning', plannedTimes: ['morning', 'evening'] });
+  const start = Date.parse(`${date}T08:00:00`);
+  const bench = await exerciseId(db, 'Bench press');
+  let n = 0;
+  for (const m of ticks) {
+    const id = await logSet(db, { sessionId: s, exerciseId: bench, planExerciseId: null, setNumber: ++n, parts: [w(135, 5)] });
+    await db.setLogs.update(id, { loggedAt: start + m * MIN });
+  }
+  if (opts.run) {
+    let ex = await db.exercises.filter((e) => e.name === 'Rock climbing').first();
+    const exId = ex ? ex.id : await createExercise(db, { name: 'Rock climbing', muscleGroup: 'Cardio', equipment: '', kind: 'activity', hasDistance: false });
+    ex = undefined;
+    const [atMin, minutes] = opts.run;
+    await logActivity(db, { sessionId: s, exerciseId: exId, planExerciseId: null, seconds: minutes * 60, distanceMi: null });
+    const log = (await db.setLogs.where('sessionId').equals(s).toArray()).find((l) => l.exerciseId === exId)!;
+    await db.setLogs.update(log.id, { loggedAt: start + atMin * MIN });
+  }
+  await db.sessions.update(s, { startedAt: start, finishedAt: opts.finish == null ? null : start + opts.finish * MIN });
+  return s;
+}
+
+// Replaced in W-25 (R-17.5): minutes used to be Start to Finish; they are now the timed duration.
+describe('Home: minutes exercised this week use the timer (R-17.5)', () => {
+  it('each workout counts Start to its last tick, not to Finish; last week does not count', async () => {
     const db = await freshDb();
-    await workout(db, '2026-11-16', [['Bench press', [w(135, 5)]]], { minutes: 50 });
-    await workout(db, '2026-11-17', [['Bench press', [w(135, 5)]]], { minutes: 400 }); // left running: capped at 240
-    await workout(db, '2026-11-18', [['Bench press', [w(135, 5)]]], { finish: false });
-    await workout(db, '2026-11-12', [['Bench press', [w(135, 5)]]], { minutes: 60 }); // last week
-    expect(await minutesExercised(db, TODAY)).toBe(290);
+    await timed(db, '2026-11-16', [5, 20, 35, 50], { finish: 80 }); // 50, not 80
+    await timed(db, '2026-11-18', [4, 10], { finish: null }); // never finished: still 10
+    await timed(db, '2026-11-12', [5, 60], { finish: 60 }); // last week
+    expect(await minutesExercised(db, TODAY)).toBe(60);
   });
 
-  it('adds logged activities, without counting an activity twice when it sits inside a timed workout', async () => {
+  it('a forgotten tick caught up at Finish counts at most 15 minutes', async () => {
     const db = await freshDb();
-    await activity(db, '2026-11-16', 30); // activity-only, never finished: its 30 minutes
-    await activity(db, '2026-11-18', 40, true); // finished after 5 minutes, but the activity says 40: 40
-    expect(await minutesExercised(db, TODAY)).toBe(70);
+    await timed(db, '2026-11-16', [4, 8, 68], { finish: 68 }); // 4 + 4 + 15
+    expect(await minutesExercised(db, TODAY)).toBe(23);
+  });
+
+  it('a workout with no ticks counts Start to Finish; one left open with none counts 0', async () => {
+    const db = await freshDb();
+    await timed(db, '2026-11-16', [], { finish: 45 });
+    await timed(db, '2026-11-17', [], { finish: null });
+    expect(await minutesExercised(db, TODAY)).toBe(45);
+  });
+
+  it('an activity inside a workout is inside its time; an activity-only workout never finished counts the activity', async () => {
+    const db = await freshDb();
+    await timed(db, '2026-11-16', [2], { finish: 40, run: [32, 30] }); // Start to the run's tick: 32
+    await timed(db, '2026-11-18', [], { finish: null, run: [120, 30] }); // activity only, open: 30
+    expect(await minutesExercised(db, TODAY)).toBe(62);
   });
 });
 
@@ -154,23 +193,25 @@ describe('Home: plan adherence (R-16.4)', () => {
 });
 
 describe('Progress: this week in detail (R-16.4, R-16.6)', () => {
-  it("lists this week's finished workouts, newest first, with their minutes", async () => {
+  // Replaced in W-25 (R-17.5): the list uses the timed duration, like minutes exercised.
+  it("lists this week's timed workouts, newest first, with their timed minutes", async () => {
     const db = await freshDb();
-    const a = await workout(db, '2026-11-16', [['Bench press', [w(135, 5)]]], { minutes: 50 });
-    const b = await workout(db, '2026-11-18', [['Bench press', [w(135, 5)]]], { minutes: 300 });
-    await workout(db, '2026-11-17', [['Bench press', [w(135, 5)]]], { finish: false }); // open: not listed
-    await workout(db, '2026-11-12', [['Bench press', [w(135, 5)]]]); // last week
+    const a = await timed(db, '2026-11-16', [5, 20, 35, 50], { finish: 70 });
+    const b = await timed(db, '2026-11-18', [3, 15, 30], { finish: 31 });
+    await timed(db, '2026-11-17', [], { finish: null }); // open, nothing ticked: not listed
+    await timed(db, '2026-11-12', [5, 40], { finish: 40 }); // last week
     const list = await weekWorkouts(db, TODAY);
-    expect(list.map((x) => [x.sessionId, x.date, x.minutes])).toEqual([[b, '2026-11-18', 240], [a, '2026-11-16', 50]]);
+    expect(list.map((x) => [x.sessionId, x.date, x.minutes])).toEqual([[b, '2026-11-18', 30], [a, '2026-11-16', 50]]);
     expect(list[0].name).toBe('Push');
   });
 
-  it('also lists an unfinished workout with activity time, so the list adds up to minutes exercised', async () => {
+  it('also lists unfinished workouts that have a timed duration, so the list adds up to minutes exercised', async () => {
     const db = await freshDb();
-    await workout(db, '2026-11-16', [['Bench press', [w(135, 5)]]], { minutes: 50 });
-    const run = await activity(db, '2026-11-17', 30); // never finished
+    await timed(db, '2026-11-16', [5, 20, 35, 50], { finish: 70 });
+    const open = await timed(db, '2026-11-17', [4, 12, 20], { finish: null });
+    const run = await timed(db, '2026-11-18', [], { finish: null, run: [60, 30] });
     const list = await weekWorkouts(db, TODAY);
-    expect(list.map((x) => [x.sessionId, x.minutes, x.finished])).toEqual([[run, 30, false], [expect.any(String), 50, true]]);
+    expect(list.map((x) => [x.sessionId, x.minutes, x.finished])).toEqual([[run, 30, false], [open, 20, false], [expect.any(String), 50, true]]);
     expect(list.reduce((n, x) => n + x.minutes, 0)).toBe(await minutesExercised(db, TODAY));
   });
 

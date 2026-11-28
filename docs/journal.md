@@ -2,6 +2,15 @@
 
 Newest first.
 
+## 2026-11-27 (night): W-25 slice 3 (averages, minutes from the timer); hotfix for the tab bar
+
+- **Slice 3 built:** `src/db/averages.ts`. An exercise's average time per workout (keyed on the exercise) and each workout's average timed duration, over the last 5, leaving out a workout still in progress today; one-date copies count toward their original. Shown as "Average time" on exercise history, and "about N min" on Home's workout card and the Library's workout rows. Home's and Progress's minutes exercised now use the timing model (R-17.5).
+- **Tests rewritten, said plainly:** four tests in `home.test.ts` checked the W-20 minutes rule (Start to Finish), which R-17.5 replaces. They were rewritten for the timer rule. The new ones fail against the old code (5 failures) and pass on the new. The reviewer judged this a real requirement change, not a loosening, but noted the spec line "every existing test passes unchanged" is not met word for word: Taylor's call.
+- **Review:** accept after one fix. Home showed no "about N min" for a workout edited for one date (it looked up the copy's id). Fixed with `averageFor`; the new assertion was seen failing with the old lookup.
+- **Browser (dev data):** Library "Pull · 7 exercises · about 4 min"; Home "3 sets logged · about 4 min"; Bench press history "Average time · about 1 min"; Home minutes 33 (the old rule gave 50 on the same data).
+- **Hotfix (Taylor, during today's workout):** the tab bar got stuck mid-screen on the iPhone and covered the exercise buttons. Cause: a `position: fixed` bar on a scrolling page, which iPhone Safari leaves stuck after the keyboard closes. Fix: the page no longer scrolls, only the content area does, and the tab bar is the last row of the layout (`src/styles.css` only). Reviewed: Accept. PR #59 to main is open and waits for Taylor's OK to release as v0.9.1. Not testable off the iPhone.
+- **Permissions:** Taylor asked for fewer approval prompts. I cannot change my own permission settings; pointed Taylor to `/permissions` and `/fewer-permission-prompts`. Most prompts came from working outside the project folder (the hotfix worktree); stay inside it.
+
 ## 2026-11-27 (evening): W-25 slice 2, the timer on the logging screen
 
 - **Built:** a timer pinned to the top of the logging screen: running m:ss, Pause and Resume (saved with the workout as `pauses`; no database upgrade; backups carry them; older backups load). It stops by itself when every target set is ticked and shows Start to the last tick; an extra set moves it on. Finish closes an open pause.
