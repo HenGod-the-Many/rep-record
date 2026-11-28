@@ -52,7 +52,7 @@ Newest first.
 
 ### W-25: workout timer, exercise timing, save as you change
 
-- Delivered in: pull requests to `dev`: #56 timing model, #57 15-minute limit (Taylor's answer 9), #58 timer on the logging screen, #60 averages and minutes, #62 save as you change, and the finish PR (warm-up move edit, screenshots, records). Not released: v0.10.0 waits for Taylor's OK.
+- Delivered in: pull requests to `dev`: #56 timing model, #57 15-minute limit (Taylor's answer 9), #58 timer on the logging screen, #60 averages and minutes, #62 save as you change, and #63 finish (warm-up move edit, screenshots, records). Released as v0.10.0 on Taylor's OK (#64, tag v0.10.0, deployed 2026-11-28).
 - Result:
   - **Timer** at the top of the logging screen: runs from Start, Pause/Resume, stops by itself at the last target set, moves on after an extra set. With no set ticked for 15 minutes it holds ("Held: no set for 15 min").
   - **Times** per set and exercise from tick times (3 s per rep for an exercise's first set, at most 5 min a set, at most 15 min between ticks toward the workout). Supersets and added exercises work.

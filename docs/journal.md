@@ -2,6 +2,11 @@
 
 Newest first.
 
+## 2026-11-28 (later): v0.10.0 released
+
+- Taylor: "Yes, release". Release PR #64 (dev into main, merge commit 08843df); tag v0.10.0 pushed. The GitHub Pages deploy succeeded, and the live bundle contains "Stopped at the last set", "Held: no set for 15 min" and "last 5 workouts".
+- Not verified on the iPhone: the W-25 acceptance script is Taylor's.
+
 ## 2026-11-28: W-25 finished (slices 4 and 5), v0.9.1 released
 
 - **v0.9.1 released** on Taylor's OK: the tab bar hotfix (#59 merged into main, tag v0.9.1, deploy succeeded; the live stylesheet has the new layout). main synced into dev (#61).
