@@ -4,6 +4,7 @@ import { db } from '../db/db';
 import { formatDate, timeLabel } from '../db/dates';
 import { findSession, startOrResume } from '../db/logging';
 import { getEntries } from '../db/plans';
+import { aboutMinutes, workoutAverages } from '../db/averages';
 import { resolveDate } from '../db/schedule';
 import { entryOn, parseShown, saveEntry } from '../db/body';
 import { navigate } from '../router';
@@ -37,7 +38,7 @@ export function Home({ today }: { today: string }) {
         };
       }),
     );
-    return { day, workouts };
+    return { day, workouts, averages: await workoutAverages(db, today) };
   }, [today]);
   const week = useWeekNumbers(today);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +48,7 @@ export function Home({ today }: { today: string }) {
   const gear = <IconButton icon="gear" label="Settings" onClick={() => navigate('/settings')} />;
   const title = <LargeTitle context={formatDate(today)} title="Today" action={gear} />;
   if (!data || !week) return <div className="screen">{title}</div>;
-  const { day, workouts } = data;
+  const { day, workouts, averages } = data;
   const { unit } = week;
   const editToday = () => navigate(`/day/${today}?back=${encodeURIComponent('/today')}`);
   const toProgress = (t: WeekTarget) => navigate(`/body?focus=${t}`);
@@ -85,7 +86,10 @@ export function Home({ today }: { today: string }) {
         <HeroCard
           context={`${timeLabel(next.time)}${workouts.length > 1 ? ` · ${workouts.indexOf(next) + 1} of ${workouts.length}` : ''}`}
           name={next.plan?.name ?? 'Deleted workout'}
-          facts={next.session ? `${next.setCount} ${next.setCount === 1 ? 'set' : 'sets'} logged` : `${next.exerciseCount} ${next.exerciseCount === 1 ? 'exercise' : 'exercises'}`}
+          facts={[
+            next.session ? `${next.setCount} ${next.setCount === 1 ? 'set' : 'sets'} logged` : `${next.exerciseCount} ${next.exerciseCount === 1 ? 'exercise' : 'exercises'}`,
+            averages.has(next.planId) ? aboutMinutes(averages.get(next.planId)!) : null,
+          ].filter(Boolean).join(' · ')}
         >
           <MainAction onClick={() => start(next)} disabled={!next.plan}>
             {next.session ? 'Resume workout' : 'Start workout'}

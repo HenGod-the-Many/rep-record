@@ -10,6 +10,7 @@ import { LineChart, type Point } from './LineChart';
 import { partsText } from './LogWorkout';
 import { caloriesFor, formatDistance, formatDuration, paceOrSpeed } from '../db/activities';
 import type { SetLog } from '../db/db';
+import { aboutMinutes, exerciseAverageMs } from '../db/averages';
 
 /** Typed calories, or the estimate marked as such. Nothing when there is no bodyweight yet. */
 function ActivityCalories({ log, exerciseId, date }: { log: SetLog; exerciseId: string; date: string }) {
@@ -53,7 +54,7 @@ export function History({ exerciseId, back }: { exerciseId: string; back: string
   const data = useLiveQuery(async () => {
     const exercise = await db.exercises.get(exerciseId);
     if (!exercise) return null;
-    return { exercise, history: await exerciseHistory(db, exerciseId), unit: await getUnit(db) };
+    return { exercise, history: await exerciseHistory(db, exerciseId), unit: await getUnit(db), averageMs: await exerciseAverageMs(db, exerciseId, todayLocal()) };
   }, [exerciseId]);
   const [all, setAll] = useState(false);
   const summary = useMemo(
@@ -70,7 +71,7 @@ export function History({ exerciseId, back }: { exerciseId: string; back: string
       </div>
     );
   }
-  const { exercise, history, unit } = data;
+  const { exercise, history, unit, averageMs } = data;
   const kind = exercise.kind;
   const { r, points } = summary!;
   const from = addDays(todayLocal(), -91);
@@ -98,6 +99,13 @@ export function History({ exerciseId, back }: { exerciseId: string; back: string
               </>
             )}
             {kind === 'timed' && <MarkLine label="Longest hold" mark={r.longest} text={(m) => `${m.value} s`} />}
+            {averageMs !== null && (
+              <div className="record">
+                <span className="muted">Average time</span>
+                <strong>{aboutMinutes(averageMs)}</strong>
+                <span className="muted small-print">last 5 workouts</span>
+              </div>
+            )}
             {kind === 'activity' && (
               <>
                 {exercise.hasDistance && <MarkLine label="Longest distance" mark={r.longestDistance} text={(m) => formatDistance(m.value, unit)} />}
