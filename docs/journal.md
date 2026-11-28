@@ -2,6 +2,14 @@
 
 Newest first.
 
+## 2026-11-27 (evening): W-25 slice 2, the timer on the logging screen
+
+- **Built:** a timer pinned to the top of the logging screen: running m:ss, Pause and Resume (saved with the workout as `pauses`; no database upgrade; backups carry them; older backups load). It stops by itself when every target set is ticked and shows Start to the last tick; an extra set moves it on. Finish closes an open pause.
+- **Held after 15 minutes:** with no tick for 15 minutes the clock holds, labelled "Held: no set for 15 min", so it never shows more than will be counted (answer 9). Found in the browser: a running clock that did not move looked broken without the label.
+- **Checks:** 11 new tests (seen failing first); `npm run check` 325 pass. In the browser at phone size: pause froze the clock; ticking the last target set gave "Stopped at the last set: 20:20" with no Pause button; an extra set moved it to 20:54.
+- **Review:** acceptance-reviewer: Accept, no must-fix. Its suggestion fixed before merging: if the workout was paused when the last target set was ticked, Resume was hidden; it now stays. Checked in the browser.
+- **For Taylor:** sets ticked while paused do not count toward the workout's time. Should ticking a set resume the timer by itself? (Changes how logging behaves, so not done without a yes.)
+
 ## 2026-11-27 (later): W-25 unblocked by Taylor's backup; 15-minute limit between ticks
 
 - **Real data:** Taylor sent a backup (3 workouts, 41 sets; the file stays out of the repo). `node scripts/timing-report.mjs` gave per-set times of about 1 to 4 minutes within an exercise; Pull (25 Nov) 60:52 against 61:02 start to Finish.

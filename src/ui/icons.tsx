@@ -5,7 +5,7 @@
  */
 export type IconName =
   | 'home' | 'calendar' | 'library' | 'progress' | 'gear' | 'play' | 'plus' | 'minus' | 'check'
-  | 'more' | 'chevron-right' | 'chevron-left' | 'bin' | 'arrow-up' | 'arrow-down' | 'drag' | 'search' | 'close';
+  | 'more' | 'chevron-right' | 'chevron-left' | 'bin' | 'arrow-up' | 'arrow-down' | 'drag' | 'search' | 'close' | 'pause';
 
 const PATHS: Record<IconName, string> = {
   home: 'M3 10.5 12 3l9 7.5M5.5 9v11h13V9M10 20v-6h4v6',
@@ -26,6 +26,7 @@ const PATHS: Record<IconName, string> = {
   drag: 'M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01',
   search: 'M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.5 15.5 20 20',
   close: 'M6 6l12 12M18 6 6 18',
+  pause: 'M8.5 5v14M15.5 5v14',
 };
 
 /** Dots read better as round dots with a heavier stroke. */
