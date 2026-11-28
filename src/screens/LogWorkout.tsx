@@ -295,7 +295,8 @@ function WorkoutTimer(props: { session: Session; logs: SetLog[]; exercises: Map<
         <span className="timer-label">{status}</span>
         <span className="timer-clock" aria-hidden="true">{clockText(ms)}</span>
       </div>
-      {!stopped && (
+      {/* Resume stays offered while paused, even once every target set is ticked. */}
+      {(!stopped || (paused && session.finishedAt === null)) && (
         <button
           className="btn-secondary timer-button"
           onClick={() => attempt(() => (paused ? resumeTimer(db, session.id) : pauseTimer(db, session.id)), props.onError)}
