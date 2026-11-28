@@ -47,6 +47,18 @@ describe('Pace from past workouts (R-17.7, R-17.8)', () => {
     expect(pace.perSetMs.get('bench')).toBe(105 * S);
   });
 
+  it('a past superset is one block: its members change as set time, and a workout predicts its own time', () => {
+    // Set-up 5 min; superset A/B: A 5:30, B 7:00, A 9:00, B 10:30; then C 15:00 and 17:00.
+    const sets = [set('a', 330), set('b', 420), set('a', 540), set('b', 630), set('c', 900), set('c', 1020)];
+    const blockOf = new Map([['a', 'g1'], ['b', 'g1'], ['c', 'c']]);
+    const pace = paceFrom([{ session: session(), sets, blockOf }], kindOf());
+    expect(pace.perSetMs.get('a')).toBe(75 * S); // 30 + 120
+    expect(pace.perSetMs.get('b')).toBe(90 * S); // the change from A is set time: 90 + 90
+    expect(pace.betweenMs).toBe(240 * S); // one change of block: 1020 - 300 - 480
+    const p = predictWorkout([[slot('a', 2), slot('b', 2)], [slot('c', 2)]], pace);
+    expect(p.totalMs).toBe(1020 * S);
+  });
+
   it('with no workouts at all: 5 min set-up and 3 min between exercises', () => {
     const pace = paceFrom([], kindOf());
     expect(pace.setupMs).toBe(5 * MIN);

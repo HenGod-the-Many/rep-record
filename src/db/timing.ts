@@ -57,8 +57,12 @@ function startOf(session: TimedSession, ordered: TimedSet[], kindOf: KindOf): nu
   return ordered[0].loggedAt - ownMs(ordered[0], kindOf(ordered[0].exerciseId));
 }
 
-/** Time given to each set, by set id. */
-export function setTimes(session: TimedSession, sets: TimedSet[], kindOf: KindOf): Map<string, number> {
+/**
+ * Time given to each set, by set id. `blockOf` (predictions only, W-22) maps an
+ * exercise to its superset or circuit: then only a block's first set gets the
+ * 3 s per rep rule, and a change between members counts as set time.
+ */
+export function setTimes(session: TimedSession, sets: TimedSet[], kindOf: KindOf, blockOf?: Map<string, string>): Map<string, number> {
   const out = new Map<string, number>();
   const ordered = byTick(sets);
   const seen = new Set<string>();
@@ -70,9 +74,9 @@ export function setTimes(session: TimedSession, sets: TimedSet[], kindOf: KindOf
     if (kind === 'activity') ms = ownMs(s, kind);
     else {
       ms = Math.min(gap, MAX_SET_MS);
-      if (!seen.has(s.exerciseId)) ms = Math.min(ms, ownMs(s, kind));
+      if (!seen.has(blockOf?.get(s.exerciseId) ?? s.exerciseId)) ms = Math.min(ms, ownMs(s, kind));
     }
-    seen.add(s.exerciseId);
+    seen.add(blockOf?.get(s.exerciseId) ?? s.exerciseId);
     out.set(s.id, ms);
     prev = Math.max(prev, s.loggedAt);
   }
@@ -80,8 +84,8 @@ export function setTimes(session: TimedSession, sets: TimedSet[], kindOf: KindOf
 }
 
 /** Time per exercise in this workout, by exercise id. */
-export function exerciseTimes(session: TimedSession, sets: TimedSet[], kindOf: KindOf): Map<string, number> {
-  const perSet = setTimes(session, sets, kindOf);
+export function exerciseTimes(session: TimedSession, sets: TimedSet[], kindOf: KindOf, blockOf?: Map<string, string>): Map<string, number> {
+  const perSet = setTimes(session, sets, kindOf, blockOf);
   const out = new Map<string, number>();
   for (const s of sets) out.set(s.exerciseId, (out.get(s.exerciseId) ?? 0) + (perSet.get(s.id) ?? 0));
   return out;
@@ -191,16 +195,16 @@ export interface PlannedSlot {
  * set began (at most 15 minutes). Between exercises: the workout's time left over
  * after set-up and every set, per change of exercise. Both over the newest 5.
  */
-export function paceFrom(newestFirst: { session: TimedSession; sets: TimedSet[] }[], kindOf: KindOf): Pace {
+export function paceFrom(newestFirst: { session: TimedSession; sets: TimedSet[]; blockOf?: Map<string, string> }[], kindOf: KindOf): Pace {
   const time = new Map<string, number>();
   const count = new Map<string, number>();
   const seen = new Map<string, number>();
   const setups: number[] = [];
   const betweens: number[] = [];
-  for (const { session, sets } of newestFirst) {
+  for (const { session, sets, blockOf } of newestFirst) {
     if (!sets.length) continue;
-    const perSet = setTimes(session, sets, kindOf);
-    const perEx = exerciseTimes(session, sets, kindOf);
+    const perSet = setTimes(session, sets, kindOf, blockOf);
+    const perEx = exerciseTimes(session, sets, kindOf, blockOf);
     for (const [ex, ms] of perEx) {
       if (kindOf(ex) === 'activity' || (seen.get(ex) ?? 0) >= AVERAGE_OF) continue;
       seen.set(ex, (seen.get(ex) ?? 0) + 1);
@@ -212,7 +216,8 @@ export function paceFrom(newestFirst: { session: TimedSession; sets: TimedSet[] 
     const first = ordered[0];
     const setup = Math.max(0, first.loggedAt - start - pausedMs(session.pauses, start, first.loggedAt) - (perSet.get(first.id) ?? 0));
     if (setups.length < AVERAGE_OF) setups.push(Math.min(setup, MAX_GAP_MS));
-    const exercises = perEx.size;
+    // Changes of exercise: a superset or circuit is one block.
+    const exercises = new Set([...perEx.keys()].map((ex) => blockOf?.get(ex) ?? ex)).size;
     if (exercises >= 2 && betweens.length < AVERAGE_OF) {
       const setsMs = [...perSet.values()].reduce((a, b) => a + b, 0);
       betweens.push(Math.max(0, workoutMs(session, sets, kindOf) - setup - setsMs) / (exercises - 1));
