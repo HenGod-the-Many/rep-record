@@ -2,6 +2,14 @@
 
 Newest first.
 
+## 2026-11-28: W-25 finished (slices 4 and 5), v0.9.1 released
+
+- **v0.9.1 released** on Taylor's OK: the tab bar hotfix (#59 merged into main, tag v0.9.1, deploy succeeded; the live stylesheet has the new layout). main synced into dev (#61).
+- **Slice 4, save as you change (#62):** exercise edit saves each box when it is left; a taken name shows its error under the box and keeps the old name; "Measured as" asks first when the exercise has logged sets. One shared rename box (workout, folder, program, warm-up, metric) saves on leaving it or Enter; Escape cancels. Superset kind and rounds change at once. The workout timer now sticks below the iPhone status bar. Review: Accept; its two suggestions done (a refused save also resets "Measured as"; the spec's 0.7 s sentence corrected to say renames and the exercise form save when a box is left).
+- **Slice 5:** screenshots in both modes (`docs/evidence/w25/`). Final whole-W-25 review: accept after one fix. Editing a warm-up move still had Save and Cancel and is not in the table; it now saves as you change (Done closes it). The re-check confirmed that, and found one more gap: a change still in a box could be lost if the editor closed without the box being left (iPhone). Guarded like the rename box (cfcc580). Chromium saves either way, so the browser could not show the gap; not re-reviewed, so R-17.6 stays built.
+- **Requirements:** R-17.1 to R-17.6 updated from the reviewers' verdicts. Queue: W-25 Awaiting owner.
+- **Open for Taylor:** release v0.10.0; whether ticking a set should resume a paused timer; renames have no Cancel on the phone.
+
 ## 2026-11-27 (night): W-25 slice 3 (averages, minutes from the timer); hotfix for the tab bar
 
 - **Slice 3 built:** `src/db/averages.ts`. An exercise's average time per workout (keyed on the exercise) and each workout's average timed duration, over the last 5, leaving out a workout still in progress today; one-date copies count toward their original. Shown as "Average time" on exercise history, and "about N min" on Home's workout card and the Library's workout rows. Home's and Progress's minutes exercised now use the timing model (R-17.5).

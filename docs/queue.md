@@ -43,12 +43,29 @@ block, and the Awaiting owner list. Requirement status lives in
 | 20 | W-21 | Progression predictions: when to add weight, the next weight, predicted 1-rep max | not yet | not yet | W-08 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. W-08 already estimates a 1-rep max per set; this adds a forecast from the trend |
 | 21 | W-22 | Duration predictions for a program, a workout and single exercises, from logged times | not yet | not yet | W-17 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. Needs per-set times; check what is logged today |
 | 22 | W-23 | Strength vs cardio balance, week over week and overall | not yet | not yet | W-15 | yes | Not ready | Pocketed by Taylor 2026-11-25 for later. Activities (W-15) are already stored apart from lifts |
-| 23b | W-25 | Workout timer: start/stop, auto-stop at the last set, time per exercise (supersets by tick times), averages; save as you change on the remaining edit screens | KF-17, R-17.1–R-17.6 | [W-25](specs/W-25-workout-timer.md) | W-20 | no | In progress | Asked by Taylor 2026-11-25 (minutes answer and saving answer); spec approved by Taylor 2026-11-25. Base for W-22 predictions. Blocked 2026-11-27 after slice 1 (#56): the spec says to check the timing model on the workouts already logged before building screens, and they are only on the phone. Backup received 2026-11-27; per-set times looked right; Taylor chose a 15-minute limit between ticks (answer 9) |
+| 23b | W-25 | Workout timer: start/stop, auto-stop at the last set, time per exercise (supersets by tick times), averages; save as you change on the remaining edit screens | KF-17, R-17.1–R-17.6 | [W-25](specs/W-25-workout-timer.md) | W-20 | no | Awaiting owner | Asked by Taylor 2026-11-25 (minutes answer and saving answer); spec approved by Taylor 2026-11-25. Base for W-22 predictions. Blocked 2026-11-27 after slice 1 (#56): the spec says to check the timing model on the workouts already logged before building screens, and they are only on the phone. Backup received 2026-11-27; per-set times looked right; Taylor chose a 15-minute limit between ticks (answer 9) |
 | 23 | W-24 | Recommendations: weak spots and improvements from the logs, short user surveys and other inputs | not yet | not yet | W-21, W-23 | no | Not ready | Pocketed by Taylor 2026-11-25 for later. Rules-based first; no backend, so no cloud AI unless Taylor decides otherwise |
 
 ## Awaiting owner
 
 Newest first.
+
+### W-25: workout timer, exercise timing, save as you change
+
+- Delivered in: pull requests to `dev`: #56 timing model, #57 15-minute limit (Taylor's answer 9), #58 timer on the logging screen, #60 averages and minutes, #62 save as you change, and the finish PR (warm-up move edit, screenshots, records). Not released: v0.10.0 waits for Taylor's OK.
+- Result:
+  - **Timer** at the top of the logging screen: runs from Start, Pause/Resume, stops by itself at the last target set, moves on after an extra set. With no set ticked for 15 minutes it holds ("Held: no set for 15 min").
+  - **Times** per set and exercise from tick times (3 s per rep for an exercise's first set, at most 5 min a set, at most 15 min between ticks toward the workout). Supersets and added exercises work.
+  - **Averages:** "Average time" on exercise history; "about N min" on Home's workout card and the Library's workout rows (last 5).
+  - **Minutes exercised** (Home, Progress) now come from the timer.
+  - **Save as you change:** exercise edit, renames (workout, folder, program, warm-up, metric), superset kind and rounds, warm-up moves. Cycle length, body-metric entry edit and create screens keep their button.
+- Evidence: `npm run check` 334 tests; Taylor's backup through `scripts/timing-report.mjs` (Push 24 Nov 69:14, Pull 25 Nov 60:52); screenshots in `docs/evidence/w25/`; acceptance-reviewer on every slice and a final whole-W-25 review (accept after one fix; the re-check found one more small gap, fixed, not re-reviewed: R-17.6 is built, R-17.1 to R-17.5 verified).
+- Not verified: anything on the iPhone.
+- Calls made for you:
+  - Four Home tests of the old minutes rule were rewritten, as R-17.5 replaces that rule (the spec also says "every existing test passes unchanged").
+  - Sets ticked while paused do not count. **Taylor to decide:** should ticking a set resume the timer?
+  - Rename boxes have no Cancel; on the phone, retype the old name to undo.
+- To accept: the acceptance script in `docs/specs/W-25-workout-timer.md`.
 
 ### W-20: UI redesign (Plate)
 
