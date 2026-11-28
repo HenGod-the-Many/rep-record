@@ -2,6 +2,17 @@
 
 Newest first.
 
+## 2026-11-28 (handoff): W-25 and two releases done; W-22 next
+
+- **State:** v0.9.1 (tab bar hotfix) and v0.10.0 (W-25) released and live; dev = main plus the release docs. `npm run check` on dev: 334 tests pass. No open pull requests, no leftover worktrees.
+- **Waiting on Taylor:** the W-25 acceptance script at tomorrow's workout; whether ticking a set should resume a paused timer; renames have no Cancel on the phone; an item to override derived times (not yet specced).
+- **Next:** Taylor asked for W-22 (duration predictions) to be specced in a fresh session; it builds on `src/db/timing.ts` and `src/db/averages.ts`.
+- **What tripped me up this session:**
+  - Appending to a CRLF file with a shell heredoc left mixed line endings, and the next exact-match edit failed. Edit through a Python script that normalises endings.
+  - A dev server run from a worktree under the scratchpad crashed: once on the short `TAYLOR~1` path (Vite's file watcher), once because `node_modules` was a junction. Serving the built app with `vite preview` worked. Working outside the project folder also caused many permission prompts that Taylor disliked: keep work inside the project.
+  - Chromium reports a box as left when it disappears, so it cannot reproduce the iPhone "tap Back mid-typing" case; such fixes can only be checked on the phone.
+- **Left alone (not mine):** the local branch `feature/foundation` and the remote branch `feature/w06-logging` from early work.
+
 ## 2026-11-28 (later): v0.10.0 released
 
 - Taylor: "Yes, release". Release PR #64 (dev into main, merge commit 08843df); tag v0.10.0 pushed. The GitHub Pages deploy succeeded, and the live bundle contains "Stopped at the last set", "Held: no set for 15 min" and "last 5 workouts".
